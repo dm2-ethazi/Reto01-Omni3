@@ -1,0 +1,164 @@
+name: r01-databases
+
+services:
+  # Gryffindor - Apache Derby
+  derby:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: r01-derby
+    working_dir: /data/derby
+    restart: unless-stopped
+    ports:
+      - "1527:1527"
+    volumes:
+      - derby_data:/data/derby
+      - derby_libs:/opt/derby
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        if [ ! -f /opt/derby/derbynet-10.17.1.0.jar ]; then
+          cat > /tmp/derby-pom.xml <<'EOF'
+        <project xmlns="http://maven.apache.org/POM/4.0.0">
+          <modelVersion>4.0.0</modelVersion>
+          <groupId>local.r01</groupId>
+          <artifactId>derby-runtime</artifactId>
+          <version>1.0.0</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.derby</groupId>
+              <artifactId>derbynet</artifactId>
+              <version>10.17.1.0</version>
+            </dependency>
+          </dependencies>
+        </project>
+        EOF
+          mvn -q -f /tmp/derby-pom.xml dependency:copy-dependencies \
+            -DoutputDirectory=/opt/derby \
+            -DincludeScope=runtime
+        fi
+        exec java -cp '/opt/derby/*' \
+          org.apache.derby.drda.NetworkServerControl start \
+          -h 0.0.0.0 -p 1527
+    networks:
+      - r01
+
+  # Slytherin - HSQLDB
+  hsqldb:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: r01-hsqldb
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    volumes:
+      - hsqldb_data:/data/hsqldb
+      - hsqldb_libs:/opt/hsqldb
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        if [ ! -f /opt/hsqldb/hsqldb.jar ]; then
+          mvn -q org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy \
+            -Dartifact=org.hsqldb:hsqldb:2.7.4 \
+            -DoutputDirectory=/opt/hsqldb \
+            -Dmdep.stripVersion=true
+        fi
+        exec java -cp /opt/hsqldb/hsqldb.jar org.hsqldb.server.Server \
+          --address 0.0.0.0 \
+          --port 9001 \
+          --database.0 file:/data/hsqldb/slytherin \
+          --dbname.0 slytherin
+    networks:
+      - r01
+
+  # Hufflepuff - H2
+  h2:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: r01-h2
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+    volumes:
+      - h2_data:/data/h2
+      - h2_libs:/opt/h2
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        if [ ! -f /opt/h2/h2.jar ]; then
+          mvn -q org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy \
+            -Dartifact=com.h2database:h2:2.5.252 \
+            -DoutputDirectory=/opt/h2 \
+            -Dmdep.stripVersion=true
+        fi
+        exec java -cp /opt/h2/h2.jar org.h2.tools.Server \
+          -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists \
+          -web -webAllowOthers -webPort 8082 \
+          -baseDir /data/h2
+    networks:
+      - r01
+
+  # Ravenclaw - Oracle Database Free
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: r01-oracle
+    restart: unless-stopped
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?Define ORACLE_PASSWORD in .env}
+      APP_USER: ${ORACLE_USER:-ravenclaw}
+      APP_USER_PASSWORD: ${ORACLE_USER_PASSWORD:?Define ORACLE_USER_PASSWORD in .env}
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - r01
+
+  # Central relational persistence - MariaDB
+  mariadb:
+    image: mariadb:11.8
+    container_name: r01-mariadb
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Define MARIADB_ROOT_PASSWORD in .env}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-r01_central}
+      MARIADB_USER: ${MARIADB_USER:-r01}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD in .env}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mariadb-admin ping -h 127.0.0.1 -u$${MARIADB_USER} -p$${MARIADB_PASSWORD} --silent",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - r01
+
+volumes:
+  derby_data:
+  derby_libs:
+  hsqldb_data:
+  hsqldb_libs:
+  h2_data:
+  h2_libs:
+  oracle_data:
+  mariadb_data:
+
+networks:
+  r01:
+    driver: bridge
+
+# SQLite is intentionally not a service. It is an embedded database.
