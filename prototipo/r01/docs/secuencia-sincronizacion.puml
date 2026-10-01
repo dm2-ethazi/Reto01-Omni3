@@ -1,0 +1,100 @@
+pragma layout Smetana
+
+' ============================================================
+' R01 - Secuencia del flujo 4.4: POST /sync
+' leer origen -> transformar -> insertar en central doble
+' Render: plantuml -tpng secuencia-sincronizacion.puml
+' ============================================================
+
+@startuml secuencia-sincronizacion
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam backgroundColor #FFFFFF
+skinparam responseMessageBelowArrow true
+
+title **R01 - Secuencia: sincronizacion (POST /sync)**\nFlujo 4.4 leer -> transformar -> insertar -> consultar
+
+actor Cliente
+participant "API FastAPI\n(sync.py)" as api
+participant "SyncService" as sync
+participant "ConnectorRegistry\n(JVM)" as registry
+participant "Origen JDBC\n(Derby/H2/...)" as origen
+participant "transform.py" as transform
+participant "CompositeCentral\nRepository" as composite
+participant "MariaDB" as maria
+participant "SQLite\n(retry_queue)" as sqlite
+
+Cliente -> api : POST /sync o POST /sync/{id}
+activate api
+
+api -> sync : sync(conector_id)
+activate sync
+
+' 0. Validacion del id
+alt conector desconocido
+    sync --> api : ValidacionError (C-400)
+    api --> Cliente : 400 {"error":{"codigo":"C-400"}}
+else conector valido
+    api --> Cliente : 200 SyncResumen (al final)
+
+    ' 1. Reintentos previos
+    sync -> composite : retry_pending()
+    activate composite
+    composite -> sqlite : drena SqliteRetryQueue
+    composite --> sync : {backend: stats}
+    deactivate composite
+
+    ' 2. Lectura paginada del origen
+    sync -> registry : get(conector_id)
+    registry --> sync : DataSource
+    sync -> origen : count()
+    origen --> sync : total
+
+    loop offset < total (paginas de sync_page_size=100)
+        sync -> origen : list(offset, limit)
+        origen --> sync : pagina de filas crudas
+        loop cada fila
+            sync -> transform : transform_row(raw, origen)
+            activate transform
+            transform -> transform : normalizar espacios + DNI mayusculas
+            transform -> transform : validar DNI / longitudes / id numerico
+            alt fila valida
+                transform --> sync : fila de la central (+ origen)
+            else fila invalida
+                transform --> sync : ValidacionError
+                sync -> sync : errores += 1 (detalle_errores)
+            end
+            deactivate transform
+        end
+    end
+
+    ' 3. Upsert en la central doble
+    sync -> composite : upsert(filas_transformadas)
+    activate composite
+    composite -> maria : upsert (principal)
+    alt MariaDB no responde
+        composite -> sqlite : encola en SqliteRetryQueue
+        composite --> sync : errores + pendientes_reintento
+    else MariaDB responde
+        maria --> composite : stats
+        composite -> sqlite : upsert (espejo)
+        sqlite --> composite : stats
+    end
+    composite --> sync : UpsertResult (por_backend, errores)
+    deactivate composite
+
+    ' 4. Resumen
+    sync -> sync : calcula leidos/insertados/actualizados/errores\nduracion_ms (max entre backends)
+    sync --> api : SyncResumen
+    deactivate sync
+
+    note over api, sqlite
+      IDEMPOTENTE: la 2a ejecucion devuelve
+      insertados=0 y actualizados=N
+    end note
+end
+
+deactivate api
+
+@enduml

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="620" viewBox="0 0 1080 620" font-family="Segoe UI, Roboto, sans-serif">
+  <defs>
+    <linearGradient id="cabecera" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="620" fill="#F1F5F9"/>
+
+  <!-- Cabecera -->
+  <rect x="0" y="0" width="1080" height="72" fill="url(#cabecera)"/>
+  <text x="18" y="34" fill="#FFFFFF" font-size="22" font-weight="bold">R01 Central</text>
+  <text x="18" y="56" fill="#C7D2FE" font-size="12">Integración de orígenes JDBC · Cliente de escritorio · Reto R01</text>
+
+  <!-- Tarjeta conexión -->
+  <rect x="16" y="88" width="1048" height="126" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="30" y="112" fill="#64748B" font-size="11" font-weight="bold">CONEXIÓN Y FILTROS</text>
+
+  <text x="30" y="146" fill="#0F172A" font-size="13">API:</text>
+  <rect x="66" y="128" width="240" height="32" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="78" y="149" fill="#64748B" font-size="13">http://127.0.0.1:8000</text>
+  <rect x="316" y="128" width="104" height="32" rx="12" fill="#1E3A8A"/>
+  <text x="368" y="149" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">Conectar</text>
+  <text x="434" y="146" fill="#0F172A" font-size="13">Origen:</text>
+  <rect x="486" y="128" width="150" height="32" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="498" y="149" fill="#0F172A" font-size="13">central</text>
+
+  <rect x="30" y="170" width="200" height="32" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="42" y="191" fill="#64748B" font-size="13">Nombre (parcial)</text>
+  <rect x="238" y="170" width="120" height="32" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="250" y="191" fill="#64748B" font-size="13">DNI</text>
+  <rect x="366" y="170" width="90" height="32" rx="12" fill="#1E3A8A"/>
+  <text x="411" y="191" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">Buscar</text>
+  <rect x="464" y="170" width="90" height="32" rx="12" fill="#FFFFFF" stroke="#1E3A8A"/>
+  <text x="509" y="191" fill="#1E3A8A" font-size="13" font-weight="bold" text-anchor="middle">Limpiar</text>
+  <rect x="562" y="170" width="86" height="32" rx="12" fill="#FFFFFF" stroke="#1E3A8A"/>
+  <text x="605" y="191" fill="#1E3A8A" font-size="13" font-weight="bold" text-anchor="middle">Salud</text>
+  <rect x="656" y="170" width="116" height="32" rx="12" fill="#1E3A8A"/>
+  <text x="714" y="191" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">Sincronizar</text>
+
+  <!-- Tabla -->
+  <rect x="16" y="226" width="1048" height="352" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <path d="M16 268 h1048" stroke="#E2E8F0"/>
+  <rect x="16" y="226" width="1048" height="42" rx="16" fill="#E0E7FF"/>
+  <rect x="16" y="252" width="1048" height="16" fill="#E0E7FF"/>
+  <text x="34" y="253" fill="#172554" font-size="12" font-weight="bold">Origen</text>
+  <text x="150" y="253" fill="#172554" font-size="12" font-weight="bold">Id</text>
+  <text x="230" y="253" fill="#172554" font-size="12" font-weight="bold">DNI</text>
+  <text x="360" y="253" fill="#172554" font-size="12" font-weight="bold">Nombre</text>
+  <text x="620" y="253" fill="#172554" font-size="12" font-weight="bold">Casa</text>
+  <text x="800" y="253" fill="#172554" font-size="12" font-weight="bold">Patronus</text>
+
+  <rect x="16" y="268" width="1048" height="34" fill="#FFFFFF"/>
+  <text x="34" y="290" fill="#0F172A" font-size="13">central</text>
+  <text x="150" y="290" fill="#0F172A" font-size="13">1</text>
+  <text x="230" y="290" fill="#0F172A" font-size="13">12345678A</text>
+  <text x="360" y="290" fill="#0F172A" font-size="13">Hermione Granger</text>
+  <text x="620" y="290" fill="#0F172A" font-size="13">Gryffindor</text>
+  <text x="800" y="290" fill="#0F172A" font-size="13">Otter</text>
+
+  <rect x="16" y="302" width="1048" height="34" fill="#F8FAFC"/>
+  <text x="34" y="324" fill="#0F172A" font-size="13">central</text>
+  <text x="150" y="324" fill="#0F172A" font-size="13">2</text>
+  <text x="230" y="324" fill="#0F172A" font-size="13">87654321B</text>
+  <text x="360" y="324" fill="#0F172A" font-size="13">Harry Potter</text>
+  <text x="620" y="324" fill="#0F172A" font-size="13">Gryffindor</text>
+  <text x="800" y="324" fill="#0F172A" font-size="13">Stag</text>
+
+  <rect x="16" y="336" width="1048" height="34" fill="#FFFFFF"/>
+  <text x="34" y="358" fill="#0F172A" font-size="13">central</text>
+  <text x="150" y="358" fill="#0F172A" font-size="13">3</text>
+  <text x="230" y="358" fill="#0F172A" font-size="13">45678912C</text>
+  <text x="360" y="358" fill="#0F172A" font-size="13">Draco Malfoy</text>
+  <text x="620" y="358" fill="#0F172A" font-size="13">Slytherin</text>
+  <text x="800" y="358" fill="#0F172A" font-size="13">Non-corporeal</text>
+
+  <!-- Barra de estado -->
+  <rect x="0" y="586" width="1080" height="34" fill="#FFFFFF"/>
+  <path d="M0 586 h1080" stroke="#E2E8F0"/>
+  <text x="16" y="608" fill="#172554" font-size="12" font-weight="bold">central: 40 de 40 filas (backend=ok)</text>
+</svg>

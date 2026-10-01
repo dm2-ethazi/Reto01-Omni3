@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Botón secundario R01: contorno azul sobre blanco, relleno al pulsar. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/r01_superficie" />
+            <stroke android:width="1dp" android:color="@color/r01_deshabilitado" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/r01_pulsado" />
+            <stroke android:width="1dp" android:color="@color/r01_primario" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/r01_superficie" />
+            <stroke android:width="1dp" android:color="@color/r01_primario" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</selector>

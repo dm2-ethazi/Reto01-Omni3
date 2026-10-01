@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Paleta R01 (compartida con desktop-javafx y unity-patronus).
+  Base: azul profundo + acento cian, superficies claras.
+-->
+<resources>
+    <!-- Primarios -->
+    <color name="r01_primario">#1E3A8A</color>
+    <color name="r01_primario_oscuro">#172554</color>
+    <color name="r01_primario_claro">#E0E7FF</color>
+
+    <!-- Acento -->
+    <color name="r01_acento">#06B6D4</color>
+    <color name="r01_acento_oscuro">#0891B2</color>
+
+    <!-- Superficies y texto -->
+    <color name="r01_fondo">#F1F5F9</color>
+    <color name="r01_superficie">#FFFFFF</color>
+    <color name="r01_borde">#E2E8F0</color>
+    <color name="r01_texto_principal">#0F172A</color>
+    <color name="r01_texto_secundario">#64748B</color>
+    <color name="r01_texto_sobre_primario">#FFFFFF</color>
+    <color name="r01_texto_subtitulo_cabecera">#C7D2FE</color>
+
+    <!-- Estados -->
+    <color name="r01_pulsado">#DBEAFE</color>
+    <color name="r01_deshabilitado">#94A3B8</color>
+    <color name="r01_exito">#10B981</color>
+    <color name="r01_error">#EF4444</color>
+    <color name="r01_aviso">#F59E0B</color>
+</resources>
