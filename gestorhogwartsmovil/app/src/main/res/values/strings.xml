@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Gestor Hogwarts Movil</string>
+    <string name="buscar">Buscar</string>
+    <string name="sincronizar">Sincronizar</string>
+    <string name="estado_inicial">Estado Inicial</string>
+    <string name="salud">Salud</string>
+</resources>
