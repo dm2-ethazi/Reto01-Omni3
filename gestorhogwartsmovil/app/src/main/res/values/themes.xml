@@ -1,9 +1,44 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.GestorHogwartsMovil" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/r01_primario</item>
+        <item name="colorOnPrimary">@color/r01_texto_sobre_primario</item>
+        <item name="colorPrimaryContainer">@color/r01_primario_claro</item>
+        <item name="colorOnPrimaryContainer">@color/r01_primario_oscuro</item>
+        <item name="colorSecondary">@color/r01_acento_oscuro</item>
+        <item name="colorOnSecondary">@color/r01_texto_sobre_primario</item>
+        <item name="colorSurface">@color/r01_superficie</item>
+        <item name="colorOnSurface">@color/r01_texto_principal</item>
+        <item name="colorOnSurfaceVariant">@color/r01_texto_secundario</item>
+        <item name="colorOutline">@color/r01_borde</item>
+        <item name="android:colorBackground">@color/r01_fondo</item>
+        <item name="android:windowBackground">@color/r01_fondo</item>
+        <item name="android:statusBarColor">@color/r01_fondo</item>
+        <item name="android:navigationBarColor">@color/r01_fondo</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">@color/r01_texto_principal</item>
+        <item name="android:textColorSecondary">@color/r01_texto_secundario</item>
     </style>
 
     <style name="Theme.GestorHogwartsMovil" parent="Base.Theme.GestorHogwartsMovil" />
+
+    <style name="R01.Campo" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/r01_campo</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textColor">@color/r01_texto_principal</item>
+        <item name="android:textColorHint">@color/r01_texto_secundario</item>
+    </style>
+    <style name="R01.BotonSecundario" parent="Widget.Material3.Button.TonalButton">
+        <item name="backgroundTint">@color/r01_primario_claro</item>
+        <item name="android:textColor">@color/r01_primario_oscuro</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
+    <style name="R01.BotonPrimario" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/r01_primario</item>
+        <item name="android:textColor">@color/r01_texto_sobre_primario</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
 </resources>

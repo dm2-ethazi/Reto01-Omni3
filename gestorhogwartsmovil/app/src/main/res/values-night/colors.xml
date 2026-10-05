@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="r01_primario">#93C5FD</color>
+    <color name="r01_primario_oscuro">#DBEAFE</color>
+    <color name="r01_primario_claro">#1E3A5F</color>
+    <color name="r01_acento_oscuro">#67E8F9</color>
+    <color name="r01_fondo">#0B1220</color>
+    <color name="r01_superficie">#142238</color>
+    <color name="r01_borde">#365071</color>
+    <color name="r01_texto_principal">#EFF6FF</color>
+    <color name="r01_texto_secundario">#B3C5DC</color>
+    <color name="r01_texto_sobre_primario">#102A43</color>
+</resources>
