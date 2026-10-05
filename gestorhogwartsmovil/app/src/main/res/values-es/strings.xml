@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gestor Hogwarts Móvil</string>
+    <string name="buscar">Buscar</string>
+    <string name="sincronizar">Sincronizar</string>
+    <string name="estado_inicial">Estado inicial</string>
+    <string name="salud">Salud</string>
+    <string name="nombre">Nombre</string>
+    <string name="dni">DNI</string>
+</resources>

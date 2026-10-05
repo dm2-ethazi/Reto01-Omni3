@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hogwarts Kudeatzaile Mugikorra</string>
+    <string name="buscar">Bilatu</string>
+    <string name="sincronizar">Sinkronizatu</string>
+    <string name="estado_inicial">Hasierako egoera</string>
+    <string name="salud">Osasuna</string>
+    <string name="nombre">Izena</string>
+    <string name="dni">NAN</string>
+</resources>

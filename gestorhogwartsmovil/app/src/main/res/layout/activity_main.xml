@@ -12,7 +12,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/r01_fondo">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +22,8 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="14dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/r01_panel">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,6 +35,8 @@
 
             <EditText
                 android:id="@+id/campoNombre"
+                android:hint="@string/nombre"
+                style="@style/R01.Campo"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="5dp"
@@ -43,6 +47,8 @@
 
             <EditText
                 android:id="@+id/campoDni"
+                android:hint="@string/dni"
+                style="@style/R01.Campo"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
@@ -61,6 +67,7 @@
 
             <Button
                 android:id="@+id/botonBuscar"
+                style="@style/R01.BotonSecundario"
                 android:layout_width="0dp"
                 android:layout_height="46dp"
                 android:layout_marginStart="6dp"
@@ -85,6 +92,7 @@
 
             <Button
                 android:id="@+id/botonSalud"
+                style="@style/R01.BotonSecundario"
                 android:layout_width="0dp"
                 android:layout_height="46dp"
                 android:layout_marginEnd="6dp"
@@ -100,6 +108,7 @@
 
             <Button
                 android:id="@+id/botonSincronizar"
+                style="@style/R01.BotonPrimario"
                 android:layout_width="0dp"
                 android:layout_height="46dp"
                 android:layout_marginStart="6dp"
@@ -117,6 +126,7 @@
         <!-- Chip de estado -->
         <TextView
             android:id="@+id/textoEstado"
+            android:background="@drawable/r01_estado"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -135,6 +145,7 @@
     <!-- Resultados -->
     <ListView
         android:id="@+id/lista"
+        android:background="@drawable/r01_panel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"

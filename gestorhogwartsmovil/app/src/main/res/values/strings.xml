@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">Gestor Hogwarts Movil</string>
-    <string name="buscar">Buscar</string>
-    <string name="sincronizar">Sincronizar</string>
-    <string name="estado_inicial">Estado Inicial</string>
-    <string name="salud">Salud</string>
+    <string name="app_name">Hogwarts Mobile Manager</string>
+    <string name="buscar">Search</string>
+    <string name="sincronizar">Sync</string>
+    <string name="estado_inicial">Initial status</string>
+    <string name="salud">Health check</string>
+    <string name="nombre">Name</string>
+    <string name="dni">National ID (DNI)</string>
 </resources>
