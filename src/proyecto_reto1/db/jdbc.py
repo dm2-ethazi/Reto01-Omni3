@@ -7,7 +7,7 @@ from pathlib import Path
 import jpype
 import jaydebeapi
 
-from .base import Alumno, texto
+from .base import Alumno, AlumnoActualizacion, campos_a_actualizar, texto
 
 
 def _ruta_jvm() -> str:
@@ -120,3 +120,56 @@ class RepositorioJDBC:
             patronus=texto(fila[4]),
             casa=self.casa,
         )
+
+    def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+        columnas = campos_a_actualizar(datos)
+        if not columnas:
+            return self.obtener(id_alumno)
+        credenciales = {"user": self.usuario, "password": self.password}
+        if not self.usuario and not self.password:
+            credenciales = {}
+        conexion = jaydebeapi.connect(
+            self.driver,
+            self.url,
+            credenciales,
+        )
+        try:
+            cursor = conexion.cursor()
+            try:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                if cursor.fetchone() is None:
+                    return None
+                asignacion = ", ".join(f"{nombre} = ?" for nombre in columnas)
+                cursor.execute(
+                    f"UPDATE ALUMNOS SET {asignacion} WHERE ID = ?",
+                    tuple(columnas.values()) + (id_alumno,),
+                )
+                conexion.commit()
+            finally:
+                cursor.close()
+        finally:
+            conexion.close()
+        return self.obtener(id_alumno)
+
+    def eliminar(self, id_alumno: str) -> bool:
+        credenciales = {"user": self.usuario, "password": self.password}
+        if not self.usuario and not self.password:
+            credenciales = {}
+        conexion = jaydebeapi.connect(
+            self.driver,
+            self.url,
+            credenciales,
+        )
+        try:
+            cursor = conexion.cursor()
+            try:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                if cursor.fetchone() is None:
+                    return False
+                cursor.execute("DELETE FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                conexion.commit()
+            finally:
+                cursor.close()
+        finally:
+            conexion.close()
+        return True

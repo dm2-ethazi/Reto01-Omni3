@@ -1,6 +1,6 @@
 import pymysql
 
-from .base import Alumno, AlumnoEntrada, Conflicto, texto
+from .base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, campos_a_actualizar, texto
 
 
 class RepositorioMariaDB:
@@ -83,3 +83,39 @@ class RepositorioMariaDB:
         finally:
             conexion.close()
         return Alumno(**datos.model_dump(), casa=self.casa)
+
+    def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+        columnas = campos_a_actualizar(datos)
+        if not columnas:
+            return self.obtener(id_alumno)
+        asignacion = ", ".join(f"{nombre} = %s" for nombre in columnas)
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = %s", (id_alumno,))
+                existe = cursor.fetchone() is not None
+                if existe:
+                    cursor.execute(
+                        f"UPDATE ALUMNOS SET {asignacion} WHERE ID = %s",
+                        tuple(columnas.values()) + (id_alumno,),
+                    )
+            if existe:
+                conexion.commit()
+        finally:
+            conexion.close()
+        if not existe:
+            return None
+        return self.obtener(id_alumno)
+
+    def eliminar(self, id_alumno: str) -> bool:
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = %s", (id_alumno,))
+                existe = cursor.fetchone() is not None
+                if existe:
+                    cursor.execute("DELETE FROM ALUMNOS WHERE ID = %s", (id_alumno,))
+                    conexion.commit()
+        finally:
+            conexion.close()
+        return existe

@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from ..db.base import Alumno, AlumnoEntrada, Conflicto, RepositorioAlumnos
+from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, RepositorioAlumnos
 from ..db.factory import obtener_repositorios
 from ..db.mariadb import RepositorioMariaDB
 
@@ -85,3 +85,53 @@ def crear_alumno(
             status_code=503,
             detail=f"La fuente '{repositorio.casa}' no responde: {error}",
         ) from error
+
+
+@router.put("/alumnos/{dni}", response_model=Alumno)
+def actualizar_alumno(
+    dni: str,
+    datos: AlumnoActualizacion,
+    fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
+):
+    actualizados: list[Alumno] = []
+    for repositorio in fuentes:
+        try:
+            alumno = repositorio.actualizar(dni, datos)
+        except Exception as error:
+            logger.error("Fallo actualizando %s: %s", repositorio.casa, error)
+            raise HTTPException(
+                status_code=503,
+                detail=f"La fuente '{repositorio.casa}' no responde: {error}",
+            ) from error
+        if alumno is not None:
+            actualizados.append(alumno)
+    if not actualizados:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No existe ningun alumno con DNI '{dni}'",
+        )
+    return actualizados[0]
+
+
+@router.delete("/alumnos/{dni}", status_code=204)
+def eliminar_alumno(
+    dni: str,
+    fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
+):
+    eliminado = False
+    for repositorio in fuentes:
+        try:
+            borrado = repositorio.eliminar(dni)
+        except Exception as error:
+            logger.error("Fallo eliminando %s: %s", repositorio.casa, error)
+            raise HTTPException(
+                status_code=503,
+                detail=f"La fuente '{repositorio.casa}' no responde: {error}",
+            ) from error
+        if borrado:
+            eliminado = True
+    if not eliminado:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No existe ningun alumno con DNI '{dni}'",
+        )
