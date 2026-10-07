@@ -22,8 +22,8 @@ import java.util.Locale;
  */
 public class ConsultaViewModel extends ViewModelBase {
 
-    /** Máximo de filas que se piden a la API en una consulta. */
-    public static final int LIMITE_POR_DEFECTO = 500;
+    /** Limite de filas por consulta; 0 = sin limite (la API devuelve todo). */
+    public static final int LIMITE_POR_DEFECTO = 0;
 
     /** Filas de la tabla. */
     private final ObservableList<AlumnoDto> alumnos = FXCollections.observableArrayList();

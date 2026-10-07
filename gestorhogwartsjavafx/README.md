@@ -7,8 +7,9 @@ conectores y lanzar sincronizaciones contra la API central de R01 · Omni3.
 HTTP con la API real de FastAPI (`src/proyecto_reto1/`, rama `Api`, `http://127.0.0.1:8000`) y
 consulta las cinco fuentes del `compose.yaml` —MariaDB, Derby, H2, HSQLDB y Oracle—, devolviendo
 a cada alumno su fuente de origen. **La aplicación nunca accede directamente a las bases de
-datos**: todo pasa por la API HTTP (requisito del contrato). Las operaciones que la API actual
-todavía no publica (edición, baja, conectores y sincronización) se responden como
+datos**: todo pasa por la API HTTP (requisito del contrato). Consulta, alta, **edición**
+(`PUT /alumnos/{dni}`) y **baja** (`DELETE /alumnos/{dni}`) están conectadas con la API; las
+operaciones que todavía no publica (conectores, sincronización y cola) se responden como
 `501 NO_IMPLEMENTADO` con un mensaje legible (§4.3).
 
 Sin esa variable, la app arranca en **modo demo** con los mismos datos en memoria y la misma
@@ -23,7 +24,7 @@ interfaz, para poder probar la UI sin levantar la API (§2 de la propuesta).
 | Pantalla | Qué hace |
 |---|---|
 | **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento, modo y `request-id`). |
-| **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta y consulta de ficha. |
+| **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta, edición, baja y consulta de ficha. |
 | **Conectores** | Pantalla de fuentes de datos; requiere `GET /connectors` (ver §4.3). |
 | **Sincronización** | «Sincronizar ahora» y cola de refrescos; requiere `POST /sync` y `GET /admin/refresh-queue` (ver §4.3). |
 
@@ -32,13 +33,14 @@ Reglas de negocio implementadas:
 - **Alta** solo en la central MariaDB: **DNI de 9 caracteres no duplicado**, **patronus obligatorio** y **sin casa**.
 - **Edición con control de concurrencia**: se envía el estado previo (`If-Match` / `X-Version-Previa`).
   Si otra sesión ha modificado la ficha la API responde **409** y la app **recarga sin sobrescribir nunca** en silencio.
-- **Baja lógica** en alumnos nuevos; en históricos según el comportamiento de la base de origen.
+  La API real aún no versiona, así que en modo API la edición es directa (`PUT /alumnos/{dni}`).
+- **Baja**: en modo API se elimina el registro con `DELETE /alumnos/{dni}`; en modo demo es una
+  baja lógica en alumnos nuevos y, en históricos, según el comportamiento de la base de origen.
 - Los DNI **nunca se muestran completos** en mensajes de error (se enmascaran: `12***78A`).
 - Toda petición envía una cabecera **`request-id`** que se muestra en la UI cuando hay error.
 
-Las reglas marcadas con «API» dependen de endpoints que la API actual todavía no publica
-(edición y baja): en modo API se muestran como error `501 NO_IMPLEMENTADO` y en modo demo se
-comportan como está descrito (§4.3).
+Las operaciones que la API todavía no publica (conectores, sincronización y cola) responden
+`501 NO_IMPLEMENTADO` en modo API; en modo demo se comportan como está descrito (§4.3).
 
 ---
 
@@ -127,13 +129,20 @@ FabricaAplicacion fabrica = new FabricaAplicacion(config);
 
 ### 4.3. Endpoints de la API y cómo los usa el cliente
 
-La API desplegada (rama `Api`, FastAPI de `src/proyecto_reto1/`) publica solo tres rutas:
+La API desplegada (rama `Api`, FastAPI de `src/proyecto_reto1/`) publica cinco rutas:
 
 | Método | Ruta | Uso en la app |
 |---|---|---|
 | `GET` | `/alumnos` | Consulta unificada y pantalla de estado. |
 | `GET` | `/alumnos/{dni}` | Ficha de un alumno. |
 | `POST` | `/alumnos` | Alta (cuerpo `{id, nombre, apellido?, sexo?, patronus?}`). |
+| `PUT` | `/alumnos/{dni}` | Edición (cuerpo `{nombre, apellido?, patronus?}`). |
+| `DELETE` | `/alumnos/{dni}` | Baja (responde `204`; `404` si no existe). |
+
+La edición se prepara en dos pasos: se lee la ficha vigente (`GET /alumnos/{dni}`) para conservar
+el apellido si el texto editado sigue terminando en él, y después se envía `PUT` con el nombre
+completo y el patronus (vacío → `null`, que limpia el campo). Como la API no admite cambiar la
+fuente, el campo `casa` de la ficha es de solo lectura.
 
 **Operaciones sin endpoint publicado.** Cuando la API no publica la ruta, el cliente lanza
 `ExcepcionApi` con estado **501** y código `NO_IMPLEMENTADO`, y la pantalla muestra ese mensaje en
@@ -141,8 +150,6 @@ su estado de error:
 
 | Método | Ruta | Pantalla afectada |
 |---|---|---|
-| `PUT` | `/alumnos/{dni}` | Edición (formulario de alumno). |
-| `DELETE` | `/alumnos/{dni}` | Baja (menú de fila). |
 | `GET` | `/connectors` | Conectores. |
 | `POST` | `/sync` | Sincronización. |
 | `GET` | `/admin/refresh-queue` | Cola de refrescos. |
@@ -179,10 +186,31 @@ Cualquier respuesta con estado `>= 400` se convierte en `ExcepcionApi` (código,
 
 ```bash
 curl http://127.0.0.1:8000/alumnos
+
+# edición y baja (sustituye <dni> por un DNI real o de prueba)
+curl -X PUT    http://127.0.0.1:8000/alumnos/<dni> -H "Content-Type: application/json" -d '{"patronus":"Cervo"}'
+curl -X DELETE http://127.0.0.1:8000/alumnos/<dni>
 ```
 
 Si contesta con la lista de alumnos, arranca la app con `OMNI3_MODO=api` y usa la pantalla
 **Estado del sistema** (botón «Comprobar ahora») para verificar la conexión desde el cliente.
+
+### 4.5. Datos cargados en las cinco bases
+
+Las cinco bases del `compose.yaml` están cargadas con el volcado `bbdd.sql` (DDL + INSERT por
+cada fuente), repartidas así:
+
+| Fuente (puerto) | `casa` de la API | Origen en la app | Alumnos |
+|---|---|---|---|
+| MariaDB `r01_central` (3306) | Hogwarts | `MARIADB` | 6 |
+| Derby (1527) | Gryffindor | `DERBY` | 303 |
+| H2 (9092) | Hufflepuff | `H2` | 212 |
+| HSQLDB (9001) | Slytherin | `HSQLDB` | 267 |
+| Oracle `FREEPDB1` (1521) | Ravenclaw | `ORACLE` | 203 |
+
+Total: **991 alumnos**. El listado se pide sin límite (`ConsultaViewModel.LIMITE_POR_DEFECTO = 0`)
+y el filtro por origen, la búsqueda y la paginación se resuelven en el cliente, porque
+`GET /alumnos` devuelve siempre el listado completo.
 
 ---
 
@@ -250,12 +278,15 @@ Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son det
 
 - **Modo demo verificado de extremo a extremo**: consulta, filtros, alta, edición con conflicto 409,
   conectores, cola y salud.
-- **Modo API verificado contra la API real** (rama `Api`, `uvicorn` + MariaDB): listado con
-  mapeo de campos, ficha por DNI, alta (`POST /alumnos`), búsqueda y filtro por origen,
-  `404` con el `detail` del backend y pantalla de estado.
-- **Operaciones pendientes de la API**: edición (`PUT`), baja (`DELETE`), conectores,
-  sincronización y cola responden `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI;
-  al no haber versionado, tampoco hay control de concurrencia (`version = 0`).
+- **Modo API verificado contra la API real** (rama `Api`, `uvicorn` + las cinco bases del
+  `compose`): listado con mapeo de campos (991 alumnos repartidos en las cinco fuentes), ficha por
+  DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja (`DELETE /alumnos/{dni}`),
+  búsqueda y filtro por origen, `404` con el `detail` del backend y pantalla de estado.
+- **Operaciones pendientes de la API**: conectores, sincronización y cola responden
+  `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI; al no haber versionado, tampoco hay
+  control de concurrencia (`version = 0`).
+- **La fuente (`casa`) no es editable**: la API identifica la fuente con la que responde cada
+  alumno y no admite cambiarla.
 - La URL base **no es configurable desde la interfaz** (§4.2).
 - Existe material de trabajo no versionado en la carpeta local (`tests-pendientes/`), fuera del
   alcance de este repositorio.

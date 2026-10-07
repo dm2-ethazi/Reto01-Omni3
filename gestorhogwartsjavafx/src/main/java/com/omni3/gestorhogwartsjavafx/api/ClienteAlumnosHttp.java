@@ -35,9 +35,11 @@ import java.util.stream.Collectors;
  * {@code proyecto_reto1}) publica únicamente:</p>
  *
  * <ul>
- *   <li>{@code GET  /alumnos} — listado completo;</li>
- *   <li>{@code GET  /alumnos/{dni}} — ficha;</li>
- *   <li>{@code POST /alumnos} — alta.</li>
+ *   <li>{@code GET    /alumnos} — listado completo;</li>
+ *   <li>{@code GET    /alumnos/{dni}} — ficha;</li>
+ *   <li>{@code POST   /alumnos} — alta;</li>
+ *   <li>{@code PUT    /alumnos/{dni}} — edición;</li>
+ *   <li>{@code DELETE /alumnos/{dni}} — baja.</li>
  * </ul>
  *
  * <p>Los campos del backend son {@code id, nombre, apellido, sexo,
@@ -49,8 +51,8 @@ import java.util.stream.Collectors;
  * actualizadoEn, activo}), aplicando además el filtro de
  * origen/búsqueda/paginación en cliente porque la API no lo soporta.</p>
  *
- * <p>Las operaciones sin endpoint publicado (edición, baja, conectores,
- * sincronización y cola) fallan con {@link ExcepcionApi} de código
+ * <p>Las operaciones sin endpoint publicado (conectores, sincronización
+ * y cola) fallan con {@link ExcepcionApi} de código
  * {@code NO_IMPLEMENTADO} y un mensaje claro en español, de modo que la
  * pantalla correspondiente lo muestre en su estado de error.</p>
  *
@@ -165,27 +167,58 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     }
 
     /**
-     * Edición no disponible: la API actual no publica {@code PUT}.
+     * Edición de la ficha ({@code PUT /alumnos/{dni}}).
+     *
+     * <p>La API trabaja con {@code nombre} y {@code apellido} por
+     * separado y no admite cambiar la fuente ({@code casa}), así que el
+     * cliente recupera la ficha vigente, conserva el apellidos si el
+     * texto editado sigue terminando en él (y si no, lo deja en
+     * {@code nombre}) y envía también el patronus, que se limpia cuando
+     * llega vacío.</p>
      *
      * @param dni    DNI del alumno a editar
-     * @param alumno datos nuevos; no se envían
-     * @return nunca devuelve: siempre lanza la excepción
-     * @throws ExcepcionApi con status 501 y mensaje explicativo
+     * @param alumno datos nuevos (nombre completo y patronus)
+     * @return la ficha actualizada tal y como la devuelve la API
+     * @throws ExcepcionApi con status 400 si no valida o 404 si no existe
      */
     @Override
     public AlumnoDto editarAlumno(String dni, AlumnoDto alumno) {
-        throw noDisponible("PUT", "/alumnos/{dni}");
+        String id = normalizarId(dni);
+        AlumnoApi vigente = leer(get("/alumnos/" + codificar(id)), AlumnoApi.class);
+        String nuevo = normalizarTexto(alumno.nombre());
+        String apellidos = normalizarTexto(vigente.apellido());
+        String nombre;
+        String apellido = apellidos;
+        String sufijo = " " + apellidos;
+        if (!apellidos.isEmpty() && nuevo.length() > sufijo.length()
+                && nuevo.regionMatches(true, nuevo.length() - sufijo.length(), sufijo, 0, sufijo.length())) {
+            nombre = nuevo.substring(0, nuevo.length() - sufijo.length()).trim();
+        } else {
+            nombre = nuevo;
+            apellido = "";
+        }
+        Map<String, Object> datos = new LinkedHashMap<>();
+        datos.put("nombre", nombre);
+        datos.put("apellido", apellido);
+        datos.put("patronus", alumno.patronus() == null || alumno.patronus().isBlank()
+                ? null : alumno.patronus().trim());
+        return aDto(leer(peticion("PUT", "/alumnos/" + codificar(id), escribir(datos), Map.of()),
+                AlumnoApi.class));
     }
 
     /**
-     * Baja no disponible: la API actual no publica {@code DELETE}.
+     * Baja del alumno ({@code DELETE /alumnos/{dni}}).
+     *
+     * <p>La API elimina el registro de todas las fuentes que lo
+     * contengan y responde {@code 204}; si ninguna lo tiene devuelve
+     * {@code 404}.</p>
      *
      * @param dni DNI del alumno a dar de baja
-     * @throws ExcepcionApi con status 501 y mensaje explicativo
+     * @throws ExcepcionApi con status 404 si no existe
      */
     @Override
     public void bajarAlumno(String dni) {
-        throw noDisponible("DELETE", "/alumnos/{dni}");
+        peticion("DELETE", "/alumnos/" + codificar(normalizarId(dni)), null, Map.of());
     }
 
     /**
@@ -307,6 +340,11 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     /** Normaliza un identificador: sin espacios y en mayúsculas. */
     private static String normalizarId(String id) {
         return id == null ? "" : id.trim().replace(" ", "").toUpperCase(Locale.ROOT);
+    }
+
+    /** Normaliza un texto libre: sin espacios sobrantes. */
+    private static String normalizarTexto(String texto) {
+        return texto == null ? "" : texto.trim().replaceAll("\\s+", " ");
     }
 
     /** GET genérico. */
