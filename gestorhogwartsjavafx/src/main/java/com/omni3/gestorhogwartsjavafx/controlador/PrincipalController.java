@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import javafx.fxml.FXML;
@@ -110,7 +110,7 @@ public class PrincipalController implements ControladorVista {
             return;
         }
         try {
-            FXMLLoader cargador = new FXMLLoader(getClass().getResource(fichero));
+            FXMLLoader cargador = new FXMLLoader(getClass().getResource(RUTA_VISTAS + fichero));
             Parent raiz = cargador.load();
             Object controlador = cargador.getController();
             if (controlador instanceof ControladorVista vista) {

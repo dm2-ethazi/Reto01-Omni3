@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;

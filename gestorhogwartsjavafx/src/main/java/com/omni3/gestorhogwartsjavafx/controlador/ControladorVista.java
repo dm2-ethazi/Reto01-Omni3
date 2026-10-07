@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 
@@ -13,6 +13,14 @@ import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
  */
 @FunctionalInterface
 public interface ControladorVista {
+
+    /**
+     * Ruta absoluta, dentro del classpath, del paquete de recursos de
+     * las vistas (FXML y CSS). Los controladores viven en el paquete
+     * {@code controlador}, así que las cargas son relativas a esta
+     * constante.
+     */
+    String RUTA_VISTAS = "/com/omni3/gestorhogwartsjavafx/vista/";
 
     /**
      * Entrega la fábrica de la aplicación a la vista.

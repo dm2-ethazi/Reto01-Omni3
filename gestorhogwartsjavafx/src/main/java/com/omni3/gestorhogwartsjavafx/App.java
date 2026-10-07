@@ -1,7 +1,7 @@
 package com.omni3.gestorhogwartsjavafx;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
-import com.omni3.gestorhogwartsjavafx.vista.PrincipalController;
+import com.omni3.gestorhogwartsjavafx.controlador.PrincipalController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

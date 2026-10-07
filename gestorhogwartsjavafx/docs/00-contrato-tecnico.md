@@ -163,13 +163,13 @@ gestorhogwartsjavafx/
     │   ├── api/                [W2]
     │   ├── servicio/           [W3]
     │   ├── viewmodel/          [W3]
-    │   └── vista/              [W4]
+    │   └── controlador/        [W4]   — controladores Java (las vistas no llevan Java)
     └── main/resources/com/omni3/gestorhogwartsjavafx/vista/
         ├── principal.fxml      [W1]
         ├── estilos.css         [W1]
         ├── estado.fxml         [W4]
         ├── alumnos.fxml        [W4]
-        ├── alumno-editar.fxml  [W4]
+        ├── formulario-alumno.fxml [W4]
         ├── conectores.fxml     [W4]
         └── sincronizar.fxml    [W4]
 ```

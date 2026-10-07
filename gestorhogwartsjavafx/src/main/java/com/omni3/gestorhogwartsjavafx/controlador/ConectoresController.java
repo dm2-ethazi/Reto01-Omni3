@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.modelo.EstadoConector;

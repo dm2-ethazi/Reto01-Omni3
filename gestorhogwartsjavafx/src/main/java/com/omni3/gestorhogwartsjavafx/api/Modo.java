@@ -6,8 +6,10 @@ import java.util.Optional;
 /**
  * Modo de acceso a la API (§3 del contrato).
  *
- * <p>La aplicación arranca en {@link #DEMO} porque la API real todavía no
- * existe. La interfaz de usuario es idéntica en ambos modos.</p>
+ * <p>La aplicación arranca en {@link #DEMO} por defecto, para poder usarla
+ * sin red; con {@link #API} habla con la API real de FastAPI publicada en
+ * {@code http://127.0.0.1:8000}. La interfaz de usuario es idéntica en
+ * ambos modos.</p>
  */
 public enum Modo {
 

@@ -21,7 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
     <javafx.version>21.0.5</javafx.version>
-    <jackson.version>2.17.2</jackson.version>
+    <jackson.version>2.18.11</jackson.version>
     <junit.version>5.10.3</junit.version>
     <main.class>com.omni3.gestorhogwartsjavafx.App</main.class>
   </properties>

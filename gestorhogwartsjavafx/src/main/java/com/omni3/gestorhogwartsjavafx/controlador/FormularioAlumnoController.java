@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;

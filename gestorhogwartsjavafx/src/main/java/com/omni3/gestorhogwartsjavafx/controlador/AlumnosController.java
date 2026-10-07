@@ -1,4 +1,4 @@
-package com.omni3.gestorhogwartsjavafx.vista;
+package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
@@ -286,7 +286,7 @@ public class AlumnosController implements ControladorVista {
      */
     private void abrirFormulario(String dni) {
         try {
-            FXMLLoader cargador = new FXMLLoader(getClass().getResource("formulario-alumno.fxml"));
+            FXMLLoader cargador = new FXMLLoader(getClass().getResource(RUTA_VISTAS + "formulario-alumno.fxml"));
             Parent raiz = cargador.load();
             FormularioAlumnoController controlador = cargador.getController();
             controlador.conectar(fabrica);
@@ -299,7 +299,7 @@ public class AlumnosController implements ControladorVista {
             dialogo.getDialogPane().getButtonTypes().addAll(TIPO_GUARDAR, TIPO_CANCELAR);
             dialogo.getDialogPane().setContent(raiz);
             dialogo.getDialogPane().getStylesheets().add(
-                    getClass().getResource("estilos.css").toExternalForm());
+                    getClass().getResource(RUTA_VISTAS + "estilos.css").toExternalForm());
             dialogo.setResizable(true);
 
             Node botonGuardar = dialogo.getDialogPane().lookupButton(TIPO_GUARDAR);

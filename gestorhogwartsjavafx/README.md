@@ -3,10 +3,16 @@
 Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alumnado, gestionar
 conectores y lanzar sincronizaciones contra la API central de R01 · Omni3.
 
-La aplicación **nunca accede directamente a las bases de datos**: todo pasa por la API HTTP
-(requisito del contrato). Arranca en **modo demo** con datos en memoria (misma interfaz y mismo
-comportamiento, §2 de la propuesta) y, con `OMNI3_MODO=api`, habla con la API real
-(`src/proyecto_reto1/`, rama `Api`), como se describe en §4.
+**La aplicación ya está conectada con la API.** Arrancando con `OMNI3_MODO=api` (§4) habla por
+HTTP con la API real de FastAPI (`src/proyecto_reto1/`, rama `Api`, `http://127.0.0.1:8000`) y
+consulta las cinco fuentes del `compose.yaml` —MariaDB, Derby, H2, HSQLDB y Oracle—, devolviendo
+a cada alumno su fuente de origen. **La aplicación nunca accede directamente a las bases de
+datos**: todo pasa por la API HTTP (requisito del contrato). Las operaciones que la API actual
+todavía no publica (edición, baja, conectores y sincronización) se responden como
+`501 NO_IMPLEMENTADO` con un mensaje legible (§4.3).
+
+Sin esa variable, la app arranca en **modo demo** con los mismos datos en memoria y la misma
+interfaz, para poder probar la UI sin levantar la API (§2 de la propuesta).
 
 > Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
 
@@ -193,19 +199,23 @@ src/main/java/com/omni3/gestorhogwartsjavafx/
 ├── servicio/              ServicioAlumnos (hilos de fondo + publicación en el hilo FX)
 │                          FabricaAplicacion (monta config + cliente + servicio + viewmodels)
 ├── viewmodel/             Consulta, Alta, Edición, Baja, Salud, Conectores, Sincronización, Formulario
-└── vista/                 Controladores + FXML de cada pantalla
+└── controlador/           Controladores de cada pantalla (Alumnos, Conectores, Estado,
+                           FormularioAlumno, Principal, Sincronización + ControladorVista)
 
-src/main/resources/com/omni3/gestorhogwartsjavafx/vista/
+src/main/resources/com/omni3/gestorhogwartsjavafx/vista/    (FXML y CSS: la vista, sin Java)
 ├── principal.fxml         Marco: cabecera, navegación lateral, contenedor, barra de estado
 ├── estilos.css            Sistema de diseño «azul tenue»
 ├── estado.fxml · alumnos.fxml · formulario-alumno.fxml
 └── conectores.fxml · sincronizar.fxml
 ```
 
+Los controladores y las vistas van en paquetes separados: `controlador/` solo contiene Java y
+`vista/` solo contiene FXML/CSS, que se cargan con la ruta absoluta `ControladorVista.RUTA_VISTAS`.
+
 Flujo de una petición:
 
 ```
-controlador (vista) → viewmodel → ServicioAlumnos (executor de fondo)
+controlador → viewmodel → ServicioAlumnos (executor de fondo)
                       → ClienteAlumnos (Demo o Http) → API
                       → callback → Platform.runLater → viewmodel (properties) → vista
 ```
