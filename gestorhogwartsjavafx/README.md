@@ -4,8 +4,9 @@ Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alum
 conectores y lanzar sincronizaciones contra la API central de R01 · Omni3.
 
 La aplicación **nunca accede directamente a las bases de datos**: todo pasa por la API HTTP
-(requisito del contrato). Mientras la API no exista, arranca en **modo demo** con datos en memoria,
-con la misma interfaz y el mismo comportamiento (§2 de la propuesta).
+(requisito del contrato). Arranca en **modo demo** con datos en memoria (misma interfaz y mismo
+comportamiento, §2 de la propuesta) y, con `OMNI3_MODO=api`, habla con la API real
+(`src/proyecto_reto1/`, rama `Api`), como se describe en §4.
 
 > Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
 
@@ -15,10 +16,10 @@ con la misma interfaz y el mismo comportamiento (§2 de la propuesta).
 
 | Pantalla | Qué hace |
 |---|---|
-| **Estado del sistema** | `GET /health`, identificador `R01`, estado, mensaje, momento, modo y `request-id`. |
-| **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta, edición y baja. |
-| **Conectores** | `GET /connectors`: fuentes del entorno, estado y última sincronización. |
-| **Sincronización** | `POST /sync` y cola persistente `GET /admin/refresh-queue`. |
+| **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento, modo y `request-id`). |
+| **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta y consulta de ficha. |
+| **Conectores** | Pantalla de fuentes de datos; requiere `GET /connectors` (ver §4.3). |
+| **Sincronización** | «Sincronizar ahora» y cola de refrescos; requiere `POST /sync` y `GET /admin/refresh-queue` (ver §4.3). |
 
 Reglas de negocio implementadas:
 
@@ -28,6 +29,10 @@ Reglas de negocio implementadas:
 - **Baja lógica** en alumnos nuevos; en históricos según el comportamiento de la base de origen.
 - Los DNI **nunca se muestran completos** en mensajes de error (se enmascaran: `12***78A`).
 - Toda petición envía una cabecera **`request-id`** que se muestra en la UI cuando hay error.
+
+Las reglas marcadas con «API» dependen de endpoints que la API actual todavía no publica
+(edición y baja): en modo API se muestran como error `501 NO_IMPLEMENTADO` y en modo demo se
+comportan como está descrito (§4.3).
 
 ---
 
@@ -114,30 +119,50 @@ ConfigApi config = new ConfigApi("http://127.0.0.1:9000", Modo.API, ConfigApi.TI
 FabricaAplicacion fabrica = new FabricaAplicacion(config);
 ```
 
-### 4.3. Endpoints que espera el cliente
+### 4.3. Endpoints de la API y cómo los usa el cliente
+
+La API desplegada (rama `Api`, FastAPI de `src/proyecto_reto1/`) publica solo tres rutas:
 
 | Método | Ruta | Uso en la app |
 |---|---|---|
-| `GET` | `/health` | Pantalla de estado (`R01`, estado, mensaje, momento). |
-| `GET` | `/students?origen=&q=&limit=&offset=` | Consulta unificada de alumnado. |
-| `GET` | `/students/{dni}` | Ficha para edición. |
-| `POST` | `/students` | Alta (patronus obligatorio, sin casa). |
-| `PUT` | `/students/{dni}` | Edición con estado previo → **409** si hay conflicto. |
-| `DELETE` | `/students/{dni}` | Baja. |
-| `GET` | `/connectors` | Pantalla de conectores. |
-| `POST` | `/sync` | Botón «Sincronizar ahora». |
+| `GET` | `/alumnos` | Consulta unificada y pantalla de estado. |
+| `GET` | `/alumnos/{dni}` | Ficha de un alumno. |
+| `POST` | `/alumnos` | Alta (cuerpo `{id, nombre, apellido?, sexo?, patronus?}`). |
+
+**Operaciones sin endpoint publicado.** Cuando la API no publica la ruta, el cliente lanza
+`ExcepcionApi` con estado **501** y código `NO_IMPLEMENTADO`, y la pantalla muestra ese mensaje en
+su estado de error:
+
+| Método | Ruta | Pantalla afectada |
+|---|---|---|
+| `PUT` | `/alumnos/{dni}` | Edición (formulario de alumno). |
+| `DELETE` | `/alumnos/{dni}` | Baja (menú de fila). |
+| `GET` | `/connectors` | Conectores. |
+| `POST` | `/sync` | Sincronización. |
 | `GET` | `/admin/refresh-queue` | Cola de refrescos. |
+
+**Mapeo de campos** (`api/ClienteAlumnosHttp.java`): el backend responde
+`{id, nombre, apellido, sexo, patronus, casa}` y la app recibe
+`{dni, nombre, casa, origen, tipo, version, actualizadoEn, activo}`:
+
+- `id` → `dni` (sin espacios y en mayúsculas); `nombre` + `apellido` → `nombre`.
+- `casa` (etiqueta de la fuente que responde) → `origen`: `Hogwarts`→`MARIADB`,
+  `Gryffindor`→`DERBY`, `Hufflepuff`→`H2`, `Slytherin`→`HSQLDB`, `Ravenclaw`→`ORACLE`.
+- `casa` → `casa` de la ficha; sin `casa` el alumno es `NUEVO`, con `casa` es `HISTORICO`.
+- La API no versiona ni marca bajas: `version = 0`, `actualizadoEn = ""`, `activo = true`.
+- El **filtro por origen, la búsqueda `q` y la paginación `limit`/`offset` se aplican en el
+  cliente**, porque `GET /alumnos` devuelve siempre el listado completo.
 
 **Cabeceras enviadas por el cliente HTTP** (`api/ClienteAlumnosHttp.java`):
 
 - `request-id`: identificador generado por el cliente en cada petición.
-- `If-Match: "<versión>"` y `X-Version-Previa: <versión>` en `PUT /students/{dni}`.
 - `Accept` / `Content-Type: application/json`.
 
-**Errores**: el cuerpo debe ser un *envelope* de la forma
+**Errores**: se aceptan los dos formatos que puede devolver el backend:
 
 ```json
 { "error": { "codigo": "DNI_DUPLICADO", "mensaje": "…", "detalle": "…" } }
+{ "detail": "No existe ningun alumno con DNI '…'" }
 ```
 
 Cualquier respuesta con estado `>= 400` se convierte en `ExcepcionApi` (código, mensaje,
@@ -147,11 +172,11 @@ Cualquier respuesta con estado `>= 400` se convierte en `ExcepcionApi` (código,
 ### 4.4. Comprobación rápida de que la API está viva
 
 ```bash
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/alumnos
 ```
 
-Si contesta, arranca la app con `OMNI3_MODO=api` y usa la pantalla **Estado del sistema**
-(botón «Comprobar ahora») para verificar la conexión desde el cliente.
+Si contesta con la lista de alumnos, arranca la app con `OMNI3_MODO=api` y usa la pantalla
+**Estado del sistema** (botón «Comprobar ahora») para verificar la conexión desde el cliente.
 
 ---
 
@@ -215,8 +240,12 @@ Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son det
 
 - **Modo demo verificado de extremo a extremo**: consulta, filtros, alta, edición con conflicto 409,
   conectores, cola y salud.
-- **Modo API sin probar contra un servidor real** (la API aún no existe): el cliente HTTP está
-  implementado según el contrato, pero falta la validación en vivo.
+- **Modo API verificado contra la API real** (rama `Api`, `uvicorn` + MariaDB): listado con
+  mapeo de campos, ficha por DNI, alta (`POST /alumnos`), búsqueda y filtro por origen,
+  `404` con el `detail` del backend y pantalla de estado.
+- **Operaciones pendientes de la API**: edición (`PUT`), baja (`DELETE`), conectores,
+  sincronización y cola responden `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI;
+  al no haber versionado, tampoco hay control de concurrencia (`version = 0`).
 - La URL base **no es configurable desde la interfaz** (§4.2).
 - Existe material de trabajo no versionado en la carpeta local (`tests-pendientes/`), fuera del
   alcance de este repositorio.
