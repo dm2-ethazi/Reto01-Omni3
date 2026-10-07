@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="pantalla" styleClass="pantalla" spacing="12" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.vista.SincronizacionController">
+
+  <HBox alignment="CENTER_LEFT" spacing="12">
+    <Label text="Sincronización" styleClass="titulo-seccion"/>
+    <Label text="Fuentes históricas → vista unificada" styleClass="texto-secundario"/>
+    <Region HBox.hgrow="ALWAYS"/>
+    <ProgressIndicator fx:id="indicadorCarga" prefWidth="18" prefHeight="18" maxHeight="18" visible="false"/>
+    <Button fx:id="botonSincronizar" text="Sincronizar ahora" styleClass="boton-primario"
+            onAction="#sincronizar"/>
+    <Button fx:id="botonCola" text="Ver cola de refrescos" styleClass="boton-secundario"
+            onAction="#cargarCola"/>
+  </HBox>
+
+  <GridPane styleClass="tarjeta" hgap="16" vgap="8">
+    <columnConstraints>
+      <ColumnConstraints minWidth="160"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <Label text="ÚLTIMO RESULTADO" styleClass="etiqueta-seccion" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="campoResultado" text="—" styleClass="valor-dato" wrapText="true"
+           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+  </GridPane>
+
+  <HBox alignment="CENTER_LEFT" spacing="8">
+    <Label text="Cola persistente de refrescos" styleClass="etiqueta-seccion"/>
+    <Region HBox.hgrow="ALWAYS"/>
+    <Label fx:id="etiquetaCola" text="" styleClass="texto-secundario"/>
+  </HBox>
+
+  <StackPane VBox.vgrow="ALWAYS">
+    <TableView fx:id="tablaCola" styleClass="tabla" VBox.vgrow="ALWAYS">
+      <columns/>
+      <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
+    </TableView>
+    <VBox fx:id="capaVacio" alignment="CENTER" spacing="8" visible="false">
+      <Label fx:id="textoVacio" text="Sin datos" styleClass="texto-vacio"/>
+    </VBox>
+  </StackPane>
+
+  <HBox alignment="CENTER_LEFT" spacing="16">
+    <Region HBox.hgrow="ALWAYS"/>
+    <Label fx:id="etiquetaMensaje" text="" styleClass="texto-secundario"/>
+  </HBox>
+</VBox>

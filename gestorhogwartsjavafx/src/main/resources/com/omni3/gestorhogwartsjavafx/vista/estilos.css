@@ -1,0 +1,257 @@
+/*
+ * Sistema de diseño "azul tenue" — Reto R01 · Omni3.
+ * Colores discretos, sin saturación, sin degradados ni sombras marcadas.
+ * JavaFX no admite variables CSS: los valores de este fichero son los tokens
+ * documentados en docs/00-contrato-tecnico.md (sección 5).
+ */
+
+.root {
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* ---------- Tokens ---------- */
+.raiz {
+    -fx-background-color: #F5F7FA;               /* fondo */
+}
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+    -fx-background-color: #3D5A80;               /* cabecera, plano */
+    -fx-background-radius: 0;
+}
+
+.titulo-cabecera {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.subtitulo-cabecera {
+    -fx-text-fill: #DCE6F2;
+    -fx-font-size: 12px;
+}
+
+.badge {
+    -fx-background-color: #3D5C87;               /* primario-activo */
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 12;
+}
+
+/* ---------- Cuerpo / lateral ---------- */
+.cuerpo {
+    -fx-background-color: #F5F7FA;
+}
+
+.lateral {
+    -fx-background-color: #FFFFFF;               /* surface */
+    -fx-border-color: #D7DEE8;                   /* borde */
+    -fx-border-width: 0 1 0 0;
+}
+
+.etiqueta-seccion {
+    -fx-text-fill: #6B7A8F;                      /* texto-secundario */
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.contenido {
+    -fx-background-color: #F5F7FA;
+}
+
+/* ---------- Controles ---------- */
+.campo {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 12;
+    -fx-padding: 7 10 7 10;
+    -fx-text-fill: #1F2937;                      /* texto */
+}
+
+.campo:focused {
+    -fx-border-color: #8FB0D9;                   /* foco */
+    -fx-border-width: 2;
+}
+
+.boton-primario {
+    -fx-background-color: #4A6FA5;               /* primario */
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 12;
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-primario:hover  { -fx-background-color: #5B82B5; }
+.boton-primario:pressed { -fx-background-color: #3D5C87; }
+.boton-primario:disabled { -fx-background-color: #D7DEE8; -fx-text-fill: #A9B4C2; }
+
+.boton-secundario {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #4A6FA5;
+    -fx-border-color: #4A6FA5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 7 14 7 14;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-secundario:hover  { -fx-background-color: #E8EEF6; }   /* seleccion */
+.boton-secundario:pressed { -fx-background-color: #DCE6F2; }
+
+.boton-lateral {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1F2937;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-background-radius: 12;
+    -fx-padding: 9 12 9 12;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-lateral:hover  { -fx-background-color: #F5F7FA; }
+.boton-lateral:pressed, .boton-lateral:focused { -fx-background-color: #E8EEF6; }
+
+/* ---------- Barra de estado ---------- */
+.barra-estado {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-width: 1 0 0 0;
+}
+
+.texto-secundario {
+    -fx-text-fill: #6B7A8F;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Tabla ---------- */
+.tabla {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.tabla .column-header-background {
+    -fx-background-color: #E8EEF6;               /* seleccion / cabecera */
+}
+
+.tabla .column-header, .tabla .filler {
+    -fx-background-color: transparent;
+    -fx-text-background-color: #6B7A8F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tabla-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-background-color: #1F2937;
+    -fx-border-color: transparent transparent #D7DEE8 transparent;
+    -fx-padding: 0 10 0 10;
+}
+
+.tabla-row-cell:odd { -fx-background-color: #F8FAFC; }   /* fila-alterna */
+
+.tabla-row-cell:selected {
+    -fx-background-color: #E8EEF6;
+    -fx-text-background-color: #1F2937;
+}
+
+/* ---------- Tarjeta ---------- */
+.tarjeta {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+}
+
+/* ---------- Pantallas ---------- */
+.pantalla {
+    -fx-background-color: #F5F7FA;
+}
+
+.barra-herramientas {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #D7DEE8 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 4 10 4;
+}
+
+.barra-conteo {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8 4 4 4;
+}
+
+.overlay-carga {
+    -fx-background-color: rgba(245, 247, 250, 0.92);
+}
+
+.texto-vacio {
+    -fx-text-fill: #6B7A8F;
+    -fx-font-size: 14px;
+}
+
+.valor-dato {
+    -fx-text-fill: #1F2937;
+    -fx-font-size: 14px;
+}
+
+.etiqueta-campo {
+    -fx-text-fill: #6B7A8F;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.formulario {
+    -fx-background-color: #FFFFFF;
+}
+
+/* ---------- Botón peligro (baja) ---------- */
+.boton-peligro {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #A96B6B;
+    -fx-border-color: #A96B6B;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 7 14 7 14;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-peligro:hover  { -fx-background-color: #F7EFEF; }
+.boton-peligro:pressed { -fx-background-color: #EEDCDC; }
+.boton-peligro:disabled { -fx-border-color: #D7DEE8; -fx-text-fill: #A9B4C2; }
+
+/* ---------- Desplegables ---------- */
+.campo-combo {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 12;
+}
+
+.campo-combo:focused { -fx-border-color: #8FB0D9; }
+
+/* ---------- Navegación activa ---------- */
+.boton-lateral.activo {
+    -fx-background-color: #E8EEF6;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Insignias de modo ---------- */
+.badge-demo { -fx-background-color: #3D5C87; }
+.badge-api  { -fx-background-color: #5F8D6E; }
+
+/* ---------- Etiquetas ---------- */
+.texto-error   { -fx-text-fill: #A96B6B; -fx-font-size: 12px; }
+.texto-exito   { -fx-text-fill: #5F8D6E; -fx-font-size: 12px; }
+.texto-aviso   { -fx-text-fill: #B08D57; -fx-font-size: 12px; }
+.titulo-seccion { -fx-text-fill: #1F2937; -fx-font-size: 16px; -fx-font-weight: bold; }

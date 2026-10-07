@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="pantalla" styleClass="pantalla" spacing="16" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.vista.EstadoController">
+
+  <HBox alignment="CENTER_LEFT" spacing="12">
+    <Label text="Estado del sistema" styleClass="titulo-seccion"/>
+    <Region HBox.hgrow="ALWAYS"/>
+    <ProgressIndicator fx:id="indicadorCarga" prefWidth="18" prefHeight="18" maxHeight="18" visible="false"/>
+    <Button fx:id="botonComprobar" text="Comprobar ahora" styleClass="boton-primario"
+            onAction="#comprobar"/>
+  </HBox>
+
+  <GridPane fx:id="ficha" styleClass="tarjeta" hgap="16" vgap="12">
+    <columnConstraints>
+      <ColumnConstraints minWidth="160" hgrow="SOMETIMES"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+
+    <Label text="IDENTIFICADOR" styleClass="etiqueta-seccion" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="campoIdentificador" text="—" styleClass="valor-dato" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+    <Label text="ESTADO" styleClass="etiqueta-seccion" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label fx:id="campoEstado" text="—" styleClass="valor-dato" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+    <Label text="MENSAJE" styleClass="etiqueta-seccion" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label fx:id="campoMensaje" text="—" styleClass="valor-dato" wrapText="true"
+           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+    <Label text="MOMENTO" styleClass="etiqueta-seccion" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <Label fx:id="campoMomento" text="—" styleClass="valor-dato" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+    <Label text="MODO" styleClass="etiqueta-seccion" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <Label fx:id="campoModo" text="—" styleClass="valor-dato" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+    <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+  </GridPane>
+
+  <HBox spacing="8" alignment="CENTER_LEFT">
+    <Label fx:id="etiquetaError" text="" styleClass="texto-error" wrapText="true" HBox.hgrow="ALWAYS"/>
+  </HBox>
+
+  <HBox spacing="8" alignment="CENTER_LEFT">
+    <Label fx:id="etiquetaRequestId" text="" styleClass="texto-secundario"/>
+  </HBox>
+</VBox>

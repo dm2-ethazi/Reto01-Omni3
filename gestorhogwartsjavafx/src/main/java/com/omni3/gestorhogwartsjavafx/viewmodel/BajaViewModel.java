@@ -1,0 +1,71 @@
+package com.omni3.gestorhogwartsjavafx.viewmodel;
+
+import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
+import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Validaciones;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
+/**
+ * Viewmodel de la baja de un alumno ({@code DELETE /students/{dni}}).
+ *
+ * <p>La baja lógica se aplica en los alumnos nuevos; en los históricos,
+ * el comportamiento es el de su base de origen (§2.4). La vista sólo
+ * muestra el resultado: la confirmación es responsabilidad del
+ * controlador, que invoca {@link #bajar(String, Runnable)} una vez el
+ * usuario ha confirmado.</p>
+ */
+public class BajaViewModel extends ViewModelBase {
+
+    /** Alumno que se acaba de dar de baja, si la operación terminó bien. */
+    private final ObjectProperty<AlumnoDto> bajaRealizada = new SimpleObjectProperty<>();
+
+    /**
+     * Crea el viewmodel.
+     *
+     * @param servicio servicio de fondo; no nulo
+     */
+    public BajaViewModel(ServicioAlumnos servicio) {
+        super(servicio);
+        reiniciar("Listo");
+    }
+
+    /** Alumno dado de baja. */
+    public AlumnoDto getBajaRealizada() {
+        return bajaRealizada.get();
+    }
+
+    /** Propiedad observable del alumno dado de baja. */
+    public ObjectProperty<AlumnoDto> bajaRealizadaProperty() {
+        return bajaRealizada;
+    }
+
+    /**
+     * Ejecuta la baja del alumno indicado.
+     *
+     * @param dni       DNI del alumno a dar de baja
+     * @param trasExito acción a realizar cuando la baja termina bien
+     *                   (p. ej. cerrar el diálogo o refrescar la tabla);
+     *                   puede ser {@code null}
+     */
+    public void bajar(String dni, Runnable trasExito) {
+        String normalizado = Validaciones.normalizarDNI(dni);
+        if (normalizado == null || normalizado.isEmpty()) {
+            marcarFallo(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
+                    400, "VALIDACION", "Debe indicar el DNI del alumno a dar de baja.", null));
+            return;
+        }
+        bajaRealizada.set(null);
+        marcarCargando("Dando de baja…");
+        servicio.bajarAlumno(normalizado,
+                () -> {
+                    bajaRealizada.set(new com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto(
+                            normalizado, "", null, null, "", "", 0L, null, false));
+                    marcarOk("Alumno dado de baja.");
+                    if (trasExito != null) {
+                        trasExito.run();
+                    }
+                },
+                this::marcarFallo);
+    }
+}
