@@ -29,10 +29,14 @@
     <VBox fx:id="lateral" prefWidth="230" spacing="6" styleClass="lateral">
       <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
       <Label text="NAVEGACIÓN" styleClass="etiqueta-seccion"/>
-      <Button fx:id="navEstado" text="Estado del sistema" maxWidth="Infinity" styleClass="boton-lateral"/>
-      <Button fx:id="navAlumnos" text="Alumnos" maxWidth="Infinity" styleClass="boton-lateral"/>
-      <Button fx:id="navConectores" text="Conectores" maxWidth="Infinity" styleClass="boton-lateral"/>
-      <Button fx:id="navSincronizar" text="Sincronización" maxWidth="Infinity" styleClass="boton-lateral"/>
+      <Button fx:id="navEstado" text="Estado del sistema" maxWidth="Infinity" styleClass="boton-lateral"
+              onAction="#navegarEstado"/>
+      <Button fx:id="navAlumnos" text="Alumnos" maxWidth="Infinity" styleClass="boton-lateral"
+              onAction="#navegarAlumnos"/>
+      <Button fx:id="navConectores" text="Conectores" maxWidth="Infinity" styleClass="boton-lateral"
+              onAction="#navegarConectores"/>
+      <Button fx:id="navSincronizar" text="Sincronización" maxWidth="Infinity" styleClass="boton-lateral"
+              onAction="#navegarSincronizar"/>
       <Separator/>
       <Region VBox.vgrow="ALWAYS"/>
       <Label text="Reto R01 · Omni3" styleClass="texto-secundario"/>
