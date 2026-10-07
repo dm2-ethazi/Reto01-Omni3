@@ -1,6 +1,6 @@
 import oracledb
 
-from .base import Alumno, texto
+from .base import Alumno, AlumnoActualizacion, campos_a_actualizar, texto
 
 
 class RepositorioOracle:
@@ -56,3 +56,39 @@ class RepositorioOracle:
             patronus=texto(fila[4]),
             casa=self.casa,
         )
+
+    def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+        columnas = campos_a_actualizar(datos)
+        if not columnas:
+            return self.obtener(id_alumno)
+        with oracledb.connect(
+            user=self.usuario,
+            password=self.password,
+            dsn=self.dsn,
+            tcp_connect_timeout=5,
+        ) as conexion:
+            with conexion.cursor() as cursor:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
+                if cursor.fetchone() is None:
+                    return None
+                asignacion = ", ".join(f"{nombre} = :{nombre.lower()}" for nombre in columnas)
+                parametros = {nombre.lower(): valor for nombre, valor in columnas.items()}
+                parametros["id"] = id_alumno
+                cursor.execute(f"UPDATE ALUMNOS SET {asignacion} WHERE ID = :id", parametros)
+            conexion.commit()
+        return self.obtener(id_alumno)
+
+    def eliminar(self, id_alumno: str) -> bool:
+        with oracledb.connect(
+            user=self.usuario,
+            password=self.password,
+            dsn=self.dsn,
+            tcp_connect_timeout=5,
+        ) as conexion:
+            with conexion.cursor() as cursor:
+                cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
+                if cursor.fetchone() is None:
+                    return False
+                cursor.execute("DELETE FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
+            conexion.commit()
+        return True
