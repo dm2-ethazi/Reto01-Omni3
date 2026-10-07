@@ -7,4 +7,6 @@
     <string name="salud">Salud</string>
     <string name="nombre">Nombre</string>
     <string name="dni">DNI</string>
+    <string name="idiomaBoton">Idioma</string>
+    <string name="idioma_sistema">Idioma del dispositivo</string>
 </resources>

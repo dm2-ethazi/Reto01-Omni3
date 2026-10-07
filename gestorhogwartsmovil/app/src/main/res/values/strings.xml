@@ -6,4 +6,9 @@
     <string name="salud">Health check</string>
     <string name="nombre">Name</string>
     <string name="dni">National ID (DNI)</string>
+    <string name="idiomaBoton">Language</string>
+    <string name="idioma_sistema">Device language</string>
+    <string name="idioma_ingles" translatable="false">English</string>
+    <string name="idioma_espanol" translatable="false">Español</string>
+    <string name="idioma_euskera" translatable="false">Euskara</string>
 </resources>

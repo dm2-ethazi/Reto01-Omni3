@@ -7,4 +7,6 @@
     <string name="salud">Osasuna</string>
     <string name="nombre">Izena</string>
     <string name="dni">NAN</string>
+    <string name="idiomaBoton">Hizkuntza</string>
+    <string name="idioma_sistema">Gailuaren hizkuntza</string>
 </resources>
