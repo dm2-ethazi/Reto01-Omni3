@@ -3,6 +3,12 @@
  * Colores discretos, sin saturación, sin degradados ni sombras marcadas.
  * JavaFX no admite variables CSS: los valores de este fichero son los tokens
  * documentados en docs/00-contrato-tecnico.md (sección 5).
+ *
+ * Reglas internas de este fichero:
+ *   - Radios: tarjeta 16, campo/botón/tabla 12, menús 8.
+ *   - Rejilla de 8 px (4 sólo para ajustes ópticos).
+ *   - Sombra única admitida: rgba(31,41,55,0.06).
+ *   - El foco nunca mueve el layout: el borde mide 2 px también en reposo.
  */
 
 .root {
@@ -10,14 +16,17 @@
     -fx-font-size: 14px;
 }
 
-/* ---------- Tokens ---------- */
+/* =====================================================================
+ * 1. Marco general: raíz, cabecera, cuerpo, lateral y pie
+ * ===================================================================== */
+
 .raiz {
-    -fx-background-color: #F5F7FA;               /* fondo */
+    -fx-background-color: #F5F7FA;                               /* fondo */
 }
 
 /* ---------- Cabecera ---------- */
 .cabecera {
-    -fx-background-color: #3D5A80;               /* cabecera, plano */
+    -fx-background-color: #3D5A80;                               /* cabecera, plano */
     -fx-background-radius: 0;
 }
 
@@ -32,157 +41,47 @@
     -fx-font-size: 12px;
 }
 
-/* ---------- Cuerpo / lateral ---------- */
+/* ---------- Cuerpo / lateral / contenido ---------- */
 .cuerpo {
     -fx-background-color: #F5F7FA;
 }
 
 .lateral {
-    -fx-background-color: #FFFFFF;               /* surface */
-    -fx-border-color: #D7DEE8;                   /* borde */
+    -fx-background-color: #FFFFFF;                               /* surface */
+    -fx-border-color: #D7DEE8;                                   /* borde */
     -fx-border-width: 0 1 0 0;
-}
-
-.etiqueta-seccion {
-    -fx-text-fill: #6B7A8F;                      /* texto-secundario */
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
 }
 
 .contenido {
     -fx-background-color: #F5F7FA;
 }
 
-/* ---------- Controles ---------- */
-.campo {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 12;
-    -fx-border-color: #D7DEE8;
-    -fx-border-radius: 12;
-    -fx-padding: 7 10 7 10;
-    -fx-text-fill: #1F2937;                      /* texto */
+.etiqueta-seccion {
+    -fx-text-fill: #6B7A8F;                                      /* texto-secundario */
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
 }
 
-.campo:focused {
-    -fx-border-color: #8FB0D9;                   /* foco */
-    -fx-border-width: 2;
-}
-
-.boton-primario {
-    -fx-background-color: #4A6FA5;               /* primario */
-    -fx-text-fill: #FFFFFF;
-    -fx-background-radius: 12;
-    -fx-padding: 8 16 8 16;
-    -fx-font-size: 13px;
-    -fx-cursor: hand;
-}
-
-.boton-primario:hover  { -fx-background-color: #5B82B5; }
-.boton-primario:pressed { -fx-background-color: #3D5C87; }
-.boton-primario:disabled { -fx-background-color: #D7DEE8; -fx-text-fill: #A9B4C2; }
-
-.boton-secundario {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #4A6FA5;
-    -fx-border-color: #4A6FA5;
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-    -fx-padding: 7 14 7 14;
-    -fx-font-size: 13px;
-    -fx-cursor: hand;
-}
-
-.boton-secundario:hover  { -fx-background-color: #E8EEF6; }   /* seleccion */
-.boton-secundario:pressed { -fx-background-color: #DCE6F2; }
-
-.boton-lateral {
-    -fx-background-color: transparent;
-    -fx-text-fill: #1F2937;
-    -fx-alignment: BASELINE_LEFT;
-    -fx-background-radius: 12;
-    -fx-padding: 9 12 9 12;
-    -fx-font-size: 13px;
-    -fx-cursor: hand;
-}
-
-.boton-lateral:hover  { -fx-background-color: #F5F7FA; }
-.boton-lateral:pressed, .boton-lateral:focused { -fx-background-color: #E8EEF6; }
-
-/* ---------- Barra de estado ---------- */
+/* ---------- Barra de estado (pie) ---------- */
 .barra-estado {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #D7DEE8;
     -fx-border-width: 1 0 0 0;
 }
 
-.texto-secundario {
-    -fx-text-fill: #6B7A8F;
-    -fx-font-size: 12px;
-}
+/* =====================================================================
+ * 2. Textos
+ * ===================================================================== */
 
-/* ---------- Tabla ---------- */
-.tabla {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #D7DEE8;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-}
-
-.tabla .column-header-background {
-    -fx-background-color: #E8EEF6;               /* seleccion / cabecera */
-}
-
-.tabla .column-header, .tabla .filler {
-    -fx-background-color: transparent;
-    -fx-text-background-color: #6B7A8F;
-    -fx-font-size: 12px;
+.titulo-seccion {
+    -fx-text-fill: #1F2937;                                      /* texto */
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
-.tabla-row-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-text-background-color: #1F2937;
-    -fx-border-color: transparent transparent #D7DEE8 transparent;
-    -fx-padding: 0 10 0 10;
-}
-
-.tabla-row-cell:odd { -fx-background-color: #F8FAFC; }   /* fila-alterna */
-
-.tabla-row-cell:selected {
-    -fx-background-color: #E8EEF6;
-    -fx-text-background-color: #1F2937;
-}
-
-/* ---------- Tarjeta ---------- */
-.tarjeta {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #D7DEE8;
-    -fx-border-radius: 16;
-    -fx-background-radius: 16;
-    -fx-padding: 16;
-}
-
-/* ---------- Pantallas ---------- */
-.pantalla {
-    -fx-background-color: #F5F7FA;
-}
-
-.barra-herramientas {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: transparent transparent #D7DEE8 transparent;
-    -fx-border-width: 0 0 1 0;
-    -fx-padding: 10 4 10 4;
-}
-
-.barra-conteo {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #D7DEE8 transparent transparent transparent;
-    -fx-border-width: 1 0 0 0;
-    -fx-padding: 8 4 4 4;
-}
-
-.overlay-carga {
-    -fx-background-color: rgba(245, 247, 250, 0.92);
+.texto-secundario {
+    -fx-text-fill: #6B7A8F;
+    -fx-font-size: 12px;
 }
 
 .texto-vacio {
@@ -201,44 +100,515 @@
     -fx-font-weight: bold;
 }
 
-.formulario {
-    -fx-background-color: #FFFFFF;
+/* Estados de mensaje: sólo color (una etiqueta vacía no debe dejar recuadro). */
+.texto-error {
+    -fx-text-fill: #A96B6B;                                      /* error */
+    -fx-font-size: 12px;
 }
 
-/* ---------- Botón peligro (baja) ---------- */
-.boton-peligro {
+.texto-exito {
+    -fx-text-fill: #5F8D6E;                                      /* exito */
+    -fx-font-size: 12px;
+}
+
+.texto-aviso {
+    -fx-text-fill: #B08D57;                                      /* aviso */
+    -fx-font-size: 12px;
+}
+
+/* =====================================================================
+ * 3. Campos de texto y desplegables
+ * ===================================================================== */
+
+.campo {
     -fx-background-color: #FFFFFF;
-    -fx-text-fill: #A96B6B;
-    -fx-border-color: #A96B6B;
-    -fx-border-radius: 12;
     -fx-background-radius: 12;
-    -fx-padding: 7 14 7 14;
-    -fx-font-size: 13px;
-    -fx-cursor: hand;
+    -fx-border-color: #D7DEE8;                                   /* borde */
+    -fx-border-radius: 12;
+    -fx-border-width: 2;                                         /* anillo de 2 px: no salta al enfocar */
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: #1F2937;                                      /* texto */
+    /* la selección usa la paleta en lugar del azul saturado del tema */
+    -fx-highlight-fill: #E8EEF6;                                 /* seleccion */
+    -fx-highlight-text-fill: #1F2937;
 }
 
-.boton-peligro:hover  { -fx-background-color: #F7EFEF; }
-.boton-peligro:pressed { -fx-background-color: #EEDCDC; }
-.boton-peligro:disabled { -fx-border-color: #D7DEE8; -fx-text-fill: #A9B4C2; }
+.campo:focused {
+    -fx-border-color: #8FB0D9;                                   /* foco */
+    -fx-background-color: #FFFFFF;
+}
 
-/* ---------- Desplegables ---------- */
+.campo:disabled {
+    -fx-background-color: #F5F7FA;
+    -fx-border-color: #D7DEE8;
+    -fx-text-fill: #A9B4C2;
+    -fx-highlight-fill: #D7DEE8;
+    -fx-highlight-text-fill: #A9B4C2;
+}
+
 .campo-combo {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 12;
     -fx-border-color: #D7DEE8;
     -fx-border-radius: 12;
+    -fx-border-width: 2;
 }
 
-.campo-combo:focused { -fx-border-color: #8FB0D9; }
+.campo-combo:focused {
+    -fx-border-color: #8FB0D9;
+}
 
-/* ---------- Navegación activa ---------- */
-.boton-lateral.activo {
-    -fx-background-color: #E8EEF6;
+/* Lista desplegable del combo */
+.combo-box-popup .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-text-fill: #1F2937;
+    -fx-padding: 6 8 6 8;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #F5F7FA;
+}
+
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #E8EEF6;                               /* seleccion */
+    -fx-text-fill: #1F2937;
     -fx-font-weight: bold;
 }
 
-/* ---------- Etiquetas ---------- */
-.texto-error   { -fx-text-fill: #A96B6B; -fx-font-size: 12px; }
-.texto-exito   { -fx-text-fill: #5F8D6E; -fx-font-size: 12px; }
-.texto-aviso   { -fx-text-fill: #B08D57; -fx-font-size: 12px; }
-.titulo-seccion { -fx-text-fill: #1F2937; -fx-font-size: 16px; -fx-font-weight: bold; }
+/* =====================================================================
+ * 4. Botones
+ * ===================================================================== */
+
+/* Todos los botones reservan un anillo de foco de 2 px: enfocar no
+ * desplaza los controles vecinos. */
+.boton-primario,
+.boton-secundario,
+.boton-peligro {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-primario {
+    -fx-background-color: #4A6FA5;                               /* primario */
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: transparent;
+}
+
+.boton-primario:hover {
+    -fx-background-color: #5B82B5;                               /* primario-hover */
+}
+
+.boton-primario:pressed {
+    -fx-background-color: #3D5C87;                               /* primario-activo */
+}
+
+.boton-primario:focused {
+    -fx-border-color: #8FB0D9;                                   /* foco */
+}
+
+.boton-primario:disabled {
+    -fx-background-color: #D7DEE8;
+    -fx-border-color: transparent;
+    -fx-text-fill: #A9B4C2;
+}
+
+.boton-secundario {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #4A6FA5;
+    -fx-border-color: #4A6FA5;
+}
+
+.boton-secundario:hover {
+    -fx-background-color: #E8EEF6;                               /* seleccion */
+}
+
+.boton-secundario:pressed {
+    -fx-background-color: #DCE6F2;
+}
+
+.boton-secundario:focused {
+    -fx-border-color: #8FB0D9;
+    -fx-text-fill: #3D5C87;
+}
+
+.boton-secundario:disabled {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-text-fill: #A9B4C2;
+}
+
+.boton-peligro {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #A96B6B;                                      /* error */
+    -fx-border-color: #A96B6B;
+}
+
+.boton-peligro:hover {
+    -fx-background-color: #F7EFEF;
+}
+
+.boton-peligro:pressed {
+    -fx-background-color: #EEDCDC;
+}
+
+.boton-peligro:focused {
+    -fx-border-color: #8FB0D9;
+}
+
+.boton-peligro:disabled {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-text-fill: #A9B4C2;
+}
+
+/* ---------- Navegación lateral ---------- */
+.boton-lateral {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+    -fx-text-fill: #1F2937;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.boton-lateral:hover {
+    -fx-background-color: #F5F7FA;
+}
+
+.boton-lateral:focused {
+    -fx-border-color: #8FB0D9;
+    -fx-background-color: #F5F7FA;
+}
+
+.boton-lateral:armed {
+    -fx-background-color: #E8EEF6;
+}
+
+/* Actividad: relleno tenue + barra de identificación a la izquierda. */
+.boton-lateral.activo {
+    -fx-background-color: #E8EEF6;
+    -fx-border-color: #4A6FA5;
+    -fx-border-width: 2 0 2 3;
+    -fx-border-insets: 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2937;
+}
+
+/* =====================================================================
+ * 5. Tarjetas, pantallas y barras
+ * ===================================================================== */
+
+.tarjeta {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    /* única sombra admitida por el contrato */
+    -fx-effect: dropshadow(gaussian, rgba(31, 41, 55, 0.06), 12, 0.4, 0, 3);
+}
+
+.pantalla {
+    -fx-background-color: #F5F7FA;
+}
+
+.barra-herramientas {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #D7DEE8 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12 4 12 4;
+}
+
+.barra-conteo {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8 4 8 4;
+}
+
+/* =====================================================================
+ * 6. Tablas
+ * ===================================================================== */
+
+.tabla {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-border-width: 1;
+}
+
+.tabla:focused {
+    -fx-border-color: #8FB0D9;                                   /* foco */
+}
+
+.tabla .column-header-background {
+    -fx-background-color: #E8EEF6;                               /* cabecera */
+}
+
+.tabla .column-header-background:hover {
+    -fx-background-color: #DCE6F2;
+}
+
+.tabla .column-header,
+.tabla .filler {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-text-background-color: #6B7A8F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 10 8 10;
+}
+
+/* Las celdas llevan Labels: sin esta regla heredan el gris del tema. */
+.tabla .label {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1F2937;
+}
+
+.tabla-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-background-color: #1F2937;
+    -fx-border-color: transparent transparent #D7DEE8 transparent;
+    -fx-padding: 0 10 0 10;
+}
+
+.tabla-row-cell:odd {
+    -fx-background-color: #F8FAFC;                               /* fila-alterna */
+}
+
+.tabla-row-cell:hover {
+    -fx-background-color: #F1F5FB;
+}
+
+.tabla-row-cell:selected {
+    -fx-background-color: #E8EEF6;                               /* seleccion */
+    -fx-text-background-color: #1F2937;
+}
+
+.tabla .placeholder .label {
+    -fx-text-fill: #6B7A8F;
+    -fx-font-size: 14px;
+}
+
+/* Colores de estado de las celdas (clases usadas desde los controladores). */
+.tabla .celda-exito {
+    -fx-text-fill: #5F8D6E;
+    -fx-text-background-color: #5F8D6E;
+    -fx-font-weight: bold;
+}
+
+.tabla .celda-aviso {
+    -fx-text-fill: #B08D57;
+    -fx-text-background-color: #B08D57;
+    -fx-font-weight: bold;
+}
+
+.tabla .celda-error {
+    -fx-text-fill: #A96B6B;
+    -fx-text-background-color: #A96B6B;
+    -fx-font-weight: bold;
+}
+
+.tabla .celda-neutro {
+    -fx-text-fill: #6B7A8F;
+    -fx-text-background-color: #6B7A8F;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================================
+ * 7. Carga, formulario y barra de mensajes
+ * ===================================================================== */
+
+.overlay-carga {
+    -fx-background-color: rgba(245, 247, 250, 0.92);
+    -fx-background-radius: 16;
+    -fx-border-color: #D7DEE8;
+    -fx-border-radius: 16;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(31, 41, 55, 0.06), 12, 0.4, 0, 3);
+}
+
+.formulario {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 20;
+}
+
+/* =====================================================================
+ * 8. Diálogos nativos (confirmaciones, errores) y ayudas
+ * ===================================================================== */
+
+.dialog-pane {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D7DEE8;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* Cabecera plana con el azul de la barra superior. */
+.dialog-pane .header-panel {
+    -fx-background-color: #3D5A80;
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 14 16 14 16;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* El icono por defecto del tema está saturado: se oculta. */
+.dialog-pane .header-panel .graphic {
+    -fx-opacity: 0;
+}
+
+.dialog-pane .content {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 0 0 12 12;
+    -fx-padding: 16;
+    -fx-text-fill: #1F2937;
+}
+
+.dialog-pane .content .label {
+    -fx-text-fill: #1F2937;
+    -fx-font-size: 13px;
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 0 0 12 12;
+    -fx-padding: 0 16 16 16;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #4A6FA5;
+    -fx-border-color: #4A6FA5;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 6 16 6 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: #E8EEF6;
+}
+
+.dialog-pane .button-bar .button:focused {
+    -fx-border-color: #8FB0D9;
+}
+
+/* La acción por defecto (Aceptar) es la primaria. En JavaFX se marca con
+   la pseudo-clase :default, no con una clase. */
+.dialog-pane .button-bar .button:default {
+    -fx-background-color: #4A6FA5;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: transparent;
+}
+
+.dialog-pane .button-bar .button:default:hover {
+    -fx-background-color: #5B82B5;
+}
+
+.dialog-pane .button-bar .button:default:pressed {
+    -fx-background-color: #3D5C87;
+}
+
+/* Acción destructiva (p. ej. aceptar una baja) dentro de un diálogo.
+   Va la última: con la misma especificidad gana la regla posterior. */
+.dialog-pane .button-bar .button.boton-peligro {
+    -fx-background-color: #A96B6B;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: transparent;
+}
+
+.dialog-pane .button-bar .button.boton-peligro:hover {
+    -fx-background-color: #EEDCDC;
+    -fx-text-fill: #A96B6B;
+}
+
+.dialog-pane .button-bar .button.boton-peligro:pressed {
+    -fx-background-color: #EEDCDC;
+    -fx-text-fill: #A96B6B;
+}
+
+/* Ayuda emergente */
+.tooltip {
+    -fx-background-color: #1F2937;
+    -fx-background-radius: 8;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+    -fx-padding: 6 9 6 9;
+    -fx-show-delay: 300ms;
+}
+
+/* =====================================================================
+ * 9. Barra de desplazamiento, indicadores y separadores
+ * ===================================================================== */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #F5F7FA;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 2;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #D7DEE8;
+    -fx-background-radius: 8;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #8FB0D9;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* Indicadores de progreso en azul primario (el del tema es saturado). */
+.progress-indicator {
+    -fx-progress-color: #4A6FA5;
+}
+
+.progress-indicator .percentage {
+    -fx-fill: #1F2937;
+    -fx-font-size: 11px;
+}
+
+.separator .line {
+    -fx-border-color: #D7DEE8;
+    -fx-border-width: 1 0 0 0;
+}
