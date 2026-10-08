@@ -52,6 +52,10 @@ Las operaciones que la API todavía no publica (conectores, sincronización y co
 
 No hay que instalar JavaFX a mano: `pom.xml` ya declara las dependencias.
 
+> **Nota de compilación.** El proyecto fija `maven.compiler.release=17`, así que compila con
+> cualquier JDK 17 o posterior; la verificación completa de este encargo (compilación, 75 pruebas
+> y Javadoc sin avisos) se ha hecho con un **JDK 25** instalado, sin necesidad de cambiar nada.
+
 ---
 
 ## 3. Puesta en marcha
