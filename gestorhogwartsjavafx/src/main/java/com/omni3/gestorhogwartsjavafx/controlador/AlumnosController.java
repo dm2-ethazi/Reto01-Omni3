@@ -54,9 +54,6 @@ public class AlumnosController implements ControladorVista {
     @FXML private TableColumn<AlumnoDto, String> colCasa;
     @FXML private TableColumn<AlumnoDto, String> colPatronus;
     @FXML private TableColumn<AlumnoDto, String> colOrigen;
-    @FXML private TableColumn<AlumnoDto, String> colTipo;
-    @FXML private TableColumn<AlumnoDto, String> colVersion;
-    @FXML private TableColumn<AlumnoDto, String> colActualizado;
     @FXML private VBox capaCarga;
     @FXML private VBox capaVacio;
     @FXML private Label textoCarga;
@@ -156,9 +153,6 @@ public class AlumnosController implements ControladorVista {
         colCasa.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().casa())));
         colPatronus.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().patronus())));
         colOrigen.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().origen())));
-        colTipo.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().tipo())));
-        colVersion.setCellValueFactory(d -> new ReadOnlyStringWrapper(String.valueOf(d.getValue().version())));
-        colActualizado.setCellValueFactory(d -> new ReadOnlyStringWrapper(cortar(d.getValue().actualizadoEn())));
         tabla.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         tabla.setItems(consulta.getAlumnos());
     }
@@ -166,14 +160,6 @@ public class AlumnosController implements ControladorVista {
     /** Texto de celda, nunca {@code null}. */
     private static String valor(String texto) {
         return texto == null || texto.isBlank() ? "—" : texto;
-    }
-
-    /** Recorta el instante ISO a sus 19 primeros caracteres (fecha y hora). */
-    private static String cortar(String instante) {
-        if (instante == null || instante.isBlank()) {
-            return "—";
-        }
-        return instante.length() > 19 ? instante.substring(0, 19) : instante;
     }
 
     /** Refleja el estado de los viewmodels en las capas de la pantalla. */

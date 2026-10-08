@@ -31,16 +31,14 @@
   </HBox>
 
   <StackPane fx:id="contenedorTabla" VBox.vgrow="ALWAYS">
-    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS"
+               columnResizePolicy="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN">
       <columns>
         <TableColumn fx:id="colDni" text="DNI" prefWidth="110"/>
-        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
-        <TableColumn fx:id="colCasa" text="Casa" prefWidth="120"/>
-        <TableColumn fx:id="colPatronus" text="Patronus" prefWidth="130"/>
-        <TableColumn fx:id="colOrigen" text="Origen" prefWidth="110"/>
-        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="110"/>
-        <TableColumn fx:id="colVersion" text="Ver." prefWidth="60"/>
-        <TableColumn fx:id="colActualizado" text="Actualizado" prefWidth="150"/>
+        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="280"/>
+        <TableColumn fx:id="colCasa" text="Casa" prefWidth="130"/>
+        <TableColumn fx:id="colPatronus" text="Patronus" prefWidth="140"/>
+        <TableColumn fx:id="colOrigen" text="Origen" prefWidth="120"/>
       </columns>
       <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
     </TableView>
