@@ -3,17 +3,14 @@
 Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alumnado, gestionar
 conectores y lanzar sincronizaciones contra la API central de R01 · Omni3.
 
-**La aplicación ya está conectada con la API.** Arrancando con `OMNI3_MODO=api` (§4) habla por
-HTTP con la API real de FastAPI (`src/proyecto_reto1/`, rama `Api`, `http://127.0.0.1:8000`) y
-consulta las cinco fuentes del `compose.yaml` —MariaDB, Derby, H2, HSQLDB y Oracle—, devolviendo
-a cada alumno su fuente de origen. **La aplicación nunca accede directamente a las bases de
-datos**: todo pasa por la API HTTP (requisito del contrato). Consulta, alta, **edición**
-(`PUT /alumnos/{dni}`) y **baja** (`DELETE /alumnos/{dni}`) están conectadas con la API; las
-operaciones que todavía no publica (conectores, sincronización y cola) se responden como
-`501 NO_IMPLEMENTADO` con un mensaje legible (§4.3).
-
-Sin esa variable, la app arranca en **modo demo** con los mismos datos en memoria y la misma
-interfaz, para poder probar la UI sin levantar la API (§2 de la propuesta).
+**La aplicación habla siempre por HTTP con la API real** de FastAPI (`src/proyecto_reto1/`,
+rama `Api`, `http://127.0.0.1:8000`) y consulta las cinco fuentes del `compose.yaml` —MariaDB,
+Derby, H2, HSQLDB y Oracle—, devolviendo a cada alumno su fuente de origen. **La aplicación nunca
+accede directamente a las bases de datos**: todo pasa por la API HTTP (requisito del contrato).
+Consulta, alta, **edición** (`PUT /alumnos/{dni}`) y **baja** (`DELETE /alumnos/{dni}`) están
+conectadas con la API; las operaciones que todavía no publica (conectores, sincronización y
+cola) se responden como `501 NO_IMPLEMENTADO` con un mensaje legible (§4.3). No existe ningún
+modo alternativo ni datos simulados en el cliente: el único cliente es `ClienteAlumnosHttp`.
 
 > Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
 
@@ -23,7 +20,7 @@ interfaz, para poder probar la UI sin levantar la API (§2 de la propuesta).
 
 | Pantalla | Qué hace |
 |---|---|
-| **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento, modo y `request-id`). |
+| **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento y `request-id`). |
 | **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta, edición, baja y consulta de ficha. |
 | **Conectores** | Pantalla de fuentes de datos; requiere `GET /connectors` (ver §4.3). |
 | **Sincronización** | «Sincronizar ahora» y cola de refrescos; requiere `POST /sync` y `GET /admin/refresh-queue` (ver §4.3). |
@@ -31,16 +28,16 @@ interfaz, para poder probar la UI sin levantar la API (§2 de la propuesta).
 Reglas de negocio implementadas:
 
 - **Alta** solo en la central MariaDB: **DNI de 9 caracteres no duplicado**, **patronus obligatorio** y **sin casa**.
-- **Edición con control de concurrencia**: se envía el estado previo (`If-Match` / `X-Version-Previa`).
-  Si otra sesión ha modificado la ficha la API responde **409** y la app **recarga sin sobrescribir nunca** en silencio.
-  La API real aún no versiona, así que en modo API la edición es directa (`PUT /alumnos/{dni}`).
-- **Baja**: en modo API se elimina el registro con `DELETE /alumnos/{dni}`; en modo demo es una
-  baja lógica en alumnos nuevos y, en históricos, según el comportamiento de la base de origen.
+- **Edición**: se lee la ficha vigente y se envía `PUT /alumnos/{dni}` con el nombre completo y
+  el patronus. La API real aún no versiona, así que no hay control de concurrencia (`version = 0`
+  y nunca hay `409`).
+- **Baja**: se elimina el registro con `DELETE /alumnos/{dni}`; en los alumnos históricos la
+  base de origen aplica su propio comportamiento.
 - Los DNI **nunca se muestran completos** en mensajes de error (se enmascaran: `12***78A`).
 - Toda petición envía una cabecera **`request-id`** que se muestra en la UI cuando hay error.
 
 Las operaciones que la API todavía no publica (conectores, sincronización y cola) responden
-`501 NO_IMPLEMENTADO` en modo API; en modo demo se comportan como está descrito (§4.3).
+`501 NO_IMPLEMENTADO` con un mensaje legible en la pantalla correspondiente (§4.3).
 
 ---
 
@@ -72,46 +69,18 @@ En Windows, si Maven no está en el `PATH`:
 & 'ruta\a\apache-maven-3.9.11\bin\mvn.cmd' -f '.\pom.xml' clean javafx:run
 ```
 
-Al abrir la ventana se ve en la cabecera el **modo** activo (`MODO DEMO` o `MODO API`) y la
-URL base de la API.
+Al abrir la ventana se ve en la cabecera la **URL base de la API**, que se puede ajustar antes
+de cada petición (§4.2).
 
 ---
 
 ## 4. Cómo conectar con la API
 
-### 4.1. Activar el modo API
+### 4.1. Sin conmutador de datos
 
-La app arranca en **modo demo**. Para hablar con la API real basta con indicarlo al arrancar,
-con una **variable de entorno** o con una **propiedad de la JVM**:
-
-| Fuente | Clave | Valores admitidos |
-|---|---|---|
-| Propiedad de JVM | `-Domni3.modo` | `demo` · `api` |
-| Variable de entorno | `OMNI3_MODO` | `demo` · `api` |
-
-Prioridad: `-Domni3.modo` > `OMNI3_MODO` > `demo` (por defecto).
-
-**PowerShell:**
-
-```powershell
-$env:OMNI3_MODO = 'api'
-mvn javafx:run
-```
-
-**bash / Linux / macOS:**
-
-```bash
-OMNI3_MODO=api mvn javafx:run
-```
-
-**Propiedad de JVM** (útil para IDEs como IntelliJ o VS Code):
-
-```text
--Domni3.modo=api
-```
-
-La UI **no cambia** entre modos: solo cambia el cliente que se usa por debajo
-(`ClienteAlumnosDemo` → `ClienteAlumnosHttp`).
+No hay nada que activar: la aplicación **siempre** usa `ClienteAlumnosHttp` contra la API real.
+No existe `OMNI3_MODO`, `-Domni3.modo` ni datos simulados; si la API no está levantada, las
+pantallas muestran el error de conexión con su `request-id`.
 
 ### 4.2. URL base
 
@@ -123,7 +92,7 @@ muestra esa URL a informativamente; **para apuntar a otro host o puerto** hay do
 2. Inyectar la configuración al crear la fábrica:
 
 ```java
-ConfigApi config = new ConfigApi("http://127.0.0.1:9000", Modo.API, ConfigApi.TIMEOUT_POR_DEFECTO);
+ConfigApi config = new ConfigApi("http://127.0.0.1:9000", ConfigApi.TIMEOUT_POR_DEFECTO);
 FabricaAplicacion fabrica = new FabricaAplicacion(config);
 ```
 
@@ -192,8 +161,8 @@ curl -X PUT    http://127.0.0.1:8000/alumnos/<dni> -H "Content-Type: application
 curl -X DELETE http://127.0.0.1:8000/alumnos/<dni>
 ```
 
-Si contesta con la lista de alumnos, arranca la app con `OMNI3_MODO=api` y usa la pantalla
-**Estado del sistema** (botón «Comprobar ahora») para verificar la conexión desde el cliente.
+Si contesta con la lista de alumnos, arranca la app y usa la pantalla **Estado del sistema**
+(botón «Comprobar ahora») para verificar la conexión desde el cliente.
 
 ### 4.5. Datos cargados en las cinco bases
 
@@ -225,7 +194,7 @@ src/main/java/com/omni3/gestorhogwartsjavafx/
 ├── App.java               Punto de entrada (ventana, escena, fábrica)
 ├── modelo/                Origen, TipoAlumno, EstadoConector, Alumno
 ├── util/                  Validaciones (DNI, nombre, patronus, casa) + resultado
-├── api/                   ClienteAlumnos (interfaz) · Demo · Http · ConfigApi · ExcepcionApi · dto/
+├── api/                   ClienteAlumnos (interfaz) · Http · ConfigApi · ExcepcionApi · dto/
 ├── servicio/              ServicioAlumnos (hilos de fondo + publicación en el hilo FX)
 │                          FabricaAplicacion (monta config + cliente + servicio + viewmodels)
 ├── viewmodel/             Consulta, Alta, Edición, Baja, Salud, Conectores, Sincronización, Formulario
@@ -246,7 +215,7 @@ Flujo de una petición:
 
 ```
 controlador → viewmodel → ServicioAlumnos (executor de fondo)
-                      → ClienteAlumnos (Demo o Http) → API
+                      → ClienteAlumnosHttp → API
                       → callback → Platform.runLater → viewmodel (properties) → vista
 ```
 
@@ -271,20 +240,18 @@ en FXML o Java.
 mvn test
 ```
 
-Cobertura actual: cliente demo, mapeo de DTOs, validaciones, servicio y fábrica de aplicación.
+Cobertura actual: doble del cliente, mapeo de DTOs, validaciones, servicio y fábrica de aplicación.
 Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son deterministas.
 
 ---
 
 ## 8. Estado y limitaciones conocidas
 
-- **Modo demo verificado de extremo a extremo**: consulta, filtros, alta, edición con conflicto 409,
-  conectores, cola y salud.
-- **Modo API verificado contra la API real** (rama `Api`, `uvicorn` + las cinco bases del
-  `compose`): listado con mapeo de campos (los 985 alumnos históricos del volcado repartidos en
-  las cinco fuentes), ficha por DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`),
-  baja (`DELETE /alumnos/{dni}`), búsqueda y filtro por origen, `404` con el `detail` del backend
-  y pantalla de estado.
+- **Verificado contra la API real** (rama `Api`, `uvicorn` + las cinco bases del `compose`):
+  listado con mapeo de campos (los 985 alumnos históricos del volcado repartidos en las cinco
+  fuentes), ficha por DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja
+  (`DELETE /alumnos/{dni}`), búsqueda y filtro por origen, `404` con el `detail` del backend y
+  pantalla de estado.
 - **Operaciones pendientes de la API**: conectores, sincronización y cola responden
   `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI; al no haber versionado, tampoco hay
   control de concurrencia (`version = 0`).

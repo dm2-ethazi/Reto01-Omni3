@@ -10,8 +10,8 @@ import java.util.Map;
 
 /**
  * Interfaz única de acceso a los datos de alumnado (§3 del contrato).
- * La usan en exclusiva los servicios y los viewmodels, de modo que la UI
- * no distingue entre modo demo y API real.
+ * La usan en exclusiva los servicios y los viewmodels: la UI nunca
+ * habla de red directamente.
  *
  * <p><strong>Todos los métodos son síncronos</strong>: no lanzan hilos
  * ni usan {@code Platform.runLater}. El llamante decide el hilo de
@@ -117,16 +117,16 @@ public interface ClienteAlumnos {
     List<Map<String, Object>> colaRefrescos();
 
     /**
-     * Fábrica: crea el cliente que corresponde a la configuración.
+     * Fábrica: crea el cliente de acceso a la API.
      *
-     * @param config configuración con el modo resuelto
-     * @return {@link ClienteAlumnosDemo} en modo DEMO o {@link ClienteAlumnosHttp} en modo API
+     * @param config configuración con la URL base y el timeout
+     * @return {@link ClienteAlumnosHttp} preparado con la configuración
      * @throws NullPointerException si {@code config} es nulo
      */
     static ClienteAlumnos desde(ConfigApi config) {
         if (config == null) {
             throw new NullPointerException("La configuración es obligatoria");
         }
-        return config.esDemo() ? new ClienteAlumnosDemo() : new ClienteAlumnosHttp(config);
+        return new ClienteAlumnosHttp(config);
     }
 }

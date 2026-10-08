@@ -21,7 +21,6 @@
     <Region HBox.hgrow="ALWAYS"/>
     <TextField fx:id="campoUrl" promptText="http://127.0.0.1:8000" prefWidth="260" styleClass="campo"
                onAction="#aplicarUrl"/>
-    <Label fx:id="etiquetaModo" text="MODO DEMO" styleClass="badge badge-demo"/>
       <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud"/>
   </HBox>
 

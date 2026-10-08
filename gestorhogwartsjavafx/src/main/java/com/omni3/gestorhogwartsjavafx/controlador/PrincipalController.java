@@ -22,7 +22,6 @@ import java.io.IOException;
 public class PrincipalController implements ControladorVista {
 
     @FXML private TextField campoUrl;
-    @FXML private Label etiquetaModo;
     @FXML private Label estado;
     @FXML private Label estadoDerecha;
     @FXML private StackPane contenedorContenido;
@@ -38,9 +37,6 @@ public class PrincipalController implements ControladorVista {
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
         campoUrl.setText(fabrica.getConfig().getBaseUrl());
-        etiquetaModo.setText("MODO " + fabrica.getConfig().getModo().name());
-        etiquetaModo.getStyleClass().remove("badge-api");
-        etiquetaModo.getStyleClass().add(fabrica.getConfig().esDemo() ? "badge-demo" : "badge-api");
         cargarEstado();
     }
 

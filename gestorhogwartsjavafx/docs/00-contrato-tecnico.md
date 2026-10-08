@@ -41,20 +41,22 @@ Acceso directo a bases de datos, autenticación, nube, nuevas fuentes (son *camb
 
 ---
 
-## 3. Capa de acceso a la API (conmutable)
+## 3. Capa de acceso a la API (única)
 
-La API **aún no existe**, así que la app arranca en **modo demo**. La UI no cambia entre modos.
+La aplicación **siempre** habla con la API real: no hay modo demo, ni conmutador de datos, ni
+variables de entorno de configuración.
 
 ```
 api/
-├── Modo.java                 DEMO | API   (por defecto DEMO)
 ├── ClienteAlumnos.java       interfaz única usada por servicios/viewmodels
-├── ClienteAlumnosDemo.java   implementación mock (datos en memoria)
-├── ClienteAlumnosHttp.java   java.net.http.HttpClient + Jackson
-├── ConfigApi.java            baseUrl, modo, timeout; lee -Domni3.modo / OMNI3_MODO
+├── ClienteAlumnosHttp.java   java.net.http.HttpClient + Jackson (única implementación)
+├── ConfigApi.java            baseUrl + timeout
 ├── dto/                      respuestas JSON (AlumnoDto, ConectorDto, SaludDto, ErrorDto)
 └── ExcepcionApi.java         codigo + mensaje + request-id + status HTTP
 ```
+
+> El doble de pruebas `ClienteAlumnosFalso` vive en `src/test/java` (no se empaqueta) y solo
+> lo usan las pruebas unitarias.
 
 **Contrato de endpoints esperado (según PDF):**
 
@@ -71,8 +73,8 @@ api/
 | GET | `/admin/refresh-queue` | cola de refrescos |
 
 Errores con envelope `{"error":{"codigo","mensaje","detalle"}}`.
-`ClienteAlumnosDemo` debe **simular** latencia, duplicidad de DNI (409/400) y conflicto de edición (409)
-para poder ejercitar la UI sin backend.
+Las rutas no publicadas por la API se responden en el cliente con **501 `NO_IMPLEMENTADO`** y un
+mensaje legible.
 
 ---
 
@@ -141,7 +143,7 @@ sombras marcadas. JavaFX **no tiene variables CSS** → se usan *tokens document
 
 `fx:id` **inmutables** (no renombrar sin actualizar ambos lados):
 
-`campoUrl`, `etiquetaModo`, `botonSalud`, `navEstado`, `navAlumnos`, `navConectores`,
+`campoUrl`, `botonSalud`, `navEstado`, `navAlumnos`, `navConectores`,
 `navSincronizar`, `contenedorContenido`, `estado`, `estadoDerecha`.
 
 Clases CSS raíz: `.raiz`, `.cabecera`, `.lateral`, `.contenido`, `.barra-estado`, `.tarjeta`, `.boton-primario`, `.boton-secundario`, `.campo`, `.tabla`.

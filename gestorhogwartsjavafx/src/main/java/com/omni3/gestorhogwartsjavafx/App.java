@@ -34,7 +34,6 @@ public class App extends Application {
         Object controlador = cargador.getController();
         if (controlador instanceof PrincipalController principal) {
             principal.conectar(fabrica);
-            principal.setPie("JDK 17+ · JavaFX 21 · modo " + fabrica.getConfig().getModo().name());
         }
 
         Scene escena = new Scene(raiz);

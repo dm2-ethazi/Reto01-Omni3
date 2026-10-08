@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * peticion en un hilo aparte, entregando el resultado mediante callbacks
  * funcionales (§8 del contrato).
  *
- * <p><strong>Nunca bloquea el hilo FX:</strong> la llamada al cliente (de
- * red o de demostracion) se despacha en un {@link ExecutorService} y el
+ * <p><strong>Nunca bloquea el hilo FX:</strong> la llamada al cliente se
+ * despacha en un {@link ExecutorService} y el
  * llamante recibe la respuesta por {@link CallbackExito} o
  * {@link CallbackFallo}. La logica de red jamas toca JavaFX: la publicacion
  * de resultados se hace exclusivamente desde este servicio, con el
@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServicioAlumnos {
 
-    /** Cliente de acceso a la API (demo o HTTP) envuelto por este servicio. */
+    /** Cliente de acceso a la API envuelto por este servicio. */
     private final ClienteAlumnos cliente;
 
     /** Executor de fondo donde corren las peticiones. */

@@ -20,7 +20,7 @@ import java.util.Objects;
  * red ni decide cómo pintarlos (§8 del contrato).</p>
  *
  * <p>Todos los viewmodels reciben el {@link ServicioAlumnos} ya montado,
- * de modo que las pruebas pueden inyectar un cliente de demostración con
+ * de modo que las pruebas pueden inyectar un doble de pruebas con
  * latencia 0 y un executor síncrono, sin arrancar el toolkit JavaFX.</p>
  */
 public abstract class ViewModelBase {

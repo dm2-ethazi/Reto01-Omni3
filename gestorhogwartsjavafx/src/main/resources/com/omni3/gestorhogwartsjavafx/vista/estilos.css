@@ -32,15 +32,6 @@
     -fx-font-size: 12px;
 }
 
-.badge {
-    -fx-background-color: #3D5C87;               /* primario-activo */
-    -fx-text-fill: #FFFFFF;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-padding: 4 10 4 10;
-    -fx-background-radius: 12;
-}
-
 /* ---------- Cuerpo / lateral ---------- */
 .cuerpo {
     -fx-background-color: #F5F7FA;
@@ -245,10 +236,6 @@
     -fx-background-color: #E8EEF6;
     -fx-font-weight: bold;
 }
-
-/* ---------- Insignias de modo ---------- */
-.badge-demo { -fx-background-color: #3D5C87; }
-.badge-api  { -fx-background-color: #5F8D6E; }
 
 /* ---------- Etiquetas ---------- */
 .texto-error   { -fx-text-fill: #A96B6B; -fx-font-size: 12px; }

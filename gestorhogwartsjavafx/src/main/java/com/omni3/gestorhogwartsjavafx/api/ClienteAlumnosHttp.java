@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
  */
 public class ClienteAlumnosHttp implements ClienteAlumnos {
 
-    /** Configuración (URL base, modo y timeout) de este cliente. */
+    /** Configuración (URL base y timeout) de este cliente. */
     private final ConfigApi config;
 
     /** Cliente HTTP subyacente. */

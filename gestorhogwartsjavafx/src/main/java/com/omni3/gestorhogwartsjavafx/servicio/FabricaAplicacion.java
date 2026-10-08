@@ -2,7 +2,6 @@ package com.omni3.gestorhogwartsjavafx.servicio;
 
 import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnos;
 import com.omni3.gestorhogwartsjavafx.api.ConfigApi;
-import com.omni3.gestorhogwartsjavafx.api.Modo;
 import com.omni3.gestorhogwartsjavafx.viewmodel.AltaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.BajaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.ConectoresViewModel;
@@ -18,28 +17,26 @@ import java.util.Objects;
  * acceso a la API, el {@link ServicioAlumnos} de fondo y los viewmodels
  * de cada pantalla (§3 del contrato).
  *
- * <p>El modo se decide en la propia configuracion: <strong>DEMO por
- * defecto</strong> y {@code -Domni3.modo=api} (o {@code OMNI3_MODO=api})
- * para conmutar a la API real. La vista nunca distingue entre modos: solo
- * ve los viewmodels.</p>
+ * <p>La aplicacion trabaja siempre contra la API real: no existe ningun
+ * conmutador de datos ni modo alternativo, y la vista solo ve los
+ * viewmodels.</p>
  *
  * <p>Todos los componentes son sustituibles: para pruebas se usa
  * {@link #paraPruebas(ClienteAlumnos)}, que admite cualquier
- * {@code ClienteAlumnos} (por ejemplo {@code ClienteAlumnosDemo} con
- * latencia 0) y un servicio sincrono que no necesita toolkit JavaFX.</p>
+ * {@code ClienteAlumnos} (por ejemplo un doble de pruebas con latencia 0)
+ * y un servicio sincrono que no necesita toolkit JavaFX.</p>
  */
 public class FabricaAplicacion {
 
-    /** Configuracion (URL base, modo y timeout) de la fabrica. */
+    /** Configuracion (URL base y timeout) de la fabrica. */
     private final ConfigApi config;
 
     /** Servicio de fondo compartido por todos los viewmodels. */
     private final ServicioAlumnos servicio;
 
     /**
-     * Crea la fabrica por defecto: configura el modo segun la JVM
-     * ({@code -Domni3.modo} &gt; {@code OMNI3_MODO} &gt; DEMO) y monta el
-     * cliente y el servicio de fondo correspondientes.
+     * Crea la fabrica por defecto con la URL y el timeout por defecto y
+     * monta el cliente HTTP y el servicio de fondo correspondientes.
      */
     public FabricaAplicacion() {
         this(ConfigApi.porDefecto());
@@ -48,7 +45,7 @@ public class FabricaAplicacion {
     /**
      * Crea la fabrica con una configuracion concreta.
      *
-     * @param config configuracion con el modo ya resuelto; no nula
+     * @param config configuracion con URL y timeout; no nula
      * @throws NullPointerException si la configuracion es nula
      */
     public FabricaAplicacion(ConfigApi config) {
@@ -59,7 +56,7 @@ public class FabricaAplicacion {
      * Crea la fabrica con un servicio ya montado (el cliente se toma del
      * propio servicio). Util para inyectar un servicio en pruebas.
      *
-     * @param config  configuracion con el modo ya resuelto; no nula
+     * @param config  configuracion con URL y timeout; no nula
      * @param servicio servicio de fondo; no nulo
      * @throws NullPointerException si alguno de los argumentos es nulo
      */
@@ -70,7 +67,7 @@ public class FabricaAplicacion {
     /**
      * Crea la fabrica con todos sus componentes inyectados.
      *
-     * @param config   configuracion con el modo ya resuelto; no nula
+     * @param config   configuracion con URL y timeout; no nula
      * @param cliente  cliente de acceso a la API; no nulo
      * @param servicio servicio de fondo; no nulo
      * @throws NullPointerException si alguno de los argumentos es nulo
@@ -86,18 +83,18 @@ public class FabricaAplicacion {
     }
 
     /**
-     * Fabrica de prueba: modo DEMO, cliente inyectado y servicio sincrono
-     * (sin pool ni publicacion FX), ideal para tests deterministas.
+     * Fabrica de prueba: cliente inyectado y servicio sincrono (sin pool
+     * ni publicacion FX), ideal para tests deterministas.
      *
-     * @param cliente cliente de acceso; por ejemplo {@code ClienteAlumnosDemo} con latencia 0
+     * @param cliente cliente de acceso; por ejemplo un doble de pruebas con latencia 0
      * @return fabrica lista para usar en pruebas
      * @throws NullPointerException si el cliente es nulo
      */
     public static FabricaAplicacion paraPruebas(ClienteAlumnos cliente) {
-        ConfigApi configDemo = new ConfigApi(ConfigApi.URL_POR_DEFECTO, Modo.DEMO,
+        ConfigApi config = new ConfigApi(ConfigApi.URL_POR_DEFECTO,
                 ConfigApi.TIMEOUT_POR_DEFECTO);
         ServicioAlumnos servicio = new ServicioAlumnos(cliente, Runnable::run, Runnable::run);
-        return new FabricaAplicacion(configDemo, servicio);
+        return new FabricaAplicacion(config, servicio);
     }
 
     /** Monta el servicio por defecto (pool de fondo + publicacion FX). */
@@ -109,7 +106,7 @@ public class FabricaAplicacion {
     /**
      * Configuracion de la aplicacion.
      *
-     * @return configuracion con URL, modo y timeout
+     * @return configuracion con URL y timeout
      */
     public ConfigApi getConfig() {
         return config;

@@ -41,8 +41,6 @@
     <Label text="MOMENTO" styleClass="etiqueta-seccion" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
     <Label fx:id="campoMomento" text="—" styleClass="valor-dato" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-    <Label text="MODO" styleClass="etiqueta-seccion" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <Label fx:id="campoModo" text="—" styleClass="valor-dato" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
     <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
   </GridPane>

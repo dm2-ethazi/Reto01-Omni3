@@ -19,7 +19,6 @@ public class EstadoController implements ControladorVista {
     @FXML private Label campoEstado;
     @FXML private Label campoMensaje;
     @FXML private Label campoMomento;
-    @FXML private Label campoModo;
     @FXML private Label etiquetaError;
     @FXML private Label etiquetaRequestId;
     @FXML private Button botonComprobar;
@@ -30,8 +29,6 @@ public class EstadoController implements ControladorVista {
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.viewmodel = fabrica.crearSaludViewModel();
-        campoModo.setText(fabrica.getConfig().getModo().name()
-                + " · " + fabrica.getConfig().getBaseUrl());
 
         viewmodel.saludProperty().addListener((observable, antes, salud) -> pintarSalud(salud));
         viewmodel.mensajeProperty().addListener((observable, antes, mensaje) -> {

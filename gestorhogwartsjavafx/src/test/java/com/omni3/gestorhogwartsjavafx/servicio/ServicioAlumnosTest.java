@@ -1,6 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.servicio;
 
-import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnosDemo;
+import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnosFalso;
 import com.omni3.gestorhogwartsjavafx.api.ExcepcionApi;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
@@ -25,16 +25,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Pruebas del servicio de fondo (§8 del contrato): entrega de resultados
  * por callback, ejecución fuera del hilo llamante, mapeo de errores y
- * cierre del pool. Sin toolkit JavaFX y con latencia de demostración 0.
+ * cierre del pool. Sin toolkit JavaFX y con latencia 0.
  */
 @DisplayName("ServicioAlumnos")
 class ServicioAlumnosTest {
 
-    /** Cliente de demostración con latencia 0, como exigen las pruebas. */
-    private final ClienteAlumnosDemo demo = new ClienteAlumnosDemo(0);
+    /** Doble de pruebas con latencia 0, como exigen las pruebas. */
+    private final ClienteAlumnosFalso falso = new ClienteAlumnosFalso(0);
 
     /** Servicio síncrono (executors directos) para pruebas deterministas. */
-    private final ServicioAlumnos sincrono = new ServicioAlumnos(demo, Runnable::run, Runnable::run);
+    private final ServicioAlumnos sincrono = new ServicioAlumnos(falso, Runnable::run, Runnable::run);
 
     /** Servicio con pool de fondo propio y publicador directo. */
     private ServicioAlumnos conPool;
@@ -80,7 +80,7 @@ class ServicioAlumnosTest {
     @Test
     @DisplayName("La llamada no bloquea: el callback llega después, en el hilo de fondo")
     void laLlamadaNoBloqueaElHiloLlamante() throws InterruptedException {
-        ClienteAlumnosDemo lenta = new ClienteAlumnosDemo(1000);
+        ClienteAlumnosFalso lenta = new ClienteAlumnosFalso(1000);
         conPool = new ServicioAlumnos(lenta, Runnable::run);
         CountDownLatch entrega = new CountDownLatch(1);
         AtomicReference<SaludDto> salud = new AtomicReference<>();
@@ -106,7 +106,7 @@ class ServicioAlumnosTest {
     @Test
     @DisplayName("Una excepción inesperada se convierte en FALLO_INESPERADO")
     void convierteLasExcepcionesInesperadas() {
-        ClienteAlumnosDemo roto = new ClienteAlumnosDemo(0) {
+        ClienteAlumnosFalso roto = new ClienteAlumnosFalso(0) {
             @Override
             public SaludDto salud() {
                 throw new IllegalStateException("sin red");
@@ -133,13 +133,13 @@ class ServicioAlumnosTest {
 
         assertTrue(hecha.get());
         assertNull(fallo.get());
-        assertFalse(demo.obtenerAlumno("56789012E").activo());
+        assertFalse(falso.obtenerAlumno("56789012E").activo());
     }
 
     @Test
     @DisplayName("Después de cerrar, las peticiones fallan con SERVICIO_CERRADO")
     void lasPeticionesTrasElCierreFallan() {
-        conPool = new ServicioAlumnos(demo, Runnable::run);
+        conPool = new ServicioAlumnos(falso, Runnable::run);
         conPool.cerrar();
         AtomicReference<ExcepcionApi> fallo = new AtomicReference<>();
 
@@ -152,7 +152,7 @@ class ServicioAlumnosTest {
     @Test
     @DisplayName("El servicio expone el cliente que envuelve")
     void exponeElClienteEnvuelto() {
-        assertEquals(demo, sincrono.getCliente());
-        assertEquals(demo, new ServicioAlumnos(demo, Runnable::run, Runnable::run).getCliente());
+        assertEquals(falso, sincrono.getCliente());
+        assertEquals(falso, new ServicioAlumnos(falso, Runnable::run, Runnable::run).getCliente());
     }
 }

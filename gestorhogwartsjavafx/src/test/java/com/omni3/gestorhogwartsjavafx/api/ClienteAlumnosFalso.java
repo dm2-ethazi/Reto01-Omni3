@@ -18,18 +18,20 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Implementación de demostración de {@link ClienteAlumnos}: datos en
- * memoria, sin ninguna llamada de red (§3 del contrato).
+ * Doble de prueba de {@link ClienteAlumnos}: datos en memoria, sin
+ * ninguna llamada de red. Existe <strong>solo en el classpath de
+ * pruebas</strong>; la aplicación usa exclusivamente
+ * {@link ClienteAlumnosHttp}.
  *
- * <p>Simula el comportamiento de la API real para poder ejercitar la UI
- * sin backend: latencia configurable, DNI duplicado (400), conflicto de
- * edición por versión (409), borrado lógico y {@code /health} con
- * identificador {@code R01}.</p>
+ * <p>Simula el comportamiento de la API real para poder ejercitar los
+ * servicios y viewmodels sin backend: latencia configurable, DNI
+ * duplicado (400), conflicto de edición por versión (409), borrado
+ * lógico y salud con identificador {@code R01}.</p>
  *
- * <p>Todos los métodos son {@code synchronized} porque la UI puede
- * consultar y modificar desde varios hilos de fondo.</p>
+ * <p>Todos los métodos son {@code synchronized} porque las pruebas
+ * pueden consultar y modificar desde varios hilos de fondo.</p>
  */
-public class ClienteAlumnosDemo implements ClienteAlumnos {
+public class ClienteAlumnosFalso implements ClienteAlumnos {
 
     /** Latencia simulada por defecto, en milisegundos. */
     public static final long LATENCIA_POR_DEFECTO = 150L;
@@ -49,7 +51,7 @@ public class ClienteAlumnosDemo implements ClienteAlumnos {
     /**
      * Crea el cliente con la latencia simulada por defecto.
      */
-    public ClienteAlumnosDemo() {
+    public ClienteAlumnosFalso() {
         this(LATENCIA_POR_DEFECTO);
     }
 
@@ -58,7 +60,7 @@ public class ClienteAlumnosDemo implements ClienteAlumnos {
      *
      * @param latenciaMs milisegundos de espera simulada por petición; 0 en tests
      */
-    public ClienteAlumnosDemo(long latenciaMs) {
+    public ClienteAlumnosFalso(long latenciaMs) {
         this.latenciaMs = Math.max(0L, latenciaMs);
         sembrar();
     }
@@ -85,7 +87,7 @@ public class ClienteAlumnosDemo implements ClienteAlumnos {
     public synchronized SaludDto salud() {
         dormir();
         return new SaludDto("OK", "R01",
-                "API de demostración operativa", Instant.now().toString());
+                "API de pruebas operativa", Instant.now().toString());
     }
 
     @Override
@@ -206,7 +208,7 @@ public class ClienteAlumnosDemo implements ClienteAlumnos {
     @Override
     public synchronized String sincronizar() {
         dormir();
-        return "Sincronización completada (modo demo): 0 elementos pendientes.";
+        return "Sincronización completada: 0 elementos pendientes.";
     }
 
     @Override
@@ -228,7 +230,7 @@ public class ClienteAlumnosDemo implements ClienteAlumnos {
     }
 
     /**
-     * Vuelve a los datos de demostración originales.
+     * Vuelve a los datos de prueba originales.
      */
     public synchronized void reiniciar() {
         alumnos.clear();
