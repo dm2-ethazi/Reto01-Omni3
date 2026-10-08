@@ -39,6 +39,15 @@ public class EstadoController implements ControladorVista {
                 etiquetaError.getStyleClass().remove("texto-error");
             }
         });
+        // Dos errores seguidos mantienen el estado en ERROR, así que el
+        // identificador se repinta también cuando cambia el request-id.
+        Runnable pintarRequestId = () -> {
+            boolean fallo = viewmodel.getEstado() == EstadoCarga.ERROR
+                    || viewmodel.getEstado() == EstadoCarga.CONFLICTO;
+            String identificador = viewmodel.getRequestId();
+            etiquetaRequestId.setText(fallo && !identificador.isEmpty()
+                    ? "request-id: " + identificador : "");
+        };
         viewmodel.estadoProperty().addListener((observable, antes, estado) -> {
             boolean cargando = estado == EstadoCarga.CARGANDO;
             indicadorCarga.setVisible(cargando);
@@ -47,12 +56,13 @@ public class EstadoController implements ControladorVista {
                 if (!etiquetaError.getStyleClass().contains("texto-error")) {
                     etiquetaError.getStyleClass().add("texto-error");
                 }
-                etiquetaRequestId.setText(viewmodel.getRequestId().isEmpty()
-                        ? "" : "request-id: " + viewmodel.getRequestId());
             } else {
                 etiquetaRequestId.setText("");
             }
+            pintarRequestId.run();
         });
+        viewmodel.requestIdProperty().addListener((observable, antes, identificador) ->
+                pintarRequestId.run());
 
         comprobar();
     }

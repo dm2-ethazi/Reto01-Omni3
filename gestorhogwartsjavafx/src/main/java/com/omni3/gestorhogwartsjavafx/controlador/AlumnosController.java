@@ -170,6 +170,15 @@ public class AlumnosController implements ControladorVista {
     private void enlazarEstado() {
         textoCarga.textProperty().bind(consulta.mensajeProperty());
 
+        // El request-id se repinta al cambiar el estado y también cuando
+        // llega uno nuevo: dos errores seguidos mantienen el estado en
+        // ERROR y no deben conservar el identificador anterior.
+        Runnable pintarRequestId = () -> {
+            String identificador = consulta.getRequestId();
+            etiquetaRequestId.setText(esFallo(consulta.getEstado()) && !identificador.isEmpty()
+                    ? "request-id: " + identificador : "");
+        };
+
         consulta.mensajeProperty().addListener((observable, antes, mensaje) ->
                 mostrarEnBarra(mensaje, clasePara(consulta.getEstado())));
         consulta.estadoProperty().addListener((observable, antes, estado) -> {
@@ -184,18 +193,32 @@ public class AlumnosController implements ControladorVista {
                 textoVacio.setText(consulta.getMensaje());
             }
 
-            boolean fallo = esFallo(estado);
-            etiquetaRequestId.setText(fallo && !consulta.getRequestId().isEmpty()
-                    ? "request-id: " + consulta.getRequestId() : "");
             botonEditar.setDisable(cargando || consulta.getSeleccionado() == null);
             mostrarEnBarra(consulta.getMensaje(), clasePara(estado));
+            pintarRequestId.run();
         });
+        consulta.requestIdProperty().addListener((observable, antes, identificador) ->
+                pintarRequestId.run());
 
+        // La baja tiene su propio viewmodel: sin repintar su request-id,
+        // un fallo de DELETE dejaba en pantalla el identificador de la
+        // última consulta (o ninguno). Se escucha también el propio
+        // identificador porque marcarFallo publica primero el estado y
+        // después el request-id.
+        Runnable pintarRequestIdDeBaja = () -> {
+            boolean fallo = esFallo(baja.getEstado());
+            String identificador = baja.getRequestId();
+            etiquetaRequestId.setText(fallo && !identificador.isEmpty()
+                    ? "request-id: " + identificador : "");
+        };
         baja.estadoProperty().addListener((observable, antes, estado) -> {
             if (esFallo(estado)) {
                 mostrarEnBarra(baja.getMensaje(), "texto-error");
             }
+            pintarRequestIdDeBaja.run();
         });
+        baja.requestIdProperty().addListener((observable, antes, identificador) ->
+                pintarRequestIdDeBaja.run());
 
         consulta.getAlumnos().addListener(
                 (javafx.collections.ListChangeListener<AlumnoDto>) cambios ->
