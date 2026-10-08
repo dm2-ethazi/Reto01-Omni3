@@ -26,6 +26,16 @@ public class EstadoController implements ControladorVista {
 
     private SaludViewModel viewmodel;
 
+    /**
+     * Crea el controlador de la pantalla «Estado del sistema».
+     *
+     * <p>El constructor no realiza ninguna inicialización: la configuración
+     * de la vista se produce en {@link #conectar(FabricaAplicacion)}, que
+     * FXMLLoader invoca al cargar el FXML.</p>
+     */
+    public EstadoController() {
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.viewmodel = fabrica.crearSaludViewModel();

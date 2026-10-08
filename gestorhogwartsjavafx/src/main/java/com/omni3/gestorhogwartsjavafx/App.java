@@ -24,6 +24,16 @@ public class App extends Application {
     /** Fábrica de la aplicación; se cierra al terminar. */
     private FabricaAplicacion fabrica;
 
+    /**
+     * Crea la aplicación de escritorio.
+     *
+     * <p>El constructor no realiza ninguna inicialización: toda la
+     * configuración ocurre en {@link #start(Stage)}, que la plataforma
+     * JavaFX invoca al lanzar la aplicación.</p>
+     */
+    public App() {
+    }
+
     @Override
     public void start(Stage escenario) throws Exception {
         fabrica = new FabricaAplicacion();
@@ -60,6 +70,15 @@ public class App extends Application {
         }
     }
 
+    /**
+     * Punto de entrada de la aplicación con línea de comandos.
+     *
+     * <p>Delega en {@link Application#launch(String...)} el arranque del
+     * ciclo de vida de JavaFX, que a su vez llama a {@link #start(Stage)}.</p>
+     *
+     * @param args argumentos de línea de comandos; no se utilizan en esta
+     *             aplicación
+     */
     public static void main(String[] args) {
         launch(args);
     }

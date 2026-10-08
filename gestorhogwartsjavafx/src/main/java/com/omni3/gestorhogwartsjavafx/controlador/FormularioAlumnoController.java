@@ -47,6 +47,16 @@ public class FormularioAlumnoController implements ControladorVista {
     private FormularioAlumno formulario;
     private boolean esAlta;
 
+    /**
+     * Crea el controlador del formulario de alta y edición de un alumno.
+     *
+     * <p>El constructor no realiza ninguna inicialización: la configuración
+     * de la vista se produce en {@link #conectar(FabricaAplicacion)} y
+     * {@link #preparar(String)}, que FXMLLoader invoca al cargar el FXML.</p>
+     */
+    public FormularioAlumnoController() {
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
@@ -158,12 +168,23 @@ public class FormularioAlumnoController implements ControladorVista {
                 pintarRequestId.run());
     }
 
-    /** Viewmodel en uso; lo usa la vista contenedora para cerrar el diálogo. */
+    /**
+     * Viewmodel en uso; lo usa la vista contenedora para cerrar el diálogo.
+     *
+     * @return el viewmodel del formulario activo (alta o edición), o
+     *         {@code null} si todavía no se ha llamado a
+     *         {@link #preparar(String)}
+     */
     public FormularioAlumno getFormulario() {
         return formulario;
     }
 
-    /** DNI del formulario; vacío en el alta. */
+    /**
+     * DNI del formulario; vacío en el alta.
+     *
+     * @return el DNI mostrado en el campo del formulario; cadena vacía si
+     *         el formulario está preparado para un alta nueva
+     */
     public String getDni() {
         if (esAlta) {
             return "";

@@ -28,14 +28,14 @@ public class ConsultaViewModel extends ViewModelBase {
     /** Filas de la tabla. */
     private final ObservableList<AlumnoDto> alumnos = FXCollections.observableArrayList();
 
-    /** Texto de búsqueda libre sobre DNI o nombre. */
+    // Texto de búsqueda libre sobre DNI o nombre.
     private final StringProperty textoBusqueda = new SimpleStringProperty("");
 
-    /** Filtro por origen; {@link Origen#CENTRAL} significa «todas». */
+    // Filtro por origen; {@link Origen#CENTRAL} significa «todas».
     private final ObjectProperty<Origen> filtroOrigen =
             new SimpleObjectProperty<>(Origen.CENTRAL);
 
-    /** Fila seleccionada en la tabla; puede ser nula. */
+    // Fila seleccionada en la tabla; puede ser nula.
     private final ObjectProperty<AlumnoDto> seleccionado = new SimpleObjectProperty<>();
 
     /**
@@ -48,37 +48,71 @@ public class ConsultaViewModel extends ViewModelBase {
         reiniciar("Listo");
     }
 
-    /** Filas visibles en la tabla. */
+    /**
+     * Filas visibles en la tabla.
+     *
+     * @return la lista observable enlazada con la tabla; vacía si la consulta no ha devuelto resultados
+     */
     public ObservableList<AlumnoDto> getAlumnos() {
         return alumnos;
     }
 
-    /** Texto de búsqueda. */
+    /**
+     * Texto de búsqueda.
+     *
+     * @return el criterio introducido; vacío si todavía no se ha escrito nada
+     */
     public String getTextoBusqueda() {
         return textoBusqueda.get();
     }
 
-    /** Propiedad observable de la búsqueda. */
+    /**
+     * Propiedad observable del texto de búsqueda; la vista la enlaza
+     * con el campo de texto para mantener sincronizado el criterio
+     * introducido por el usuario.
+     *
+     * @return la propiedad que notifica los cambios del criterio de búsqueda
+     */
     public StringProperty textoBusquedaProperty() {
         return textoBusqueda;
     }
 
-    /** Filtro de origen activo. */
+    /**
+     * Filtro de origen activo.
+     *
+     * @return el {@link Origen} con el que se consulta; {@link Origen#CENTRAL} significa «todas»
+     */
     public Origen getFiltroOrigen() {
         return filtroOrigen.get();
     }
 
-    /** Propiedad observable del filtro de origen. */
+    /**
+     * Propiedad observable del filtro de origen; la vista se suscribe
+     * para mantener el desplegable en concordancia con la fuente
+     * seleccionada.
+     *
+     * @return la propiedad enlazada con el origen aplicado a la tabla
+     */
     public ObjectProperty<Origen> filtroOrigenProperty() {
         return filtroOrigen;
     }
 
-    /** Fila seleccionada. */
+    /**
+     * Fila seleccionada.
+     *
+     * @return el alumno elegido; {@code null} si no hay ninguna selección
+     */
     public AlumnoDto getSeleccionado() {
         return seleccionado.get();
     }
 
-    /** Propiedad observable de la selección. */
+    /**
+     * Propiedad observable de la selección; la vista la observa para
+     * saber en todo momento qué fila de la tabla está marcada, incluido
+     * su vaciado cuando la pantalla se limpia.
+     *
+     * @return la propiedad enlazada con la fila seleccionada, que puede quedar en {@code null}
+     */
     public ObjectProperty<AlumnoDto> seleccionadoProperty() {
         return seleccionado;
     }

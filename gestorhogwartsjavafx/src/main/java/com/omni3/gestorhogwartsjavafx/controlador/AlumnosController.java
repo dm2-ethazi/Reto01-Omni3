@@ -71,6 +71,16 @@ public class AlumnosController implements ControladorVista {
     private ConsultaViewModel consulta;
     private BajaViewModel baja;
 
+    /**
+     * Crea el controlador de la pantalla de alumnado.
+     *
+     * <p>El constructor no realiza ninguna inicialización: la configuración
+     * de la vista se produce en {@link #conectar(FabricaAplicacion)}, que
+     * FXMLLoader invoca al cargar el FXML.</p>
+     */
+    public AlumnosController() {
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;

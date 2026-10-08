@@ -17,7 +17,7 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class BajaViewModel extends ViewModelBase {
 
-    /** Alumno que se acaba de dar de baja, si la operación terminó bien. */
+    // Alumno que se acaba de dar de baja, si la operación terminó bien.
     private final ObjectProperty<AlumnoDto> bajaRealizada = new SimpleObjectProperty<>();
 
     /**
@@ -30,12 +30,21 @@ public class BajaViewModel extends ViewModelBase {
         reiniciar("Listo");
     }
 
-    /** Alumno dado de baja. */
+    /**
+     * Alumno dado de baja.
+     *
+     * @return la ficha del alumno tras la baja; {@code null} si la operación sigue en curso o ha fallado
+     */
     public AlumnoDto getBajaRealizada() {
         return bajaRealizada.get();
     }
 
-    /** Propiedad observable del alumno dado de baja. */
+    /**
+     * Propiedad observable de la baja; la vista se suscribe a sus
+     * cambios para reaccionar al resultado de la operación.
+     *
+     * @return la propiedad enlazada con la ficha del alumno, vaciada al empezar y rellena si la baja termina bien
+     */
     public ObjectProperty<AlumnoDto> bajaRealizadaProperty() {
         return bajaRealizada;
     }

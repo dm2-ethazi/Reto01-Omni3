@@ -24,28 +24,28 @@ import javafx.beans.property.StringProperty;
  */
 public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
 
-    /** DNI del alumno a dar de alta. */
+    // DNI del alumno a dar de alta.
     private final StringProperty dni = new SimpleStringProperty("");
 
-    /** Nombre y apellidos. */
+    // Nombre y apellidos.
     private final StringProperty nombre = new SimpleStringProperty("");
 
-    /** Casa; debe quedar vacía en los alumnos nuevos. */
+    // Casa; debe quedar vacía en los alumnos nuevos.
     private final StringProperty casa = new SimpleStringProperty("");
 
-    /** Patronus; obligatorio. */
+    // Patronus; obligatorio.
     private final StringProperty patronus = new SimpleStringProperty("");
 
-    /** Error visible de cada campo; vacío si el campo es válido. */
+    // Error visible de cada campo; vacío si el campo es válido.
     private final StringProperty errorDni = new SimpleStringProperty("");
     private final StringProperty errorNombre = new SimpleStringProperty("");
     private final StringProperty errorCasa = new SimpleStringProperty("");
     private final StringProperty errorPatronus = new SimpleStringProperty("");
 
-    /** Habilita el botón de guardar cuando todos los campos válidan. */
+    // Habilita el botón de guardar cuando todos los campos válidan.
     private final BooleanProperty valido = new SimpleBooleanProperty(false);
 
-    /** Alumno devuelto por la API tras el alta; cierra el formulario. */
+    // Alumno devuelto por la API tras el alta; cierra el formulario.
     private final ObjectProperty<AlumnoDto> altaRealizada = new SimpleObjectProperty<>();
 
     /**
@@ -64,102 +64,208 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
         validar();
     }
 
-    /** DNI. */
+    /**
+     * DNI introducido en el formulario de alta.
+     *
+     * @return el valor actual del campo, sin normalizar todavía; cadena
+     *         vacía si el usuario no ha escrito nada.
+     */
     public String getDni() {
         return dni.get();
     }
 
-    /** Propiedad observable del DNI. */
+    /**
+     * Propiedad observable del DNI; el campo de texto se enlaza a ella y
+     * su cambio dispara la revalidación del formulario.
+     *
+     * @return la propiedad {@code StringProperty} que mantiene el DNI.
+     */
     public StringProperty dniProperty() {
         return dni;
     }
 
-    /** Nombre. */
+    /**
+     * Nombres y apellidos capturados en el formulario.
+     *
+     * @return la cadena escrita por el usuario, o vacío si todavía no se
+     *         ha rellenado el campo.
+     */
     public String getNombre() {
         return nombre.get();
     }
 
-    /** Propiedad observable del nombre. */
+    /**
+     * Propiedad observable del nombre; el campo de texto se enlaza a ella
+     * y su cambio dispara la revalidación del formulario.
+     *
+     * @return la propiedad {@code StringProperty} que mantiene el nombre.
+     */
     public StringProperty nombreProperty() {
         return nombre;
     }
 
-    /** Casa (siempre vacía en alumnos nuevos). */
+    /**
+     * Casa del alumno nuevo.
+     *
+     * @return la casa actual, vacía por defecto porque el alta no llega a
+     *         asignar ninguna.
+     */
     public String getCasa() {
         return casa.get();
     }
 
-    /** Propiedad observable de la casa. */
+    /**
+     * Propiedad observable de la casa; el campo se enlaza a ella y su
+     * cambio dispara la revalidación del formulario.
+     *
+     * @return la propiedad {@code StringProperty} que mantiene la casa.
+     */
     public StringProperty casaProperty() {
         return casa;
     }
 
-    /** Patronus. */
+    /**
+     * Patronus escrito en el formulario.
+     *
+     * @return el valor capturado para el Patronus; vacío hasta que el
+     *         usuario lo rellena.
+     */
     public String getPatronus() {
         return patronus.get();
     }
 
-    /** Propiedad observable del patronus. */
+    /**
+     * Propiedad observable del patronus; el campo de texto se enlaza a
+     * ella y su cambio dispara la revalidación del formulario.
+     *
+     * @return la propiedad {@code StringProperty} que mantiene el Patronus.
+     */
     public StringProperty patronusProperty() {
         return patronus;
     }
 
-    /** Error del campo DNI. */
+    /**
+     * Error visible del campo DNI.
+     *
+     * @return el mensaje que se muestra bajo el campo, o cadena vacía si
+     *         el DNI supera la validación.
+     */
     public String getErrorDni() {
         return errorDni.get();
     }
 
-    /** Propiedad observable del error de DNI. */
+    /**
+     * Propiedad observable del error de DNI; la vista la lee para mostrar
+     * el mensaje bajo el campo correspondiente.
+     *
+     * @return la propiedad {@code StringProperty} que publica el error del
+     *         DNI.
+     */
     public StringProperty errorDniProperty() {
         return errorDni;
     }
 
-    /** Error del campo nombre. */
+    /**
+     * Error visible del campo nombre.
+     *
+     * @return el mensaje que se muestra bajo el campo, o cadena vacía si
+     *         el nombre supera la validación.
+     */
     public String getErrorNombre() {
         return errorNombre.get();
     }
 
-    /** Propiedad observable del error de nombre. */
+    /**
+     * Propiedad observable del error de nombre; la vista la lee para
+     * mostrar el mensaje bajo el campo correspondiente.
+     *
+     * @return la propiedad {@code StringProperty} que publica el error del
+     *         nombre.
+     */
     public StringProperty errorNombreProperty() {
         return errorNombre;
     }
 
-    /** Error del campo casa. */
+    /**
+     * Error visible del campo casa.
+     *
+     * @return el mensaje que se muestra bajo el campo, o cadena vacía si
+     *         la casa supera la validación.
+     */
     public String getErrorCasa() {
         return errorCasa.get();
     }
 
-    /** Propiedad observable del error de casa. */
+    /**
+     * Propiedad observable del error de casa; la vista la lee para mostrar
+     * el mensaje bajo el campo correspondiente.
+     *
+     * @return la propiedad {@code StringProperty} que publica el error de
+     *         la casa.
+     */
     public StringProperty errorCasaProperty() {
         return errorCasa;
     }
 
-    /** Error del campo patronus. */
+    /**
+     * Error visible del campo patronus.
+     *
+     * @return el mensaje que se muestra bajo el campo, o cadena vacía si
+     *         el Patronus supera la validación.
+     */
     public String getErrorPatronus() {
         return errorPatronus.get();
     }
 
-    /** Propiedad observable del error de patronus. */
+    /**
+     * Propiedad observable del error de patronus; la vista la lee para
+     * mostrar el mensaje bajo el campo correspondiente.
+     *
+     * @return la propiedad {@code StringProperty} que publica el error del
+     *         Patronus.
+     */
     public StringProperty errorPatronusProperty() {
         return errorPatronus;
     }
 
-    /** Indica si el formulario puede guardarse. */
+    /**
+     * Indica si el formulario puede guardarse.
+     *
+     * @return {@code true} si DNI, nombre y Patronus superan la validación
+     *         local; {@code false} en caso contrario.
+     */
     public boolean isValido() {
         return valido.get();
     }
 
-    /** Propiedad observable de validez. */
+    /**
+     * Propiedad observable de validez; la vista la observa para habilitar
+     * o deshabilitar el botón de guardar.
+     *
+     * @return la propiedad {@code BooleanProperty} que refleja el
+     *         resultado de la última validación.
+     */
     public BooleanProperty validoProperty() {
         return valido;
     }
 
-    /** Alumno dado de alta, si la operación terminó bien. */
+    /**
+     * Alumno dado de alta, si la operación terminó bien.
+     *
+     * @return el alumno creado devuelto por la API, o {@code null} mientras
+     *         el alta no se complete con éxito.
+     */
     public AlumnoDto getAltaRealizada() {
         return altaRealizada.get();
     }
 
-    /** Propiedad observable del alta realizada. */
+    /**
+     * Propiedad observable del alta realizada; la vista la observa para
+     * cerrar el formulario cuando la API devuelve el alumno.
+     *
+     * @return la propiedad {@code ObjectProperty} que entrega el alumno
+     *         creado.
+     */
     public ObjectProperty<AlumnoDto> altaRealizadaProperty() {
         return altaRealizada;
     }

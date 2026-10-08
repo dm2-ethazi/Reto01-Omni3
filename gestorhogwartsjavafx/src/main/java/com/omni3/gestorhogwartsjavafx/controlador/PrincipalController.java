@@ -33,6 +33,16 @@ public class PrincipalController implements ControladorVista {
     private FabricaAplicacion fabrica;
     private Button navegacionActiva;
 
+    /**
+     * Crea el controlador de la vista principal.
+     *
+     * <p>El constructor no realiza ninguna inicialización: la configuración
+     * de la vista se produce en {@link #conectar(FabricaAplicacion)}, que
+     * FXMLLoader invoca al cargar el FXML.</p>
+     */
+    public PrincipalController() {
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
@@ -130,12 +140,22 @@ public class PrincipalController implements ControladorVista {
         }
     }
 
-    /** Texto de la barra de estado. */
+    /**
+     * Texto de la barra de estado.
+     *
+     * @return el texto que la barra inferior muestra en su lado izquierdo,
+     *         es decir, el título de la pantalla actualmente visible
+     */
     public String getTitulo() {
         return estado.getText();
     }
 
-    /** Etiqueta de la barra derecha; la usa la aplicación para el pie. */
+    /**
+     * Etiqueta de la barra derecha; la usa la aplicación para el pie.
+     *
+     * @param texto mensaje que se escribe en la barra de estado de la
+     *              derecha
+     */
     public void setPie(String texto) {
         estadoDerecha.setText(texto);
     }

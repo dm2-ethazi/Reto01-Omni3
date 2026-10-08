@@ -26,7 +26,11 @@ public interface FormularioAlumno {
      */
     void recargar();
 
-    /** Estado actual de la pantalla. */
+    /**
+     * Estado actual de la pantalla.
+     *
+     * @return propiedad observable que sigue el ciclo de carga del formulario
+     */
     ObjectProperty<EstadoCarga> estadoProperty();
 
     /**
@@ -40,7 +44,11 @@ public interface FormularioAlumno {
      */
     ObjectProperty<AlumnoDto> resultadoProperty();
 
-    /** Mensaje en español para el usuario. */
+    /**
+     * Mensaje en español para el usuario.
+     *
+     * @return propiedad observable con el texto mostrado en el diálogo
+     */
     StringProperty mensajeProperty();
 
     /**
@@ -52,9 +60,17 @@ public interface FormularioAlumno {
      */
     StringProperty requestIdProperty();
 
-    /** {@code true} cuando todos los campos validan. */
+    /**
+     * {@code true} cuando todos los campos validan.
+     *
+     * @return propiedad observable que habilita o deshabilita el botón «Guardar»
+     */
     BooleanProperty validoProperty();
 
-    /** {@code true} mientras hay una operación en curso. */
+    /**
+     * {@code true} mientras hay una operación en curso.
+     *
+     * @return propiedad observable que controla el indicador de espera del formulario
+     */
     BooleanProperty ocupadoProperty();
 }

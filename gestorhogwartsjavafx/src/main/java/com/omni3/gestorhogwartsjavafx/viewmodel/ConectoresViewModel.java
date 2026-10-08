@@ -27,7 +27,11 @@ public class ConectoresViewModel extends ViewModelBase {
         reiniciar("Listo");
     }
 
-    /** Conectores visibles. */
+    /**
+     * Conectores visibles.
+     *
+     * @return la lista observable que alimenta la tabla; vacía hasta que la API responde
+     */
     public ObservableList<ConectorDto> getConectores() {
         return conectores;
     }

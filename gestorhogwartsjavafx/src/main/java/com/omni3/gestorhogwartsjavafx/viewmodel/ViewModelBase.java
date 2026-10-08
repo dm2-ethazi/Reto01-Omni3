@@ -28,17 +28,17 @@ public abstract class ViewModelBase {
     /** Servicio de fondo compartido por toda la aplicación. */
     protected final ServicioAlumnos servicio;
 
-    /** Estado de la pantalla. */
+    // Estado de la pantalla.
     private final ObjectProperty<EstadoCarga> estado =
             new SimpleObjectProperty<>(EstadoCarga.INACTIVO);
 
-    /** Mensaje en español para el usuario (resultado o motivo de error). */
+    // Mensaje en español para el usuario (resultado o motivo de error).
     private final StringProperty mensaje = new SimpleStringProperty("");
 
-    /** {@code true} mientras hay una operación en curso. */
+    // {@code true} mientras hay una operación en curso.
     private final BooleanProperty ocupado = new SimpleBooleanProperty(false);
 
-    /** Identificador de la última petición que falló, para soporte. */
+    // Identificador de la última petición que falló, para soporte.
     private final StringProperty requestId = new SimpleStringProperty("");
 
     /**
@@ -51,47 +51,83 @@ public abstract class ViewModelBase {
         this.servicio = Objects.requireNonNull(servicio, "El servicio es obligatorio");
     }
 
-    /** Estado actual de la pantalla. */
+    /**
+     * Estado actual de la pantalla.
+     *
+     * @return el {@link EstadoCarga} en vigor; nunca {@code null}
+     */
     public final EstadoCarga getEstado() {
         return estado.get();
     }
 
-    /** Propiedad observable del estado. */
+    /**
+     * Propiedad observable del estado.
+     *
+     * @return la propiedad de JavaFX que notifica a la vista cada transición de estado
+     */
     public final ObjectProperty<EstadoCarga> estadoProperty() {
         return estado;
     }
 
-    /** Mensaje visible para el usuario. */
+    /**
+     * Mensaje visible para el usuario.
+     *
+     * @return el texto mostrado en pantalla; vacío si no hay mensaje pendiente
+     */
     public final String getMensaje() {
         return mensaje.get();
     }
 
-    /** Propiedad observable del mensaje. */
+    /**
+     * Propiedad observable del mensaje.
+     *
+     * @return la propiedad enlazada con el texto visible, para que la vista se actualice sola
+     */
     public final StringProperty mensajeProperty() {
         return mensaje;
     }
 
-    /** Indica si hay una operación en marcha. */
+    /**
+     * Indica si hay una operación en marcha.
+     *
+     * @return {@code true} mientras la operación siga en curso, {@code false} al terminar
+     */
     public final boolean isOcupado() {
         return ocupado.get();
     }
 
-    /** Propiedad observable de ocupado. */
+    /**
+     * Propiedad observable de ocupado.
+     *
+     * @return la propiedad que indica a la vista cuándo mostrar el indicador de espera
+     */
     public final BooleanProperty ocupadoProperty() {
         return ocupado;
     }
 
-    /** Identificador de la última petición fallida. */
+    /**
+     * Identificador de la última petición fallida.
+     *
+     * @return el identificador para soporte técnico; vacío si todavía no ha habido fallos
+     */
     public final String getRequestId() {
         return requestId.get();
     }
 
-    /** Propiedad observable del identificador de petición. */
+    /**
+     * Propiedad observable del identificador de petición.
+     *
+     * @return la propiedad que avisa a la vista de la llegada de un identificador nuevo
+     */
     public final StringProperty requestIdProperty() {
         return requestId;
     }
 
-    /** Servicio de fondo utilizado por este viewmodel. */
+    /**
+     * Servicio de fondo utilizado por este viewmodel.
+     *
+     * @return el servicio inyectado en el constructor; nunca {@code null}
+     */
     public final ServicioAlumnos getServicio() {
         return servicio;
     }

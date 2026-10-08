@@ -13,7 +13,7 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class SaludViewModel extends ViewModelBase {
 
-    /** Última salud recibida; {@code null} si todavía no se ha consultado. */
+    // Última salud recibida; {@code null} si todavía no se ha consultado.
     private final ObjectProperty<SaludDto> salud = new SimpleObjectProperty<>();
 
     /**
@@ -26,12 +26,22 @@ public class SaludViewModel extends ViewModelBase {
         reiniciar("Aún no se ha consultado el estado del sistema.");
     }
 
-    /** Última respuesta de salud. */
+    /**
+     * Última respuesta de salud.
+     *
+     * @return el DTO recibido de {@code /health}; {@code null} si aún no se ha consultado o la última llamada falló
+     */
     public SaludDto getSalud() {
         return salud.get();
     }
 
-    /** Propiedad observable de la salud. */
+    /**
+     * Propiedad observable de la salud; la vista se suscribe a sus
+     * cambios para repintar el estado de las bases cada vez que llega
+     * una respuesta nueva de {@code /health}.
+     *
+     * @return la propiedad enlazada con el último estado recibido, que pasa a {@code null} si la consulta falla
+     */
     public ObjectProperty<SaludDto> saludProperty() {
         return salud;
     }

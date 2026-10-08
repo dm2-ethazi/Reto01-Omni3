@@ -38,6 +38,16 @@ public class ConectoresController implements ControladorVista {
 
     private ConectoresViewModel viewmodel;
 
+    /**
+     * Crea el controlador de la pantalla de conectores.
+     *
+     * <p>El constructor no realiza ninguna inicialización: la configuración
+     * de la vista se produce en {@link #conectar(FabricaAplicacion)}, que
+     * FXMLLoader invoca al cargar el FXML.</p>
+     */
+    public ConectoresController() {
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.viewmodel = fabrica.crearConectoresViewModel();

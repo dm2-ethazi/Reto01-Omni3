@@ -23,7 +23,7 @@ public class SincronizacionViewModel extends ViewModelBase {
     private final ObservableList<Map<String, Object>> cola =
             FXCollections.observableArrayList();
 
-    /** Mensaje devuelto por la última sincronización. */
+    // Mensaje devuelto por la última sincronización.
     private final ObjectProperty<String> ultimoResultado = new SimpleObjectProperty<>("");
 
     /**
@@ -36,17 +36,32 @@ public class SincronizacionViewModel extends ViewModelBase {
         reiniciar("Listo");
     }
 
-    /** Entradas de la cola. */
+    /**
+     * Entradas de la cola.
+     *
+     * @return la lista observable con las tareas de refresco pendientes;
+     *         vacía si todavía no se ha consultado la cola.
+     */
     public ObservableList<Map<String, Object>> getCola() {
         return cola;
     }
 
-    /** Mensaje de la última sincronización. */
+    /**
+     * Mensaje de la última sincronización.
+     *
+     * @return el texto devuelto por la última operación {@code POST /sync},
+     *         o cadena vacía si todavía no se ha lanzado ninguna.
+     */
     public String getUltimoResultado() {
         return ultimoResultado.get();
     }
 
-    /** Propiedad observable del último resultado. */
+    /**
+     * Propiedad observable del último resultado.
+     *
+     * @return la propiedad {@code ObjectProperty} que notifica a la vista
+     *         la llegada de un mensaje nuevo de sincronización.
+     */
     public ObjectProperty<String> ultimoResultadoProperty() {
         return ultimoResultado;
     }
