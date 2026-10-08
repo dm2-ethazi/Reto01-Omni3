@@ -88,12 +88,28 @@ pantallas muestran el error de conexión con su `request-id`.
 
 ### 4.2. URL base
 
-La URL base por defecto es **`http://127.0.0.1:8000`** (constante
-`ConfigApi.URL_POR_DEFECTO`, en `api/ConfigApi.java`). El campo de la cabecera de la ventana
-muestra esa URL a informativamente; **para apuntar a otro host o puerto** hay dos opciones:
+La URL de la API **ya no se edita desde la ventana**: se define en un único sitio de
+configuración, con esta prioridad (`ConfigApi.desdeEntorno()`):
 
-1. Cambiar `ConfigApi.URL_POR_DEFECTO`, o
-2. Inyectar la configuración al crear la fábrica:
+1. Propiedad de sistema **`-Dgestor.api.url`**;
+2. variable de entorno **`GESTOR_API_URL`**;
+3. valor por defecto **`http://127.0.0.1:8000`** (`ConfigApi.URL_POR_DEFECTO`).
+
+En todos los casos se normaliza el texto (sin espacios, sin `/` finales y con esquema
+`http://` si falta):
+
+```bash
+# propiedad de sistema (también sirve con el fat jar)
+java -Dgestor.api.url=http://192.168.1.50:8000 -jar gestor-hogwarts.jar
+
+# variable de entorno (Windows)
+set GESTOR_API_URL=http://192.168.1.50:8000 && java -jar gestor-hogwarts.jar
+
+# variable de entorno (Linux/macOS)
+GESTOR_API_URL=http://192.168.1.50:8000 java -jar gestor-hogwarts.jar
+```
+
+Si prefieres fijarlo en código, inyecta la configuración al crear la fábrica:
 
 ```java
 ConfigApi config = new ConfigApi("http://127.0.0.1:9000", ConfigApi.TIMEOUT_POR_DEFECTO);

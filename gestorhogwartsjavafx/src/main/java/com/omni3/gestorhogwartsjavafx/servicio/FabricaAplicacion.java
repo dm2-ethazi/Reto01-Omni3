@@ -35,11 +35,12 @@ public class FabricaAplicacion {
     private final ServicioAlumnos servicio;
 
     /**
-     * Crea la fabrica por defecto con la URL y el timeout por defecto y
-     * monta el cliente HTTP y el servicio de fondo correspondientes.
+     * Crea la fabrica por defecto con la URL del entorno (propiedad
+     * {@code gestor.api.url}, variable {@code GESTOR_API_URL} o valor por
+     * defecto) y monta el cliente HTTP y el servicio de fondo.
      */
     public FabricaAplicacion() {
-        this(ConfigApi.porDefecto());
+        this(ConfigApi.desdeEntorno());
     }
 
     /**
@@ -110,22 +111,6 @@ public class FabricaAplicacion {
      */
     public ConfigApi getConfig() {
         return config;
-    }
-
-    /**
-     * Aplica una nueva URL base de la API: normaliza el texto, monta un
-     * cliente nuevo y lo sustituye en el servicio para que todas las
-     * peticiones posteriores usen esa URL (§3).
-     *
-     * @param texto URL escrita por el usuario; se normaliza y valida
-     * @return la configuracion ya aplicada, con la URL normalizada
-     * @throws IllegalArgumentException si la URL no es valida
-     */
-    public ConfigApi aplicarUrl(String texto) {
-        ConfigApi nueva = new ConfigApi(texto, config.getTimeout());
-        servicio.cambiarCliente(ClienteAlumnos.desde(nueva));
-        this.config = nueva;
-        return nueva;
     }
 
     /**

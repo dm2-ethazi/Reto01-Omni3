@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -21,7 +20,6 @@ import java.io.IOException;
  */
 public class PrincipalController implements ControladorVista {
 
-    @FXML private TextField campoUrl;
     @FXML private Label estado;
     @FXML private Label estadoDerecha;
     @FXML private StackPane contenedorContenido;
@@ -46,7 +44,6 @@ public class PrincipalController implements ControladorVista {
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
-        campoUrl.setText(fabrica.getConfig().getBaseUrl());
         cargarEstado();
     }
 
@@ -78,29 +75,6 @@ public class PrincipalController implements ControladorVista {
     @FXML
     private void comprobarSalud() {
         cargarEstado();
-    }
-
-    /** Aplica la URL de la API escrita en la cabecera y comprueba la conexión. */
-    @FXML
-    private void aplicarUrl() {
-        if (fabrica == null) {
-            return;
-        }
-        String texto = campoUrl.getText() == null ? "" : campoUrl.getText().trim();
-        if (texto.isEmpty()) {
-            campoUrl.setText(fabrica.getConfig().getBaseUrl());
-            return;
-        }
-        try {
-            String aplicada = fabrica.aplicarUrl(texto).getBaseUrl();
-            campoUrl.setText(aplicada);
-            estado.setText("URL de la API: " + aplicada + " · Comprobando conexión…");
-            // La pantalla de estado vuelve a consultar la salud con la nueva URL.
-            cargarEstado();
-        } catch (IllegalArgumentException excepcion) {
-            campoUrl.setText(fabrica.getConfig().getBaseUrl());
-            estado.setText(excepcion.getMessage());
-        }
     }
 
     /** Carga la pantalla de estado sin cambiar la navegación activa. */

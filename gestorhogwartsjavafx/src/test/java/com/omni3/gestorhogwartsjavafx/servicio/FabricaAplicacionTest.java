@@ -1,6 +1,5 @@
 package com.omni3.gestorhogwartsjavafx.servicio;
 
-import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnos;
 import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnosFalso;
 import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnosHttp;
 import com.omni3.gestorhogwartsjavafx.api.ConfigApi;
@@ -16,9 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -117,42 +114,6 @@ class FabricaAplicacionTest {
             assertSame(fabrica.getServicio(), conectores.getServicio());
             assertSame(fabrica.getServicio(), salud.getServicio());
             assertSame(fabrica.getServicio(), sincronizacion.getServicio());
-        } finally {
-            fabrica.cerrar();
-        }
-    }
-
-    @Test
-    @DisplayName("aplicarUrl() normaliza la URL y la instala en el servicio")
-    void aplicarUrlCambiaLaConfiguracionYElCliente() {
-        FabricaAplicacion fabrica = new FabricaAplicacion();
-        try {
-            ClienteAlumnos anterior = fabrica.getCliente();
-
-            ConfigApi aplicada = fabrica.aplicarUrl("127.0.0.1:8000/");
-
-            assertEquals("http://127.0.0.1:8000", aplicada.getBaseUrl());
-            assertSame(aplicada, fabrica.getConfig());
-            assertNotSame(anterior, fabrica.getCliente(), "Debe montarse un cliente nuevo");
-            assertTrue(fabrica.getCliente() instanceof ClienteAlumnosHttp);
-            assertSame(fabrica.getCliente(), fabrica.getServicio().getCliente(),
-                    "El servicio debe envolver el cliente nuevo");
-        } finally {
-            fabrica.cerrar();
-        }
-    }
-
-    @Test
-    @DisplayName("aplicarUrl() con una URL inválida no cambia nada")
-    void aplicarUrlInvalidaNoCambiaNada() {
-        FabricaAplicacion fabrica = new FabricaAplicacion();
-        try {
-            ClienteAlumnos anterior = fabrica.getCliente();
-
-            assertThrows(IllegalArgumentException.class, () -> fabrica.aplicarUrl("http://[::1"));
-
-            assertEquals(ConfigApi.URL_POR_DEFECTO, fabrica.getConfig().getBaseUrl());
-            assertSame(anterior, fabrica.getCliente());
         } finally {
             fabrica.cerrar();
         }

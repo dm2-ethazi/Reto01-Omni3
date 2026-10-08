@@ -25,6 +25,12 @@ public final class ConfigApi {
     /** URL por defecto de la API (§1). */
     public static final String URL_POR_DEFECTO = "http://127.0.0.1:8000";
 
+    /** Propiedad de sistema que fija la URL base de la API. */
+    public static final String PROP_SISTEMA_URL = "gestor.api.url";
+
+    /** Variable de entorno que fija la URL base de la API. */
+    public static final String VAR_ENTORNO_URL = "GESTOR_API_URL";
+
     /** Timeout por defecto de las peticiones. */
     public static final Duration TIMEOUT_POR_DEFECTO = Duration.ofSeconds(10);
 
@@ -96,6 +102,38 @@ public final class ConfigApi {
      */
     public static ConfigApi porDefecto() {
         return new ConfigApi(URL_POR_DEFECTO, TIMEOUT_POR_DEFECTO);
+    }
+
+    /**
+     * Construye la configuración a partir del entorno de ejecución.
+     *
+     * <p>La URL base se resuelve con esta prioridad:</p>
+     * <ol>
+     *   <li>propiedad de sistema {@code -Dgestor.api.url};</li>
+     *   <li>variable de entorno {@code GESTOR_API_URL};</li>
+     *   <li>{@link #URL_POR_DEFECTO}.</li>
+     * </ol>
+     *
+     * <p>El valor elegido se normaliza igual que en el constructor (sin
+     * espacios ni {@code /} finales y con esquema {@code http://}). Si la
+     * prioridad detectada no es válida se lanza la excepción correspondiente
+     * en lugar de volver silenciosamente al valor por defecto.</p>
+     *
+     * @return configuración con la URL resuelta del entorno y el timeout
+     *         por defecto
+     * @throws IllegalArgumentException si la propiedad o la variable
+     *                                  contienen una URL inválida
+     */
+    public static ConfigApi desdeEntorno() {
+        String sistema = System.getProperty(PROP_SISTEMA_URL);
+        if (sistema != null && !sistema.isBlank()) {
+            return new ConfigApi(sistema, TIMEOUT_POR_DEFECTO);
+        }
+        String entorno = System.getenv(VAR_ENTORNO_URL);
+        if (entorno != null && !entorno.isBlank()) {
+            return new ConfigApi(entorno, TIMEOUT_POR_DEFECTO);
+        }
+        return porDefecto();
     }
 
     /**

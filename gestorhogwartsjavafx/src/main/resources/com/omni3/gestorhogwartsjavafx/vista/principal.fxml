@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -19,9 +18,7 @@
     <Label text="Gestor Hogwarts" styleClass="titulo-cabecera"/>
     <Label text="Cliente de escritorio" styleClass="subtitulo-cabecera"/>
     <Region HBox.hgrow="ALWAYS"/>
-    <TextField fx:id="campoUrl" promptText="http://127.0.0.1:8000" prefWidth="260" styleClass="campo"
-               onAction="#aplicarUrl"/>
-      <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud"/>
+    <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud"/>
   </HBox>
 
   <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">

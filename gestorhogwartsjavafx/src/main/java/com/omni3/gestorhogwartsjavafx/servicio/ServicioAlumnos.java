@@ -114,21 +114,6 @@ public class ServicioAlumnos {
     }
 
     /**
-     * Sustituye el cliente de acceso, por ejemplo cuando el usuario cambia
-     * la URL de la API desde la cabecera de la aplicación.
-     *
-     * <p>Las peticiones ya en curso siguen su curso con el cliente
-     * anterior; las que se lancen a partir de ahora usan el nuevo. El pool
-     * de fondo y el publicador no cambian.</p>
-     *
-     * @param nuevo cliente nuevo; no nulo
-     * @throws NullPointerException si el cliente es nulo
-     */
-    public void cambiarCliente(ClienteAlumnos nuevo) {
-        this.cliente = Objects.requireNonNull(nuevo, "El cliente es obligatorio");
-    }
-
-    /**
      * Consulta de salud ({@code GET /health}).
      *
      * @param exito callback de exito
