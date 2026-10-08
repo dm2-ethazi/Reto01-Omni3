@@ -198,19 +198,21 @@ Si contesta con la lista de alumnos, arranca la app con `OMNI3_MODO=api` y usa l
 ### 4.5. Datos cargados en las cinco bases
 
 Las cinco bases del `compose.yaml` están cargadas con el volcado `bbdd.sql` (DDL + INSERT por
-cada fuente), repartidas así:
+cada fuente):
 
-| Fuente (puerto) | `casa` de la API | Origen en la app | Alumnos |
+| Fuente (puerto) | `casa` de la API | Origen en la app | Contenido |
 |---|---|---|---|
-| MariaDB `r01_central` (3306) | Hogwarts | `MARIADB` | 6 |
-| Derby (1527) | Gryffindor | `DERBY` | 303 |
-| H2 (9092) | Hufflepuff | `H2` | 212 |
-| HSQLDB (9001) | Slytherin | `HSQLDB` | 267 |
-| Oracle `FREEPDB1` (1521) | Ravenclaw | `ORACLE` | 203 |
+| MariaDB `r01_central` (3306) | Hogwarts | `MARIADB` | Central: semilla inicial **y** todos los alumnos nuevos creados desde la app |
+| Derby (1527) | Gryffindor | `DERBY` | 303 alumnos del volcado |
+| H2 (9092) | Hufflepuff | `H2` | 212 alumnos del volcado |
+| HSQLDB (9001) | Slytherin | `HSQLDB` | 267 alumnos del volcado |
+| Oracle `FREEPDB1` (1521) | Ravenclaw | `ORACLE` | 203 alumnos del volcado |
 
-Total: **991 alumnos**. El listado se pide sin límite (`ConsultaViewModel.LIMITE_POR_DEFECTO = 0`)
-y el filtro por origen, la búsqueda y la paginación se resuelven en el cliente, porque
-`GET /alumnos` devuelve siempre el listado completo.
+El volcado aporta **985 alumnos históricos**; con la semilla de MariaDB la API servía 990
+alumnos al escribir estas líneas, y el total **sube y baja con cada alta y cada baja**. El listado
+se pide sin límite (`ConsultaViewModel.LIMITE_POR_DEFECTO = 0`) y el filtro por origen, la búsqueda
+y la paginación se resuelven en el cliente, porque `GET /alumnos` devuelve siempre el listado
+completo.
 
 ---
 
@@ -279,9 +281,10 @@ Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son det
 - **Modo demo verificado de extremo a extremo**: consulta, filtros, alta, edición con conflicto 409,
   conectores, cola y salud.
 - **Modo API verificado contra la API real** (rama `Api`, `uvicorn` + las cinco bases del
-  `compose`): listado con mapeo de campos (991 alumnos repartidos en las cinco fuentes), ficha por
-  DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja (`DELETE /alumnos/{dni}`),
-  búsqueda y filtro por origen, `404` con el `detail` del backend y pantalla de estado.
+  `compose`): listado con mapeo de campos (los 985 alumnos históricos del volcado repartidos en
+  las cinco fuentes), ficha por DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`),
+  baja (`DELETE /alumnos/{dni}`), búsqueda y filtro por origen, `404` con el `detail` del backend
+  y pantalla de estado.
 - **Operaciones pendientes de la API**: conectores, sincronización y cola responden
   `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI; al no haber versionado, tampoco hay
   control de concurrencia (`version = 0`).
