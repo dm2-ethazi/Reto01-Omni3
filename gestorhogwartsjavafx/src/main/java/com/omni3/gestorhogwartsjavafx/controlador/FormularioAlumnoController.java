@@ -107,6 +107,7 @@ public class FormularioAlumnoController implements ControladorVista {
         tituloFormulario.setText("Editar alumno");
         textoAyuda.setText("Los cambios se envían con la versión previa; si otra sesión lo modificó, se avisará sin sobrescribir.");
         campoDni.setDisable(true);
+        campoDni.textProperty().bind(edicion.dniProperty());
         campoNombre.textProperty().bindBidirectional(edicion.nombreProperty());
         campoPatronus.textProperty().bindBidirectional(edicion.patronusProperty());
         comboCasa.valueProperty().bindBidirectional(edicion.casaProperty());

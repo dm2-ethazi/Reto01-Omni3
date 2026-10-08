@@ -1,5 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.viewmodel;
 
+import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -27,6 +28,17 @@ public interface FormularioAlumno {
 
     /** Estado actual de la pantalla. */
     ObjectProperty<EstadoCarga> estadoProperty();
+
+    /**
+     * Ficha creada o guardada; {@code null} mientras no se completa la
+     * operación. <strong>Es la señal de éxito</strong>: la vista cierra
+     * el diálogo y refresca la tabla cuando recibe un valor distinto de
+     * {@code null}, nunca al pasar a {@link EstadoCarga#OK} (que también
+     * lo marca la carga de la ficha al abrir la edición).
+     *
+     * @return propiedad observable de la ficha resultante
+     */
+    ObjectProperty<AlumnoDto> resultadoProperty();
 
     /** Mensaje en español para el usuario. */
     StringProperty mensajeProperty();

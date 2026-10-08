@@ -164,6 +164,12 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
         return altaRealizada;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public ObjectProperty<AlumnoDto> resultadoProperty() {
+        return altaRealizada;
+    }
+
     /**
      * Valida el formulario en cliente y publica los errores de cada campo.
      *

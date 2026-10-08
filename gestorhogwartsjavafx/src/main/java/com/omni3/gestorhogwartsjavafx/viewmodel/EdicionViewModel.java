@@ -193,6 +193,12 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
         return guardado;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public ObjectProperty<AlumnoDto> resultadoProperty() {
+        return guardado;
+    }
+
     /**
      * Carga la ficha desde la API ({@code GET /students/{dni}}) y rellena
      * el formulario con la versión vigente.

@@ -308,11 +308,18 @@ public class AlumnosController implements ControladorVista {
                 formulario.guardar();
             });
 
-            formulario.estadoProperty().addListener((observable, antes, estado) -> {
-                if (estado == EstadoCarga.OK) {
+            // Se cierra solo cuando la operación de guardado termina bien:
+            // el estado OK también lo marca la carga de la ficha al abrir
+            // la edición, y eso no debe cerrar el diálogo.
+            formulario.resultadoProperty().addListener((observable, antes, ficha) -> {
+                if (ficha != null) {
                     dialogo.close();
                     consulta.buscar();
-                } else if (estado == EstadoCarga.CONFLICTO) {
+                }
+            });
+
+            formulario.estadoProperty().addListener((observable, antes, estado) -> {
+                if (estado == EstadoCarga.CONFLICTO) {
                     ofrecerRecarga(formulario);
                 }
             });
