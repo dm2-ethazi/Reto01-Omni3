@@ -25,8 +25,9 @@ import java.util.UUID;
  *
  * <p>Simula el comportamiento de la API real para poder ejercitar los
  * servicios y viewmodels sin backend: latencia configurable, DNI
- * duplicado (400), conflicto de edición por versión (409), borrado
- * lógico y salud con identificador {@code R01}.</p>
+ * duplicado (409, igual que la API real), conflicto de edición por
+ * versión (409), borrado lógico y salud con identificador
+ * {@code R01}.</p>
  *
  * <p>Todos los métodos son {@code synchronized} porque las pruebas
  * pueden consultar y modificar desde varios hilos de fondo.</p>
@@ -144,8 +145,8 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
                     validacion.mensajeError().orElse("Datos de alumno no válidos"), peticion());
         }
         if (alumnos.containsKey(dni)) {
-            throw new ExcepcionApi(400, "DNI_DUPLICADO",
-                    "Ya existe un alumno con el DNI " + Validaciones.enmascararDNI(dni) + ".",
+            throw new ExcepcionApi(409, "DNI_DUPLICADO",
+                    "El DNI '" + Validaciones.enmascararDNI(dni) + "' ya existe en la fuente del alumno.",
                     peticion());
         }
         Alumno nuevo = new Alumno(dni, alumno.nombre(), alumno.casa(), alumno.patronus(),

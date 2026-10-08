@@ -158,6 +158,25 @@ public abstract class ViewModelBase {
     }
 
     /**
+     * Traduce un error al estado de pantalla <strong>sin</strong> posibilidad
+     * de conflicto de concurrencia.
+     *
+     * <p>Se usa en el alta: al no haber versión previa, un 409 de la API
+     * significa que el DNI ya existe y no que otra sesión haya modificado la
+     * ficha, así que la vista no debe ofrecer recargar (§2.3 se reserva para
+     * la edición).</p>
+     *
+     * @param error error recibido de la capa de acceso; no nulo
+     */
+    protected void marcarError(ExcepcionApi error) {
+        Objects.requireNonNull(error, "El error es obligatorio");
+        estado.set(EstadoCarga.ERROR);
+        ocupado.set(false);
+        mensaje.set(error.getMensaje());
+        requestId.set(error.getRequestId() == null ? "" : error.getRequestId());
+    }
+
+    /**
      * Reinicia la pantalla a su estado inicial con el mensaje indicado.
      *
      * @param texto mensaje inicial de la pantalla; puede ser vacío o nulo

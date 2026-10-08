@@ -123,16 +123,17 @@ class ClienteAlumnosFalsoTest {
     }
 
     @Test
-    @DisplayName("El alta con DNI duplicado devuelve error 400")
+    @DisplayName("El alta con DNI duplicado devuelve error 409 como la API real")
     void altaConDniDuplicado() {
         AlumnoDto duplicado = new AlumnoDto("12345678A", "Impostor", null, "Ciervo",
                 "MARIADB", "NUEVO", 0, null, true);
 
         ExcepcionApi error = assertThrows(ExcepcionApi.class, () -> falso.altaAlumno(duplicado));
 
-        assertEquals(400, error.getStatus());
+        assertEquals(409, error.getStatus());
         assertEquals("DNI_DUPLICADO", error.getCodigo());
         assertTrue(error.getMensaje().contains("12***78A"), "El error debe enmascarar el DNI");
+        assertTrue(error.getMensaje().contains("ya existe"), "El error debe explicar el motivo");
         assertEquals(7, falso.listarAlumnos(null, "", 0, 0).size());
     }
 

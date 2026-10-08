@@ -192,14 +192,18 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
     }
 
     /**
-     * Envía el alta a la API ({@code POST /students}).
+     * Envía el alta a la API ({@code POST /alumnos}).
      *
      * <p>Si la validación local falla, no se realiza ninguna petición y la
-     * pantalla queda en {@link EstadoCarga#ERROR} con el motivo.</p>
+     * pantalla queda en {@link EstadoCarga#ERROR} con el motivo. Los errores
+     * de la API se publican también como {@link EstadoCarga#ERROR} y nunca
+     * como {@link EstadoCarga#CONFLICTO}: en un alta no hay versión previa,
+     * de modo que un 409 (DNI duplicado) no debe abrir el diálogo de
+     * conflicto de concurrencia reservado a la edición.</p>
      */
     public void guardar() {
         if (!validar()) {
-            marcarFallo(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
+            marcarError(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
                     400, "VALIDACION", "Revise los campos marcados antes de guardar.", null));
             return;
         }
@@ -220,7 +224,7 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
                     altaRealizada.set(creado);
                     marcarOk("Alumno dado de alta correctamente.");
                 },
-                this::marcarFallo);
+                this::marcarError);
     }
 
     /**
