@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import javafx.scene.control.Dialog;
 
 /**
  * Contrato de las vistas que necesitan acceso a la fábrica de la
@@ -28,4 +29,18 @@ public interface ControladorVista {
      * @param fabrica fábrica con configuración, servicio y viewmodels; no nula
      */
     void conectar(FabricaAplicacion fabrica);
+
+    /**
+     * Aplica la hoja de estilos de la aplicación a un diálogo nativo.
+     *
+     * <p>Sin esto, los {@code Alert} se dibujan con el gris y los
+     * azules saturados del tema por defecto, fuera de la paleta
+     * "azul tenue" (§5 del contrato).</p>
+     *
+     * @param dialogo diálogo a estilizar; no nulo
+     */
+    default void estilizarDialogo(Dialog<?> dialogo) {
+        dialogo.getDialogPane().getStylesheets().add(
+                getClass().getResource(RUTA_VISTAS + "estilos.css").toExternalForm());
+    }
 }

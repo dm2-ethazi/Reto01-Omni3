@@ -301,6 +301,10 @@ public class AlumnosController implements ControladorVista {
         confirmacion.setHeaderText("Dar de baja a " + seleccionado.nombre());
         confirmacion.setContentText("DNI " + seleccionado.dni()
                 + "\nSe aplicará sobre la fuente " + seleccionado.origen() + ".");
+        estilizarDialogo(confirmacion);
+        // Aceptar aplica la baja: se pinta con el color de peligro.
+        confirmacion.getDialogPane().lookupButton(ButtonType.OK)
+                .getStyleClass().add("boton-peligro");
         Optional<ButtonType> respuesta = confirmacion.showAndWait();
         if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
             return;
@@ -331,8 +335,7 @@ public class AlumnosController implements ControladorVista {
             dialogo.setHeaderText(null);
             dialogo.getDialogPane().getButtonTypes().addAll(TIPO_GUARDAR, TIPO_CANCELAR);
             dialogo.getDialogPane().setContent(raiz);
-            dialogo.getDialogPane().getStylesheets().add(
-                    getClass().getResource(RUTA_VISTAS + "estilos.css").toExternalForm());
+            estilizarDialogo(dialogo);
             dialogo.setResizable(true);
 
             Node botonGuardar = dialogo.getDialogPane().lookupButton(TIPO_GUARDAR);
@@ -380,6 +383,7 @@ public class AlumnosController implements ControladorVista {
         ButtonType recargar = new ButtonType("Recargar ficha");
         ButtonType seguir = new ButtonType("Seguir editando");
         aviso.getButtonTypes().setAll(recargar, seguir);
+        estilizarDialogo(aviso);
         Optional<ButtonType> respuesta = aviso.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == recargar) {
             formulario.recargar();
