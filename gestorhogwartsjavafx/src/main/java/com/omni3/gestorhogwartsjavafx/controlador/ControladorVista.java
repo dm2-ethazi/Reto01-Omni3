@@ -43,7 +43,7 @@ public interface ControladorVista {
      */
     default void estilizarDialogo(Dialog<?> dialogo) {
         dialogo.getDialogPane().getStylesheets().add(
-                getClass().getResource(RUTA_VISTAS + "tema.css").toExternalForm());
+                getClass().getResource("/com/omni3/gestorhogwartsjavafx/vista/css/tema.css").toExternalForm());
 
         // Asignar owner para heredar el icono de la ventana principal
         javafx.stage.Window owner = null;

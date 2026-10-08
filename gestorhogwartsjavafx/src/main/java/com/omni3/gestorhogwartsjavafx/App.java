@@ -41,7 +41,7 @@ public class App extends Application {
     public void start(Stage escenario) throws Exception {
         fabrica = new FabricaAplicacion();
 
-        FXMLLoader cargador = new FXMLLoader(App.class.getResource("vista/principal.fxml"));
+        FXMLLoader cargador = new FXMLLoader(App.class.getResource("vista/fxml/principal.fxml"));
         Parent raiz = cargador.load();
 
         Object controlador = cargador.getController();
@@ -50,7 +50,7 @@ public class App extends Application {
         }
 
         Scene escena = new Scene(raiz);
-        escena.getStylesheets().add(App.class.getResource("vista/tema.css").toExternalForm());
+        escena.getStylesheets().add(App.class.getResource("vista/css/tema.css").toExternalForm());
 
         // Icono de la ventana
         List<Image> iconos = List.of(
