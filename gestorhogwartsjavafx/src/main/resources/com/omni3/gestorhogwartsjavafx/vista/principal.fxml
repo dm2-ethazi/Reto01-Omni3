@@ -24,7 +24,7 @@
       <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud"/>
   </HBox>
 
-  <HBox HBox.hgrow="ALWAYS" styleClass="cuerpo">
+  <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">
     <VBox fx:id="lateral" prefWidth="230" spacing="6" styleClass="lateral">
       <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
       <Label text="NAVEGACIÓN" styleClass="etiqueta-seccion"/>

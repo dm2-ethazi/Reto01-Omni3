@@ -18,14 +18,13 @@
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.AlumnosController">
 
   <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
-    <Label text="Alumnos" styleClass="titulo-seccion"/>
-    <Region prefWidth="16"/>
-    <TextField fx:id="campoBusqueda" promptText="Buscar por DNI o nombre" prefWidth="240"
+    <Label text="Alumnos" styleClass="titulo-seccion" minWidth="90"/>
+    <TextField fx:id="campoBusqueda" promptText="Buscar por DNI o nombre" prefWidth="200"
+               minWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"
                styleClass="campo" onAction="#buscar"/>
-    <ComboBox fx:id="comboOrigen" prefWidth="190" styleClass="campo-combo"/>
+    <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="150" styleClass="campo-combo"/>
     <Button fx:id="botonBuscar" text="Buscar" styleClass="boton-secundario" onAction="#buscar"/>
     <Button fx:id="botonLimpiar" text="Limpiar" styleClass="boton-secundario" onAction="#limpiar"/>
-    <Region HBox.hgrow="ALWAYS"/>
     <Button fx:id="botonNuevo" text="Nuevo alumno" styleClass="boton-primario" onAction="#nuevo"/>
     <Button fx:id="botonEditar" text="Editar" styleClass="boton-secundario" onAction="#editar"/>
     <Button fx:id="botonBaja" text="Dar de baja" styleClass="boton-peligro" onAction="#baja"/>
