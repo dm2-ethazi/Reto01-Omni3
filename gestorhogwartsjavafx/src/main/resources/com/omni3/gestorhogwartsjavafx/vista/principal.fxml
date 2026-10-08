@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -15,6 +16,7 @@
 
   <HBox alignment="CENTER_LEFT" spacing="16" styleClass="cabecera">
     <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
+    <ImageView fx:id="iconoCabecera" fitWidth="28" fitHeight="28" preserveRatio="true"/>
     <Label text="Gestor Hogwarts" styleClass="titulo-cabecera"/>
     <Label text="Cliente de escritorio" styleClass="subtitulo-cabecera"/>
     <Region HBox.hgrow="ALWAYS"/>

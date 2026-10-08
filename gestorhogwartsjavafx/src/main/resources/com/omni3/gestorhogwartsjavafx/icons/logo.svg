@@ -1,0 +1,13 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Escudo redondeado azul pizarra -->
+  <path d="M256 16 C123 16 16 80 16 176 c0 64 96 192 240 320 144 -128 240 -256 240 -320 C496 80 389 16 256 16 Z" fill="#3B5B82"/>
+  <!-- "G" blanca centrada -->
+  <text x="256" y="290" font-family="Segoe UI, Inter, Roboto, sans-serif" font-size="220" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">G</text>
+  <!-- Chispa de cuatro puntas en azul muy claro -->
+  <g fill="#E8EEF6">
+    <polygon points="380,140 390,150 380,160 370,150"/> <!-- NE -->
+    <polygon points="380,372 390,362 380,352 370,362"/> <!-- SE -->
+    <polygon points="132,372 142,362 132,352 122,362"/> <!-- SW -->
+    <polygon points="132,140 142,150 132,160 122,150"/> <!-- NW -->
+  </g>
+</svg>

@@ -6,7 +6,10 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 /**
  * Punto de entrada de la aplicación de escritorio (JavaFX).
@@ -48,6 +51,17 @@ public class App extends Application {
 
         Scene escena = new Scene(raiz);
         escena.getStylesheets().add(App.class.getResource("vista/tema.css").toExternalForm());
+
+        // Icono de la ventana
+        List<Image> iconos = List.of(
+                new Image(App.class.getResource("icons/icon-16.png").toExternalForm()),
+                new Image(App.class.getResource("icons/icon-32.png").toExternalForm()),
+                new Image(App.class.getResource("icons/icon-64.png").toExternalForm()),
+                new Image(App.class.getResource("icons/icon-128.png").toExternalForm()),
+                new Image(App.class.getResource("icons/icon-256.png").toExternalForm()),
+                new Image(App.class.getResource("icons/icon-512.png").toExternalForm())
+        );
+        escenario.getIcons().addAll(iconos);
 
         escenario.setTitle(TITULO);
         escenario.setScene(escena);

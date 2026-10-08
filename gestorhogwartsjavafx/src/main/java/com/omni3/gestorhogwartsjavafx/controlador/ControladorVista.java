@@ -32,7 +32,8 @@ public interface ControladorVista {
     void conectar(FabricaAplicacion fabrica);
 
     /**
-     * Aplica la hoja de estilos de la aplicación a un diálogo nativo.
+     * Aplica la hoja de estilos de la aplicación a un diálogo nativo
+     * y le asigna el icono de la aplicación mediante initOwner.
      *
      * <p>Sin esto, los {@code Alert} se dibujan con el gris y los
      * azules saturados del tema por defecto, fuera de la paleta
@@ -43,6 +44,18 @@ public interface ControladorVista {
     default void estilizarDialogo(Dialog<?> dialogo) {
         dialogo.getDialogPane().getStylesheets().add(
                 getClass().getResource(RUTA_VISTAS + "tema.css").toExternalForm());
+
+        // Asignar owner para heredar el icono de la ventana principal
+        javafx.stage.Window owner = null;
+        for (javafx.stage.Window w : javafx.stage.Window.getWindows()) {
+            if (w instanceof javafx.stage.Stage && w.isShowing()) {
+                owner = w;
+                break;
+            }
+        }
+        if (owner != null) {
+            dialogo.initOwner(owner);
+        }
     }
 
     /**

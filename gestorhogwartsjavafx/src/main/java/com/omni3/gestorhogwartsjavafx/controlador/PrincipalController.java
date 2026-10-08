@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class PrincipalController implements ControladorVista {
 
     @FXML private Label estado;
     @FXML private Label estadoDerecha;
+    @FXML private ImageView iconoCabecera;
     @FXML private StackPane contenedorContenido;
     @FXML private Button navEstado;
     @FXML private Button navAlumnos;
@@ -44,6 +46,8 @@ public class PrincipalController implements ControladorVista {
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
+        iconoCabecera.setImage(new javafx.scene.image.Image(
+                getClass().getResource("/com/omni3/gestorhogwartsjavafx/icons/icon-32.png").toExternalForm()));
         cargarEstado();
     }
 
