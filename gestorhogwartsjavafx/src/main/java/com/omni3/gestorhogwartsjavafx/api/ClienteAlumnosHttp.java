@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -391,12 +392,17 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         } catch (ExcepcionApi excepcion) {
             throw excepcion;
         } catch (IOException excepcion) {
-            // Hay excepciones de red sin mensaje (p. ej. la conexión
-            // rechazada en algunos JDK): "…: null" no le sirve a nadie.
-            String detalle = excepcion.getMessage();
-            if (detalle == null || detalle.isBlank()) {
+            String detalle;
+            if (excepcion instanceof HttpTimeoutException) {
+                detalle = "se agotó el tiempo de espera de "
+                        + config.getTimeout().toMillis() + " ms";
+            } else if (excepcion.getMessage() == null || excepcion.getMessage().isBlank()) {
+                // Excepciones de red sin detalle (p. ej. la conexión
+                // rechazada en algunos JDK): "…: null" no le sirve a nadie.
                 detalle = "sin detalles del fallo ("
                         + excepcion.getClass().getSimpleName() + ")";
+            } else {
+                detalle = excepcion.getMessage();
             }
             throw new ExcepcionApi(0, "RED",
                     "No se pudo contactar con la API en " + config.getBaseUrl() + ": " + detalle,

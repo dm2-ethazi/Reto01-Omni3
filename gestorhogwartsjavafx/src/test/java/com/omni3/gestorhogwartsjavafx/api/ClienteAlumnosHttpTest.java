@@ -43,4 +43,30 @@ class ClienteAlumnosHttpTest {
         assertFalse(excepcion.getRequestId().isEmpty(),
                 "el fallo de red también debe llevar request-id");
     }
+
+    /**
+     * API que acepta la conexión pero no responde: la petición debe
+     * agotar el tiempo de espera (explicándolo en español) en lugar de
+     * bloquear la pantalla.
+     */
+    @Test
+    void unaApiQueNoRespondeAgotaElTiempoDeEspera() throws Exception {
+        try (ServerSocket mudo = new ServerSocket(0)) {
+            ConfigApi config = new ConfigApi("http://127.0.0.1:" + mudo.getLocalPort(),
+                    Duration.ofMillis(700));
+            ClienteAlumnosHttp cliente = new ClienteAlumnosHttp(config);
+
+            long inicio = System.nanoTime();
+            ExcepcionApi excepcion = assertThrows(ExcepcionApi.class,
+                    () -> cliente.listarAlumnos(Origen.CENTRAL, "", 10, 0));
+            long transcurrido = (System.nanoTime() - inicio) / 1_000_000;
+
+            assertEquals("RED", excepcion.getCodigo());
+            assertTrue(excepcion.getMensaje().contains("se agotó el tiempo de espera de 700 ms"),
+                    () -> "mensaje inesperado: " + excepcion.getMensaje());
+            assertTrue(transcurrido < 5_000,
+                    () -> "debe agotar el timeout en lugar de bloquear: "
+                            + transcurrido + " ms");
+        }
+    }
 }
