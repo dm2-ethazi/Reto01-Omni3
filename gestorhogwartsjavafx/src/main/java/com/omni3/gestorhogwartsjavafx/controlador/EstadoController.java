@@ -9,6 +9,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 
+import java.util.List;
+
 /**
  * Controlador de la pantalla «Estado del sistema»
  * ({@code GET /health}, identificador {@code R01}).
@@ -42,11 +44,15 @@ public class EstadoController implements ControladorVista {
 
         viewmodel.saludProperty().addListener((observable, antes, salud) -> pintarSalud(salud));
         viewmodel.mensajeProperty().addListener((observable, antes, mensaje) -> {
-            boolean fallo = viewmodel.getEstado() == EstadoCarga.ERROR
-                    || viewmodel.getEstado() == EstadoCarga.CONFLICTO;
-            etiquetaError.setText(fallo ? mensaje : "");
-            if (!fallo) {
-                etiquetaError.getStyleClass().remove("texto-error");
+            String clase = claseEstado(viewmodel.getEstado(), mensaje);
+            etiquetaError.setText(mensaje == null ? "" : mensaje);
+            List<String> clases = etiquetaError.getStyleClass();
+            clases.remove("texto-error");
+            clases.remove("texto-exito");
+            clases.remove("texto-aviso");
+            clases.remove("texto-secundario");
+            if (!mensaje.isBlank()) {
+                clases.add(clase);
             }
         });
         // Dos errores seguidos mantienen el estado en ERROR, así que el
@@ -62,10 +68,15 @@ public class EstadoController implements ControladorVista {
             boolean cargando = estado == EstadoCarga.CARGANDO;
             indicadorCarga.setVisible(cargando);
             botonComprobar.setDisable(cargando);
+
+            String clase = claseEstado(estado, viewmodel.getMensaje());
+            List<String> clases = etiquetaError.getStyleClass();
+            clases.remove("texto-error");
+            clases.remove("texto-exito");
+            clases.remove("texto-aviso");
+            clases.remove("texto-secundario");
             if (estado == EstadoCarga.ERROR || estado == EstadoCarga.CONFLICTO) {
-                if (!etiquetaError.getStyleClass().contains("texto-error")) {
-                    etiquetaError.getStyleClass().add("texto-error");
-                }
+                clases.add(clase);
             } else {
                 etiquetaRequestId.setText("");
             }

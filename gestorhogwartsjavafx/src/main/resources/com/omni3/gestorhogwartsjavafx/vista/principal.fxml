@@ -11,7 +11,7 @@
 
 <VBox fx:id="raiz" styleClass="raiz" xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.PrincipalController"
-      stylesheets="@estilos.css">
+      stylesheets="@tema.css">
 
   <HBox alignment="CENTER_LEFT" spacing="16" styleClass="cabecera">
     <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>

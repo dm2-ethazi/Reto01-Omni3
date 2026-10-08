@@ -10,7 +10,8 @@
 
 <VBox fx:id="formulario" styleClass="formulario" spacing="8" xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.omni3.gestorhogwartsjavafx.controlador.FormularioAlumnoController">
+      fx:controller="com.omni3.gestorhogwartsjavafx.controlador.FormularioAlumnoController"
+      stylesheets="@tema.css">
 
   <Label fx:id="tituloFormulario" text="Nuevo alumno" styleClass="titulo-seccion"/>
   <Label fx:id="textoAyuda" text="Los alumnos nuevos se crean en la central MariaDB."

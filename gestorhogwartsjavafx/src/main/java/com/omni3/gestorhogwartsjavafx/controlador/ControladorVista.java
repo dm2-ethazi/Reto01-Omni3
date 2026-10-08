@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import com.omni3.gestorhogwartsjavafx.viewmodel.EstadoCarga;
 import javafx.scene.control.Dialog;
 
 /**
@@ -41,6 +42,35 @@ public interface ControladorVista {
      */
     default void estilizarDialogo(Dialog<?> dialogo) {
         dialogo.getDialogPane().getStylesheets().add(
-                getClass().getResource(RUTA_VISTAS + "estilos.css").toExternalForm());
+                getClass().getResource(RUTA_VISTAS + "tema.css").toExternalForm());
+    }
+
+    /**
+     * Devuelve la clase CSS apropiada para un mensaje de estado.
+     * El 501 NO_IMPLEMENTADO se muestra como aviso informativo, no como error.
+     *
+     * @param estado estado de carga actual
+     * @param mensaje mensaje asociado (puede ser {@code null})
+     * @return clase CSS: "texto-aviso" para 501/NO_IMPLEMENTADO, "texto-error" para otros fallos,
+     *         "texto-exito" para OK, "texto-secundario" en caso contrario
+     */
+    default String claseEstado(EstadoCarga estado, String mensaje) {
+        if (estado == EstadoCarga.OK) {
+            return "texto-exito";
+        }
+        if (estado == EstadoCarga.ERROR || estado == EstadoCarga.CONFLICTO) {
+            // 501 NO_IMPLEMENTADO se trata como aviso informativo
+            if (mensaje != null) {
+                String m = mensaje.toLowerCase();
+                if (m.contains("501") || m.contains("no implementado") || m.contains("no_implementado")) {
+                    return "texto-aviso";
+                }
+            }
+            return "texto-error";
+        }
+        if (estado == EstadoCarga.VACIO) {
+            return "texto-aviso";
+        }
+        return "texto-secundario";
     }
 }

@@ -14,7 +14,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="pantalla" styleClass="pantalla" spacing="12" xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.SincronizacionController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.SincronizacionController"
+      stylesheets="@tema.css">
 
   <HBox alignment="CENTER_LEFT" spacing="12">
     <Label text="Sincronización" styleClass="titulo-seccion"/>

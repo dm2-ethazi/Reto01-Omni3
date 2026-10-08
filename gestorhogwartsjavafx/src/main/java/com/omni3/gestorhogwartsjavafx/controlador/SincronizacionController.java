@@ -71,15 +71,13 @@ public class SincronizacionController implements ControladorVista {
                 textoVacio.setText(viewmodel.getMensaje());
             }
 
-            boolean fallo = estado == EstadoCarga.ERROR || estado == EstadoCarga.CONFLICTO;
+            String clase = claseEstado(estado, viewmodel.getMensaje());
             List<String> clases = etiquetaMensaje.getStyleClass();
             clases.remove("texto-error");
             clases.remove("texto-exito");
-            if (fallo) {
-                clases.add("texto-error");
-            } else if (estado == EstadoCarga.OK) {
-                clases.add("texto-exito");
-            }
+            clases.remove("texto-aviso");
+            clases.remove("texto-secundario");
+            clases.add(clase);
         });
 
         viewmodel.getCola().addListener(

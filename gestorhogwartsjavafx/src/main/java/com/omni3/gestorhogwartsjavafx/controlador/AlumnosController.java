@@ -20,6 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -153,6 +154,31 @@ public class AlumnosController implements ControladorVista {
         colCasa.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().casa())));
         colPatronus.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().patronus())));
         colOrigen.setCellValueFactory(d -> new ReadOnlyStringWrapper(valor(d.getValue().origen())));
+
+        // Casa como píldora de color según la casa
+        colCasa.setCellFactory(column -> new TableCell<AlumnoDto, String>() {
+            @Override
+            protected void updateItem(String casa, boolean vacio) {
+                super.updateItem(casa, vacio);
+                if (vacio || casa == null || casa.isBlank()) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label pildora = new Label(casa);
+                pildora.getStyleClass().add("pildora-casa");
+                String casaLower = casa.toLowerCase();
+                if (casaLower.equals("gryffindor") || casaLower.equals("slytherin")
+                        || casaLower.equals("ravenclaw") || casaLower.equals("hufflepuff")) {
+                    pildora.getStyleClass().add(casaLower);
+                } else {
+                    pildora.getStyleClass().add("hufflepuff"); // fallback neutro
+                }
+                setGraphic(pildora);
+                setText(null);
+            }
+        });
+
         tabla.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         tabla.setItems(consulta.getAlumnos());
     }
@@ -240,15 +266,20 @@ public class AlumnosController implements ControladorVista {
         return "texto-secundario";
     }
 
-    /** Escribe en la barra inferior sustituyendo su clase de estilo. */
+    /** Escribe en la barra inferior evitando duplicar el contador de la izquierda. */
     private void mostrarEnBarra(String texto, String clase) {
-        List<String> clases = etiquetaMensaje.getStyleClass();
-        clases.remove("texto-error");
-        clases.remove("texto-exito");
-        clases.remove("texto-aviso");
-        clases.remove("texto-secundario");
-        clases.add(clase);
-        etiquetaMensaje.setText(texto == null ? "" : texto);
+        if (texto != null && texto.trim().equals(etiquetaConteo.getText())) {
+            // Evita duplicar "N alumno(s)" que ya muestra etiquetaConteo
+            etiquetaMensaje.setText("");
+        } else {
+            List<String> clases = etiquetaMensaje.getStyleClass();
+            clases.remove("texto-error");
+            clases.remove("texto-exito");
+            clases.remove("texto-aviso");
+            clases.remove("texto-secundario");
+            clases.add(clase);
+            etiquetaMensaje.setText(texto == null ? "" : texto);
+        }
     }
 
     /** Ejecuta la búsqueda con el texto actual. */

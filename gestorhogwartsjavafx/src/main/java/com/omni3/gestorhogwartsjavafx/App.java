@@ -47,12 +47,12 @@ public class App extends Application {
         }
 
         Scene escena = new Scene(raiz);
-        escena.getStylesheets().add(App.class.getResource("vista/estilos.css").toExternalForm());
+        escena.getStylesheets().add(App.class.getResource("vista/tema.css").toExternalForm());
 
         escenario.setTitle(TITULO);
         escenario.setScene(escena);
-        escenario.setMinWidth(1040);
-        escenario.setMinHeight(640);
+        escenario.setMinWidth(900);
+        escenario.setMinHeight(600);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
     }
