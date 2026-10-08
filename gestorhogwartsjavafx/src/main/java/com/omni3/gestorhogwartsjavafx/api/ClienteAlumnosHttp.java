@@ -391,8 +391,15 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         } catch (ExcepcionApi excepcion) {
             throw excepcion;
         } catch (IOException excepcion) {
+            // Hay excepciones de red sin mensaje (p. ej. la conexión
+            // rechazada en algunos JDK): "…: null" no le sirve a nadie.
+            String detalle = excepcion.getMessage();
+            if (detalle == null || detalle.isBlank()) {
+                detalle = "sin detalles del fallo ("
+                        + excepcion.getClass().getSimpleName() + ")";
+            }
             throw new ExcepcionApi(0, "RED",
-                    "No se pudo contactar con la API en " + config.getBaseUrl() + ": " + excepcion.getMessage(),
+                    "No se pudo contactar con la API en " + config.getBaseUrl() + ": " + detalle,
                     requestId);
         } catch (InterruptedException excepcion) {
             Thread.currentThread().interrupt();
