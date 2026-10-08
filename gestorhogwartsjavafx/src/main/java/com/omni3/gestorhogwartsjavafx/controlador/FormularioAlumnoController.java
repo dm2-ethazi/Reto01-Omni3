@@ -1,7 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
-import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import com.omni3.gestorhogwartsjavafx.viewmodel.AltaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EdicionViewModel;
@@ -121,6 +120,10 @@ public class FormularioAlumnoController implements ControladorVista {
         campoDni.textProperty().bind(edicion.dniProperty());
         campoNombre.textProperty().bindBidirectional(edicion.nombreProperty());
         campoPatronus.textProperty().bindBidirectional(edicion.patronusProperty());
+        // Casa es de solo lectura en edición: se muestra como dato, no como combo editable
+        comboCasa.setDisable(true);
+        comboCasa.getStyleClass().remove("campo-combo");
+        comboCasa.getStyleClass().add("valor-dato");
         comboCasa.valueProperty().bindBidirectional(edicion.casaProperty());
         errorNombre.textProperty().bind(edicion.errorNombreProperty());
         errorCasa.textProperty().bind(edicion.errorCasaProperty());
@@ -129,8 +132,7 @@ public class FormularioAlumnoController implements ControladorVista {
 
         edicion.origenTextoProperty().addListener((observable, antes, origen) ->
                 campoOrigen.setText(origen == null ? "—" : origen));
-        edicion.tipoTextoProperty().addListener((observable, antes, tipo) ->
-                comboCasa.setDisable(!TipoAlumno.HISTORICO.name().equals(tipo)));
+        // En edición la casa nunca es editable, independientemente del tipo
         edicion.versionPreviaProperty().addListener((observable, antes, version) ->
                 campoVersion.setText(String.valueOf(version)));
         enlazarResultado(edicion);

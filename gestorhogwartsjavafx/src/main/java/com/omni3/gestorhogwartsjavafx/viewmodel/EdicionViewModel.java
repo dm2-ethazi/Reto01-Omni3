@@ -361,20 +361,19 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
 
     /**
      * Valida el formulario según el tipo de alumno.
+     * En edición la casa es de solo lectura, así que solo se validan nombre y patronus.
      *
-     * @return {@code true} si todos los campos válidan
+     * @return {@code true} si los campos editables válidan
      */
     public boolean validar() {
         TipoAlumno tipo = TipoAlumno.desdeTexto(tipoTexto.get()).orElse(TipoAlumno.HISTORICO);
         ResultadoValidacion rNombre = Validaciones.validarNombre(nombre.get());
-        ResultadoValidacion rCasa = Validaciones.validarCasa(casa.get(), tipo);
         ResultadoValidacion rPatronus = Validaciones.validarPatronus(patronus.get(), tipo);
 
         errorNombre.set(rNombre.esValido() ? "" : rNombre.mensajeError().orElse(""));
-        errorCasa.set(rCasa.esValido() ? "" : rCasa.mensajeError().orElse(""));
+        errorCasa.set("");
         errorPatronus.set(rPatronus.esValido() ? "" : rPatronus.mensajeError().orElse(""));
-        boolean ok = rNombre.esValido() && rCasa.esValido() && rPatronus.esValido()
-                && !dni.get().isEmpty();
+        boolean ok = rNombre.esValido() && rPatronus.esValido() && !dni.get().isEmpty();
         valido.set(ok);
         return ok;
     }
