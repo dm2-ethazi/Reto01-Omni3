@@ -506,7 +506,13 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     /** URL completa de una ruta relativa. */
     private URI uri(String ruta) {
         String completa = config.getBaseUrl() + (ruta.startsWith("/") ? ruta : "/" + ruta);
-        return URI.create(completa);
+        try {
+            return URI.create(completa);
+        } catch (IllegalArgumentException excepcion) {
+            throw new ExcepcionApi(0, "URL_INVALIDA",
+                    "La URL de la API no es válida: " + completa
+                            + ". Corrija la URL en la cabecera de la aplicación.", null);
+        }
     }
 
     /** Codifica un componente de URL. */

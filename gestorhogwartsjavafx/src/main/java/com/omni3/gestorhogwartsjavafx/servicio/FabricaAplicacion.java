@@ -29,7 +29,7 @@ import java.util.Objects;
 public class FabricaAplicacion {
 
     /** Configuracion (URL base y timeout) de la fabrica. */
-    private final ConfigApi config;
+    private ConfigApi config;
 
     /** Servicio de fondo compartido por todos los viewmodels. */
     private final ServicioAlumnos servicio;
@@ -110,6 +110,22 @@ public class FabricaAplicacion {
      */
     public ConfigApi getConfig() {
         return config;
+    }
+
+    /**
+     * Aplica una nueva URL base de la API: normaliza el texto, monta un
+     * cliente nuevo y lo sustituye en el servicio para que todas las
+     * peticiones posteriores usen esa URL (§3).
+     *
+     * @param texto URL escrita por el usuario; se normaliza y valida
+     * @return la configuracion ya aplicada, con la URL normalizada
+     * @throws IllegalArgumentException si la URL no es valida
+     */
+    public ConfigApi aplicarUrl(String texto) {
+        ConfigApi nueva = new ConfigApi(texto, config.getTimeout());
+        servicio.cambiarCliente(ClienteAlumnos.desde(nueva));
+        this.config = nueva;
+        return nueva;
     }
 
     /**

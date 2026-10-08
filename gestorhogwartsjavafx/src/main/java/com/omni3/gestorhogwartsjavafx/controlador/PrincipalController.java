@@ -70,7 +70,7 @@ public class PrincipalController implements ControladorVista {
         cargarEstado();
     }
 
-    /** Aplica la URL de la API escrita en la cabecera. */
+    /** Aplica la URL de la API escrita en la cabecera y comprueba la conexión. */
     @FXML
     private void aplicarUrl() {
         if (fabrica == null) {
@@ -81,11 +81,16 @@ public class PrincipalController implements ControladorVista {
             campoUrl.setText(fabrica.getConfig().getBaseUrl());
             return;
         }
-        if (texto.endsWith("/")) {
-            texto = texto.substring(0, texto.length() - 1);
-            campoUrl.setText(texto);
+        try {
+            String aplicada = fabrica.aplicarUrl(texto).getBaseUrl();
+            campoUrl.setText(aplicada);
+            estado.setText("URL de la API: " + aplicada + " · Comprobando conexión…");
+            // La pantalla de estado vuelve a consultar la salud con la nueva URL.
+            cargarEstado();
+        } catch (IllegalArgumentException excepcion) {
+            campoUrl.setText(fabrica.getConfig().getBaseUrl());
+            estado.setText(excepcion.getMessage());
         }
-        estado.setText("URL de la API: " + texto);
     }
 
     /** Carga la pantalla de estado sin cambiar la navegación activa. */

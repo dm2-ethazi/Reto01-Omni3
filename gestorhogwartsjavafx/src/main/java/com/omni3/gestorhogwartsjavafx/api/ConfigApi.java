@@ -1,5 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
@@ -9,6 +10,12 @@ import java.util.Objects;
  *
  * <p>La aplicación trabaja siempre contra la API real, así que la
  * configuración ya no transporta ningún modo ni conmutador de datos.</p>
+ *
+ * <p>La URL base se normaliza al crear la configuración: se le quitan los
+ * espacios y las {@code /} finales, se le antepone {@code http://} si no
+ * trae esquema (el usuario puede escribir solo {@code 127.0.0.1:8000}) y,
+ * si aun así no forma una URI válida, se rechaza con un mensaje en
+ * español.</p>
  *
  * <p>La clase es inmutable: las variantes se obtienen con los métodos
  * {@code conX}.</p>
@@ -27,10 +34,13 @@ public final class ConfigApi {
     /**
      * Crea una configuración.
      *
-     * @param baseUrl URL base de la API (se le quitan los {@code /} finales)
+     * @param baseUrl URL base de la API; se normaliza (sin espacios, sin
+     *                {@code /} finales y con esquema {@code http://} u
+     *                {@code https://})
      * @param timeout timeout de peticiones; positivo
      * @throws IllegalArgumentException si el timeout no es positivo o la
-     *                                  URL base queda vacía
+     *                                  URL base queda vacía o no forma una
+     *                                  URI válida
      * @throws NullPointerException     si {@code baseUrl} o {@code timeout}
      *                                  son nulos
      */
@@ -40,15 +50,43 @@ public final class ConfigApi {
         if (timeout.isZero() || timeout.isNegative()) {
             throw new IllegalArgumentException("El timeout debe ser positivo");
         }
-        String limpia = baseUrl.trim();
+        this.baseUrl = normalizar(baseUrl);
+        this.timeout = timeout;
+    }
+
+    /**
+     * Normaliza la URL base: sin espacios ni {@code /} finales, con
+     * esquema y validada como URI.
+     *
+     * @param url URL escrita por el usuario
+     * @return URL normalizada
+     * @throws IllegalArgumentException si queda vacía o no es una URI válida
+     */
+    private static String normalizar(String url) {
+        String limpia = url.trim();
         while (limpia.endsWith("/")) {
             limpia = limpia.substring(0, limpia.length() - 1);
         }
         if (limpia.isEmpty()) {
             throw new IllegalArgumentException("La URL base no puede estar vacía");
         }
-        this.baseUrl = limpia;
-        this.timeout = timeout;
+        String minusculas = limpia.toLowerCase(Locale.ROOT);
+        String conEsquema;
+        if (minusculas.startsWith("https://")) {
+            conEsquema = "https://" + limpia.substring("https://".length());
+        } else if (minusculas.startsWith("http://")) {
+            conEsquema = "http://" + limpia.substring("http://".length());
+        } else {
+            conEsquema = "http://" + limpia;
+        }
+        try {
+            URI.create(conEsquema);
+        } catch (IllegalArgumentException excepcion) {
+            throw new IllegalArgumentException(
+                    "La URL de la API no es válida: " + conEsquema
+                            + ". Ejemplo correcto: http://127.0.0.1:8000");
+        }
+        return conEsquema;
     }
 
     /**
@@ -81,8 +119,10 @@ public final class ConfigApi {
     /**
      * Devuelve una copia con otra URL base.
      *
-     * @param nuevaBaseUrl nueva URL base
+     * @param nuevaBaseUrl nueva URL base (se normaliza igual que en el
+     *                     constructor)
      * @return copia con la URL indicada
+     * @throws IllegalArgumentException si la nueva URL no es válida
      */
     public ConfigApi conBaseUrl(String nuevaBaseUrl) {
         return new ConfigApi(nuevaBaseUrl, timeout);
