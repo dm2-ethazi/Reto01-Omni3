@@ -100,25 +100,33 @@ public class ConectoresController implements ControladorVista {
         return instante.length() > 19 ? instante.substring(0, 19) : instante;
     }
 
-    /** Celda del estado que aplica el color correspondiente. */
+    /**
+     * Celda del estado que aplica la clase CSS correspondiente: los
+     * colores viven en estilos.css (§5: sin hex sueltos en Java).
+     */
     private static final class EstadoCelda extends javafx.scene.control.TableCell<ConectorDto, String> {
+
+        /** Clases de estado que esta celda puede llevar. */
+        private static final List<String> CLASES = List.of(
+                "celda-exito", "celda-aviso", "celda-error", "celda-neutro");
+
         @Override
         protected void updateItem(String item, boolean vacio) {
             super.updateItem(item, vacio);
+            getStyleClass().removeAll(CLASES);
             if (vacio || item == null) {
                 setText(null);
-                setStyle("");
                 return;
             }
             setText(item);
             EstadoConector estado = EstadoConector.desdeTexto(item);
-            String color = switch (estado) {
-                case OK -> "#5F8D6E";
-                case DEGRADADO -> "#B08D57";
-                case CAIDO -> "#A96B6B";
-                default -> "#6B7A8F";
+            String clase = switch (estado) {
+                case OK -> "celda-exito";
+                case DEGRADADO -> "celda-aviso";
+                case CAIDO -> "celda-error";
+                default -> "celda-neutro";
             };
-            setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
+            getStyleClass().add(clase);
         }
     }
 }
