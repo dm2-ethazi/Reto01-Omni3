@@ -43,6 +43,15 @@ public interface FormularioAlumno {
     /** Mensaje en español para el usuario. */
     StringProperty mensajeProperty();
 
+    /**
+     * Identificador de la última petición que falló; vacío si no la hubo.
+     * La vista lo muestra junto al error para poder correlacionarlo con
+     * los logs (§6 del contrato).
+     *
+     * @return propiedad observable del identificador de petición
+     */
+    StringProperty requestIdProperty();
+
     /** {@code true} cuando todos los campos validan. */
     BooleanProperty validoProperty();
 

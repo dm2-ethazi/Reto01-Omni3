@@ -41,6 +41,7 @@ public class FormularioAlumnoController implements ControladorVista {
     @FXML private Label campoOrigen;
     @FXML private Label campoVersion;
     @FXML private Label etiquetaResultado;
+    @FXML private Label etiquetaRequestId;
 
     private FabricaAplicacion fabrica;
     private FormularioAlumno formulario;
@@ -127,9 +128,21 @@ public class FormularioAlumnoController implements ControladorVista {
         edicion.cargar(dni);
     }
 
-    /** Liga el mensaje del formulario y su color de estado. */
+    /** Liga el mensaje del formulario, su color de estado y el request-id. */
     private void enlazarResultado(FormularioAlumno vm) {
         etiquetaResultado.textProperty().bind(vm.mensajeProperty());
+
+        // El identificador se pinta al cambiar el estado o al llegar uno
+        // nuevo, para que dos errores seguidos no dejen en pantalla el
+        // request-id anterior. Solo se muestra si la petición ha fallado.
+        Runnable pintarRequestId = () -> {
+            EstadoCarga estadoActual = vm.estadoProperty().get();
+            boolean fallo = estadoActual == EstadoCarga.ERROR
+                    || estadoActual == EstadoCarga.CONFLICTO;
+            String identificador = vm.requestIdProperty().get();
+            etiquetaRequestId.setText(fallo && identificador != null && !identificador.isEmpty()
+                    ? "request-id: " + identificador : "");
+        };
         vm.estadoProperty().addListener((observable, antes, estado) -> {
             boolean fallo = estado == EstadoCarga.ERROR || estado == EstadoCarga.CONFLICTO;
             String clase = fallo ? "texto-error" : "texto-exito";
@@ -139,7 +152,10 @@ public class FormularioAlumnoController implements ControladorVista {
             if (estado == EstadoCarga.OK || fallo) {
                 clases.add(clase);
             }
+            pintarRequestId.run();
         });
+        vm.requestIdProperty().addListener((observable, antes, identificador) ->
+                pintarRequestId.run());
     }
 
     /** Viewmodel en uso; lo usa la vista contenedora para cerrar el diálogo. */
