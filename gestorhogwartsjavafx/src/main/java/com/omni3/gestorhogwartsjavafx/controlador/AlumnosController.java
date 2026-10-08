@@ -109,10 +109,17 @@ public class AlumnosController implements ControladorVista {
             }
         });
         comboOrigen.valueProperty().addListener((observable, antes, origen) -> {
-            if (origen != null && consulta != null) {
-                consulta.filtroOrigenProperty().set(origen);
-                consulta.buscar();
+            if (origen == null || consulta == null) {
+                return;
             }
+            // Si el filtro ya está aplicado en el viewmodel (p. ej. después
+            // de Limpiar) no se vuelve a consultar: así limpiar() hace una
+            // sola petición en lugar de dos.
+            if (consulta.getFiltroOrigen() == origen) {
+                return;
+            }
+            consulta.filtroOrigenProperty().set(origen);
+            consulta.buscar();
         });
     }
 
@@ -234,8 +241,11 @@ public class AlumnosController implements ControladorVista {
     /** Limpia los filtros y recarga el listado completo. */
     @FXML
     private void limpiar() {
-        comboOrigen.setValue(Origen.CENTRAL);
+        // Primero se limpia el viewmodel (una consulta) y después se
+        // refleja en el combo, cuyo listener ya no vuelve a consultar
+        // porque el filtro ya está en «Todas las fuentes».
         consulta.limpiarFiltros();
+        comboOrigen.setValue(Origen.CENTRAL);
     }
 
     /** Abre el formulario de alta de un alumno nuevo. */
