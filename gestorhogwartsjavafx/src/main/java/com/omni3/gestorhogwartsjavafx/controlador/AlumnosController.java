@@ -36,6 +36,8 @@ import java.util.Optional;
  *
  * <p>La pantalla sólo traduce el estado de los viewmodels a elementos
  * visibles; no contiene lógica de negocio ni toca la red (§8).</p>
+ *
+ * @author jairoben
  */
 public class AlumnosController implements ControladorVista {
 

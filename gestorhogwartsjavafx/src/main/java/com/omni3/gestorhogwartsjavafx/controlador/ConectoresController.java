@@ -110,7 +110,7 @@ public class ConectoresController implements ControladorVista {
 
     /**
      * Celda del estado que aplica la clase CSS correspondiente: los
-     * colores viven en estilos.css (§5: sin hex sueltos en Java).
+     * colores viven en tema.css (§5: sin hex sueltos en Java).
      */
     private static final class EstadoCelda extends javafx.scene.control.TableCell<ConectorDto, String> {
 

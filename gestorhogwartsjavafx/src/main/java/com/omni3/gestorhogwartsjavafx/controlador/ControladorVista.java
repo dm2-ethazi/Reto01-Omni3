@@ -12,6 +12,8 @@ import javafx.scene.control.Dialog;
  * controlador resultante y le entrega la fábrica antes de mostrar la
  * pantalla, de modo que ningún controlador crea sus propios
  * componentes.</p>
+ *
+ * @author jairoben
  */
 @FunctionalInterface
 public interface ControladorVista {

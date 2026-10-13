@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.List;
  * a la API, servicio de fondo y viewmodels— y se la entrega al
  * controlador de la vista principal. Al cerrarse la ventana se libera el
  * pool de hilos.</p>
+ *
+ * @author jairoben
  */
 public class App extends Application {
 
@@ -39,6 +42,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage escenario) throws Exception {
+        cargarFuentes();
         fabrica = new FabricaAplicacion();
 
         FXMLLoader cargador = new FXMLLoader(App.class.getResource("vista/fxml/principal.fxml"));
@@ -69,6 +73,31 @@ public class App extends Application {
         escenario.setMinHeight(600);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
+    }
+
+    /**
+     * Carga las fuentes tipográficas embebidas del tema (Cinzel para
+     * títulos, Cormorant Garamond como serif de apoyo).
+     *
+     * <p>Si el recurso no está disponible la carga se omite sin error:
+     * el CSS del tema cae a la serif del sistema ({@code Georgia}).</p>
+     */
+    private void cargarFuentes() {
+        cargarFuente("fonts/Cinzel.ttf");
+        cargarFuente("fonts/CormorantGaramond.ttf");
+    }
+
+    /** Carga una fuente del classpath; ignora ausencias (fallback CSS). */
+    private void cargarFuente(String ruta) {
+        try {
+            java.net.URL url = App.class.getResource(ruta);
+            if (url != null) {
+                Font.loadFont(url.openStream(), -1);
+            }
+        } catch (Exception error) {
+            System.err.println("[aviso] No se pudo cargar la fuente " + ruta
+                    + ": " + error.getMessage());
+        }
     }
 
     @Override

@@ -63,6 +63,8 @@ import java.util.stream.Collectors;
  * leen del envelope documentado {@code {"error":{...}}} o, si la API
  * responde con el formato FastAPI {@code {"detail":"..."}}, del campo
  * {@code detail}.</p>
+ *
+ * @author jairoben
  */
 public class ClienteAlumnosHttp implements ClienteAlumnos {
 

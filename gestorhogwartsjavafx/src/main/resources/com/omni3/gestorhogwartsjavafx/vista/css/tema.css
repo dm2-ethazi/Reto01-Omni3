@@ -1,58 +1,70 @@
 /*
- * Tema "Azul Tenue" — Reto R01 · Omni3.
- * Paleta y métricas definidas UNA SOLA VEZ usando variables nativas de JavaFX.
- * JavaFX no soporta propiedades CSS personalizadas (var()); se usan -fx-base,
- * -fx-accent, -fx-focus-color, -fx-faint-focus-color, -fx-text-base-color,
- * -fx-mark-color, -fx-default-button, -fx-default-border, etc.
+ * Tema "Dark Academia" — Gestor Hogwarts · Reto R01 · Omni3.
+ * Autor: jairoben
  *
- * Tokens de la paleta (§5 del contrato):
- *   cabecera       #3B5B82   (azul pizarra)
- *   primario       #4A6FA5   (botón primario)
- *   primario-hover #5B82B5
- *   primario-activo #3D5C87
- *   fondo          #F5F7FA   (gris-azulado muy claro)
- *   surface        #FFFFFF
- *   borde          #D7DEE8
- *   foco           #8FB0D9   (anillo de foco 2 px)
- *   seleccion      #E8EEF6  (azul muy claro para selección/hover)
- *   fila-alterna   #F8FAFC
- *   texto          #1F2937
- *   texto-sec      #6B7A8F
- *   exito          #5F8D6E
- *   error          #A96B6B
- *   aviso          #B08D57
- *   disabled       #A9B4C2
- *   sombra         rgba(31,41,55,0.06)
+ * Paleta y métricas definidas UNA SOLA VEZ usando variables nativas de
+ * JavaFX. JavaFX no soporta propiedades CSS personalizadas (var());
+ * se usan -fx-base, -fx-accent, -fx-focus-color, -fx-faint-focus-color,
+ * -fx-text-base-color, -fx-mark-color, -fx-default-button, -fx-default-border.
+ *
+ * Tokens de la paleta (dark academia moderna):
+ *   fondo            #1C1914   (marrón espresso muy oscuro)
+ *   surface          #26211C   (tarjetas / paneles)
+ *   surface-alt      #2E2820   (barras, cabeceras de tabla)
+ *   borde            #3D362D   (bordes sutiles)
+ *   azul-noche       #1B2836   (cabecera y barra lateral)
+ *   azul-noche-alt   #223347   (hover lateral)
+ *   dorado           #C9A227   (acento primario / botones)
+ *   dorado-hover     #D4B044
+ *   dorado-activo    #A8841C
+ *   granate          #7A2E3B   (peligro / acento fuerte)
+ *   granate-hover    #8E3A4A
+ *   seleccion        #3A3324   (selección de fila tenue dorada)
+ *   fila-alterna     #221E19
+ *   texto            #EDE6D8   (pergamino)
+ *   texto-sec        #A89A88
+ *   exito            #8FAE86
+ *   error            #C98484
+ *   aviso            #D4B044
+ *   disabled         #6B6154
+ *   foco             #C9A227
+ *
+ * Tipografía: títulos Cinzel (embebida en resources/fonts) y cuerpo
+ * con sans del sistema. Si Cinzel no carga, se cae a Georgia/serif.
  */
 
 .root {
     /* Variables nativas que el tema Modena hereda y usa internamente */
-    -fx-base: #4A6FA5;                      /* color base: primario */
-    -fx-accent: #4A6FA5;                    /* acento: selección, checks, etc. */
-    -fx-focus-color: #8FB0D9;               /* anillo de foco principal */
-    -fx-faint-focus-color: transparent;     /* elimina el segundo anillo tenue (evita doble borde) */
-    -fx-text-base-color: #1F2937;           /* texto principal */
-    -fx-mark-color: #1F2937;                /* color de marcas (checks, radio) */
-    -fx-default-button: #4A6FA5;            /* botón por defecto */
-    -fx-default-border: #D7DEE8;            /* borde por defecto */
+    -fx-base: #26211C;
+    -fx-accent: #C9A227;
+    -fx-focus-color: #C9A227;
+    -fx-faint-focus-color: transparent;
+    -fx-text-base-color: #EDE6D8;
+    -fx-mark-color: #EDE6D8;
+    -fx-default-button: #C9A227;
+    -fx-default-border: #3D362D;
 
-    /* Tokens de la paleta como propiedades heredables (documentación visual) */
-    -cabecera: #3B5B82;
-    -primario: #4A6FA5;
-    -primario-hover: #5B82B5;
-    -primario-activo: #3D5C87;
-    -fondo: #F5F7FA;
-    -surface: #FFFFFF;
-    -borde: #D7DEE8;
-    -foco: #8FB0D9;
-    -seleccion: #E8EEF6;
-    -fila-alterna: #F8FAFC;
-    -texto: #1F2937;
-    -texto-sec: #6B7A8F;
-    -exito: #5F8D6E;
-    -error: #A96B6B;
-    -aviso: #B08D57;
-    -disabled: #A9B4C2;
+    /* Tokens documentales (heredables, no usados por Modena) */
+    -fondo: #1C1914;
+    -surface: #26211C;
+    -surface-alt: #2E2820;
+    -borde: #3D362D;
+    -azul-noche: #1B2836;
+    -azul-noche-alt: #223347;
+    -dorado: #C9A227;
+    -dorado-hover: #D4B044;
+    -dorado-activo: #A8841C;
+    -granate: #7A2E3B;
+    -granate-hover: #8E3A4A;
+    -seleccion: #3A3324;
+    -fila-alterna: #221E19;
+    -texto: #EDE6D8;
+    -texto-sec: #A89A88;
+    -exito: #8FAE86;
+    -error: #C98484;
+    -aviso: #D4B044;
+    -disabled: #6B6154;
+    -foco: #C9A227;
 
     -fx-font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
     -fx-font-size: 14px;
@@ -67,19 +79,20 @@
 }
 
 .cabecera {
-    -fx-background-color: -cabecera;
+    -fx-background-color: linear-gradient(to right, #1B2836, #16202C);
     -fx-background-radius: 0;
-    -fx-padding: 12 20 12 20;        /* 12/20 = rejilla 4/8/16/24 */
+    -fx-padding: 12 20 12 20;
 }
 
 .titulo-cabecera {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
 
 .subtitulo-cabecera {
-    -fx-text-fill: #DCE6F2;
+    -fx-text-fill: #A89A88;
     -fx-font-size: 12px;
 }
 
@@ -88,10 +101,10 @@
 }
 
 .lateral {
-    -fx-background-color: -surface;
-    -fx-border-color: -borde;
+    -fx-background-color: linear-gradient(to bottom, #1B2836, #15202B);
+    -fx-border-color: transparent #3D362D transparent transparent;
     -fx-border-width: 0 1 0 0;
-    -fx-padding: 16 12 16 12;         /* 16 = 4*4, 12 = 3*4 */
+    -fx-padding: 16 12 16 12;
 }
 
 .contenido {
@@ -99,19 +112,25 @@
 }
 
 .etiqueta-seccion {
-    -fx-text-fill: -texto-sec;
+    -fx-text-fill: -dorado;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
+    -fx-font-family: "Cinzel", "Georgia", serif;
 }
 
 .barra-estado {
-    -fx-background-color: -surface;
-    -fx-border-color: -borde;
+    -fx-background-color: -surface-alt;
+    -fx-border-color: -borde transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 8 20 8 20;
 }
 
-/* Estado de la barra inferior: clases dinámicas */
+/* Textos de la barra lateral y pie sobre fondo oscuro */
+.lateral .label,
+.lateral .texto-secundario {
+    -fx-text-fill: #A89A88;
+}
+
 .barra-estado.info    .estado-texto { -fx-text-fill: -texto-sec; }
 .barra-estado.exito   .estado-texto { -fx-text-fill: -exito; }
 .barra-estado.aviso   .estado-texto { -fx-text-fill: -aviso; }
@@ -122,7 +141,8 @@
  * ===================================================================== */
 
 .titulo-seccion {
-    -fx-text-fill: -texto;
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
@@ -159,24 +179,24 @@
  * ===================================================================== */
 
 .campo {
-    -fx-background-color: -surface;
+    -fx-background-color: #1F1B16;
     -fx-background-radius: 12;
     -fx-border-color: -borde;
     -fx-border-radius: 12;
-    -fx-border-width: 2;                         /* anillo 2 px fijo: no salta al enfocar */
+    -fx-border-width: 2;
     -fx-padding: 6 10 6 10;
     -fx-text-fill: -texto;
-    -fx-highlight-fill: -seleccion;              /* selección usa paleta, no azul Modena */
-    -fx-highlight-text-fill: -texto;
+    -fx-highlight-fill: -dorado;
+    -fx-highlight-text-fill: #1C1914;
 }
 
 .campo:focused {
     -fx-border-color: -foco;
-    -fx-background-color: -surface;
+    -fx-background-color: #1F1B16;
 }
 
 .campo:disabled {
-    -fx-background-color: -fondo;
+    -fx-background-color: -surface;
     -fx-border-color: -borde;
     -fx-text-fill: -disabled;
     -fx-highlight-fill: -borde;
@@ -184,7 +204,7 @@
 }
 
 .campo-combo {
-    -fx-background-color: -surface;
+    -fx-background-color: #1F1B16;
     -fx-background-radius: 12;
     -fx-border-color: -borde;
     -fx-border-radius: 12;
@@ -198,12 +218,11 @@
 }
 
 .campo-combo:disabled {
-    -fx-background-color: -fondo;
+    -fx-background-color: -surface;
     -fx-border-color: -borde;
     -fx-text-fill: -disabled;
 }
 
-/* Combo deshabilitado con estilo "valor-dato" (solo lectura visual) */
 .campo-combo.valor-dato,
 .combo-box.valor-dato {
     -fx-background-color: transparent;
@@ -228,12 +247,12 @@
 }
 
 .combo-box-popup .list-cell:hover {
-    -fx-background-color: -fondo;
+    -fx-background-color: -surface-alt;
 }
 
 .combo-box-popup .list-cell:filled:selected {
     -fx-background-color: -seleccion;
-    -fx-text-fill: -texto;
+    -fx-text-fill: -dorado;
     -fx-font-weight: bold;
 }
 
@@ -241,7 +260,6 @@
  * 4. Botones
  * ===================================================================== */
 
-/* Base común: mismo grosor (2 px), radio 12, padding 8/16, cursor hand */
 .boton-primario,
 .boton-secundario,
 .boton-peligro,
@@ -254,14 +272,15 @@
     -fx-cursor: hand;
 }
 
-/* Primario: relleno */
+/* Primario: dorado envejecido, texto oscuro (contraste AA) */
 .boton-primario {
-    -fx-background-color: -primario;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -dorado;
+    -fx-text-fill: #1C1914;
     -fx-border-color: transparent;
+    -fx-font-weight: bold;
 }
-.boton-primario:hover { -fx-background-color: -primario-hover; }
-.boton-primario:pressed { -fx-background-color: -primario-activo; }
+.boton-primario:hover { -fx-background-color: -dorado-hover; }
+.boton-primario:pressed { -fx-background-color: -dorado-activo; }
 .boton-primario:focused { -fx-border-color: -foco; }
 .boton-primario:disabled {
     -fx-background-color: -borde;
@@ -269,14 +288,14 @@
     -fx-text-fill: -disabled;
 }
 
-/* Secundario: borde fino, fondo blanco */
+/* Secundario: borde dorado, fondo panel */
 .boton-secundario {
     -fx-background-color: -surface;
-    -fx-text-fill: -primario;
-    -fx-border-color: -primario;
+    -fx-text-fill: -dorado;
+    -fx-border-color: -dorado;
 }
 .boton-secundario:hover { -fx-background-color: -seleccion; }
-.boton-secundario:pressed { -fx-background-color: #DCE6F2; }
+.boton-secundario:pressed { -fx-background-color: #332C1F; }
 .boton-secundario:focused { -fx-border-color: -foco; }
 .boton-secundario:disabled {
     -fx-background-color: -surface;
@@ -284,14 +303,14 @@
     -fx-text-fill: -disabled;
 }
 
-/* Peligro: borde/error, fondo blanco */
+/* Peligro: granate */
 .boton-peligro {
     -fx-background-color: -surface;
     -fx-text-fill: -error;
-    -fx-border-color: -error;
+    -fx-border-color: -granate;
 }
-.boton-peligro:hover { -fx-background-color: #F7EFEF; }
-.boton-peligro:pressed { -fx-background-color: #EEDCDC; }
+.boton-peligro:hover { -fx-background-color: #3A2428; }
+.boton-peligro:pressed { -fx-background-color: #2E1C20; }
 .boton-peligro:focused { -fx-border-color: -foco; }
 .boton-peligro:disabled {
     -fx-background-color: -surface;
@@ -303,30 +322,30 @@
 .boton-lateral {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-text-fill: -texto;
+    -fx-text-fill: #C9BFB0;
     -fx-alignment: BASELINE_LEFT;
-    -fx-padding: 8 12 8 12;          /* 8/12 = rejilla 4/8 */
+    -fx-padding: 8 12 8 12;
     -fx-font-size: 13px;
 }
 .boton-lateral:hover {
-    -fx-background-color: -fondo;
+    -fx-background-color: -azul-noche-alt;
 }
 .boton-lateral:focused {
     -fx-border-color: -foco;
-    -fx-background-color: -fondo;
+    -fx-background-color: -azul-noche-alt;
 }
 .boton-lateral:armed {
-    -fx-background-color: -seleccion;
+    -fx-background-color: #2A3B50;
 }
 
-/* Activo: relleno tenue + barra izquierda azul (sin corte) */
+/* Activo: dorado tenue + borde dorado completo */
 .boton-lateral.activo {
-    -fx-background-color: -seleccion;
-    -fx-border-color: -primario;
-    -fx-border-width: 2;                /* borde uniforme 2 px, radio 12 = sin corte */
-    -fx-border-insets: 0;               /* evita recorte por padding del padre */
+    -fx-background-color: rgba(201,162,39,0.14);
+    -fx-border-color: -dorado;
+    -fx-border-width: 2;
+    -fx-border-insets: 0;
     -fx-font-weight: bold;
-    -fx-text-fill: -texto;
+    -fx-text-fill: -dorado;
 }
 
 /* =====================================================================
@@ -339,8 +358,7 @@
     -fx-border-radius: 16;
     -fx-background-radius: 16;
     -fx-padding: 16;
-    /* única sombra admitida por el contrato */
-    -fx-effect: dropshadow(gaussian, rgba(31,41,55,0.06), 12, 0.4, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 14, 0.35, 0, 4);
 }
 
 .pantalla {
@@ -348,21 +366,21 @@
 }
 
 .barra-herramientas {
-    -fx-background-color: -surface;
+    -fx-background-color: -surface-alt;
     -fx-border-color: transparent transparent -borde transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-padding: 12 8 12 8;           /* padding interno para que bordes no se corten */
+    -fx-padding: 12 8 12 8;
 }
 
 .barra-conteo {
-    -fx-background-color: -surface;
+    -fx-background-color: -surface-alt;
     -fx-border-color: -borde transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 8 8 8 8;
 }
 
 /* =====================================================================
- * 6. Tablas — selectores correctos (table-row-cell, table-cell)
+ * 6. Tablas
  * ===================================================================== */
 
 .tabla {
@@ -371,30 +389,30 @@
     -fx-border-radius: 12;
     -fx-background-radius: 12;
     -fx-border-width: 1;
-    -fx-padding: 8;                   /* espacio interno para que borde/focus no se corte */
+    -fx-padding: 8;
 }
 .tabla:focused {
     -fx-border-color: -foco;
 }
 
 .tabla .column-header-background {
-    -fx-background-color: -seleccion;
+    -fx-background-color: -surface-alt;
 }
 .tabla .column-header-background:hover {
-    -fx-background-color: #DCE6F2;
+    -fx-background-color: #363028;
 }
 
 .tabla .column-header,
 .tabla .filler {
     -fx-background-color: transparent;
     -fx-background-radius: 12;
-    -fx-text-fill: -texto-sec;
+    -fx-text-fill: -dorado;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
+    -fx-font-family: "Cinzel", "Georgia", serif;
     -fx-padding: 8 10 8 10;
 }
 
-/* Celdas: TableCell es Labeled, no Label */
 .tabla .table-cell {
     -fx-background-color: transparent;
     -fx-text-fill: -texto;
@@ -412,62 +430,60 @@
     -fx-background-color: -fila-alterna;
 }
 .table-row-cell:hover {
-    -fx-background-color: #F1F5FB;
+    -fx-background-color: #2A251E;
 }
 
-/* Selección: azul muy claro de la paleta, NUNCA cian Modena */
+/* Selección: dorado tenue, nunca el cian Modena */
 .table-row-cell:selected {
     -fx-background-color: -seleccion;
-    -fx-text-fill: -texto;
+    -fx-text-fill: -dorado;
 }
 .table-row-cell:selected:hover {
-    -fx-background-color: #DCE6F2;
+    -fx-background-color: #463C2A;
 }
 .tabla:focused .table-row-cell:selected {
-    -fx-background-color: #DCE6F2;    /* con foco un tono un pelín más oscuro */
+    -fx-background-color: #463C2A;
 }
 
-/* Placeholder */
 .tabla .placeholder .label {
     -fx-text-fill: -texto-sec;
     -fx-font-size: 14px;
 }
 
-/* Colores de estado en celdas (clases desde controladores) */
 .tabla .celda-exito   { -fx-text-fill: -exito;   -fx-font-weight: bold; }
 .tabla .celda-aviso   { -fx-text-fill: -aviso;   -fx-font-weight: bold; }
 .tabla .celda-error   { -fx-text-fill: -error;   -fx-font-weight: bold; }
 .tabla .celda-neutro  { -fx-text-fill: -texto-sec; -fx-font-weight: bold; }
 
 /* =====================================================================
- * 7. Píldoras de Casa (Gryffindor, Slytherin, Ravenclaw, Hufflepuff)
- *    Fondos al 12 % del token + texto token sólido (contraste AA)
+ * 7. Píldoras de Casa — tintes sobre fondo oscuro
  * ===================================================================== */
 
 .pildora-casa {
-    -fx-background-radius: 999;       /* forma de píldora */
+    -fx-background-radius: 999;
     -fx-padding: 2 10 2 10;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-alignment: CENTER;
 }
 
-.pildora-casa.gryffindor  { -fx-background-color: rgba(169,107,107,0.12); -fx-text-fill: -error; }
-.pildora-casa.slytherin   { -fx-background-color: rgba(95,141,110,0.12);  -fx-text-fill: -exito; }
-.pildora-casa.ravenclaw   { -fx-background-color: rgba(74,111,165,0.12);  -fx-text-fill: -primario; }
-.pildora-casa.hufflepuff  { -fx-background-color: rgba(176,141,87,0.12);  -fx-text-fill: -aviso; }
+.pildora-casa.gryffindor  { -fx-background-color: rgba(176,58,46,0.22);  -fx-text-fill: #E08A7E; }
+.pildora-casa.slytherin   { -fx-background-color: rgba(62,122,80,0.22);  -fx-text-fill: #8FBF9A; }
+.pildora-casa.ravenclaw   { -fx-background-color: rgba(58,98,156,0.22);  -fx-text-fill: #8FAECF; }
+.pildora-casa.hufflepuff  { -fx-background-color: rgba(196,160,52,0.20); -fx-text-fill: #D9BC6E; }
+.pildora-casa.hogwarts    { -fx-background-color: rgba(201,162,39,0.18); -fx-text-fill: -dorado; }
 
 /* =====================================================================
- * 8. Carga, formulario y barra de mensajes
+ * 8. Carga y formulario
  * ===================================================================== */
 
 .overlay-carga {
-    -fx-background-color: rgba(245,247,250,0.92);
+    -fx-background-color: rgba(28,25,20,0.92);
     -fx-background-radius: 16;
     -fx-border-color: -borde;
     -fx-border-radius: 16;
     -fx-padding: 24;
-    -fx-effect: dropshadow(gaussian, rgba(31,41,55,0.06), 12, 0.4, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 14, 0.35, 0, 4);
 }
 
 .formulario {
@@ -476,7 +492,7 @@
 }
 
 /* =====================================================================
- * 9. Diálogos nativos (Alert, Dialog) — hoja de tema + icono app
+ * 9. Diálogos nativos (Alert, Dialog)
  * ===================================================================== */
 
 .dialog-pane {
@@ -487,17 +503,18 @@
 }
 
 .dialog-pane .header-panel {
-    -fx-background-color: -cabecera;
+    -fx-background-color: linear-gradient(to right, #1B2836, #16202C);
     -fx-background-radius: 12 12 0 0;
     -fx-padding: 14 16 14 16;
 }
 .dialog-pane .header-panel .label {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 .dialog-pane .header-panel .graphic {
-    -fx-opacity: 0;                  /* icono Modena saturado -> oculto */
+    -fx-opacity: 0;
 }
 
 .dialog-pane .content {
@@ -519,8 +536,8 @@
 
 .dialog-pane .button-bar .button {
     -fx-background-color: -surface;
-    -fx-text-fill: -primario;
-    -fx-border-color: -primario;
+    -fx-text-fill: -dorado;
+    -fx-border-color: -dorado;
     -fx-border-width: 2;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
@@ -535,28 +552,27 @@
     -fx-border-color: -foco;
 }
 
-/* Acción por defecto (pseudo-clase :default en JavaFX 21) */
 .dialog-pane .button-bar .button:default {
-    -fx-background-color: -primario;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -dorado;
+    -fx-text-fill: #1C1914;
     -fx-border-color: transparent;
+    -fx-font-weight: bold;
 }
-.dialog-pane .button-bar .button:default:hover { -fx-background-color: -primario-hover; }
-.dialog-pane .button-bar .button:default:pressed { -fx-background-color: -primario-activo; }
+.dialog-pane .button-bar .button:default:hover { -fx-background-color: -dorado-hover; }
+.dialog-pane .button-bar .button:default:pressed { -fx-background-color: -dorado-activo; }
 
-/* Acción destructiva (boton-peligro) dentro de diálogo */
 .dialog-pane .button-bar .button.boton-peligro {
-    -fx-background-color: -error;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -granate;
+    -fx-text-fill: #F5EDE8;
     -fx-border-color: transparent;
 }
 .dialog-pane .button-bar .button.boton-peligro:hover {
-    -fx-background-color: #EEDCDC;
-    -fx-text-fill: -error;
+    -fx-background-color: -granate-hover;
+    -fx-text-fill: #F5EDE8;
 }
 .dialog-pane .button-bar .button.boton-peligro:pressed {
-    -fx-background-color: #EEDCDC;
-    -fx-text-fill: -error;
+    -fx-background-color: #5E2330;
+    -fx-text-fill: #F5EDE8;
 }
 
 /* =====================================================================
@@ -564,17 +580,18 @@
  * ===================================================================== */
 
 .tooltip {
-    -fx-background-color: -texto;
+    -fx-background-color: -dorado;
     -fx-background-radius: 8;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: #1C1914;
     -fx-font-size: 12px;
+    -fx-font-weight: bold;
     -fx-padding: 6 9 6 9;
     -fx-show-delay: 300ms;
 }
 
 .scroll-bar { -fx-background-color: transparent; }
 .scroll-bar .track {
-    -fx-background-color: -fondo;
+    -fx-background-color: -surface;
     -fx-background-radius: 8;
     -fx-border-color: transparent;
     -fx-padding: 2;
@@ -583,13 +600,16 @@
     -fx-background-color: -borde;
     -fx-background-radius: 8;
 }
-.scroll-bar .thumb:hover { -fx-background-color: -foco; }
+.scroll-bar .thumb:hover { -fx-background-color: -dorado; }
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button { -fx-background-color: transparent; -fx-padding: 0; }
 .scroll-bar .increment-arrow,
 .scroll-bar .decrement-arrow { -fx-shape: " "; -fx-padding: 0; }
 
-.progress-indicator { -fx-progress-color: -primario; }
+.progress-indicator { -fx-progress-color: -dorado; }
 .progress-indicator .percentage { -fx-fill: -texto; -fx-font-size: 11px; }
 
 .separator .line { -fx-border-color: -borde; -fx-border-width: 1 0 0 0; }
+
+/* Separador del lateral sobre azul noche */
+.lateral .separator .line { -fx-border-color: #314052 transparent transparent transparent; }
