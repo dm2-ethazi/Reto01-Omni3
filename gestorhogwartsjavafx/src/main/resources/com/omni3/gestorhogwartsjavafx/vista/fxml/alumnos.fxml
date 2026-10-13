@@ -54,6 +54,13 @@
       <Button fx:id="botonNuevoVacio" text="Dar de alta un alumno" styleClass="boton-primario"
               onAction="#nuevo"/>
     </VBox>
+
+    <VBox fx:id="capaError" alignment="CENTER" spacing="10" visible="false">
+      <Label fx:id="textoError" text="Error al cargar" styleClass="texto-error"
+             wrapText="true" maxWidth="520" alignment="CENTER"/>
+      <Button fx:id="botonReintentar" text="Reintentar" styleClass="boton-primario"
+              onAction="#reintentar"/>
+    </VBox>
   </StackPane>
 
   <HBox alignment="CENTER_LEFT" spacing="16" styleClass="barra-conteo">

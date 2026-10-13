@@ -15,6 +15,13 @@
     de alumnado contra la API REST central (R01 · Omni3).
   </description>
 
+  <developers>
+    <developer>
+      <id>jairoben</id>
+      <name>Jairo Ben</name>
+    </developer>
+  </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>

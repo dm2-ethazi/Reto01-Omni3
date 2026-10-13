@@ -57,8 +57,10 @@ public class AlumnosController implements ControladorVista {
     @FXML private TableColumn<AlumnoDto, String> colOrigen;
     @FXML private VBox capaCarga;
     @FXML private VBox capaVacio;
+    @FXML private VBox capaError;
     @FXML private Label textoCarga;
     @FXML private Label textoVacio;
+    @FXML private Label textoError;
     @FXML private Label etiquetaConteo;
     @FXML private Label etiquetaMensaje;
     @FXML private Label etiquetaRequestId;
@@ -215,6 +217,13 @@ public class AlumnosController implements ControladorVista {
                 textoVacio.setText(consulta.getMensaje());
             }
 
+            boolean error = esFallo(estado);
+            capaError.setVisible(error);
+            capaError.setManaged(error);
+            if (error) {
+                textoError.setText(consulta.getMensaje());
+            }
+
             botonEditar.setDisable(cargando || consulta.getSeleccionado() == null);
             mostrarEnBarra(consulta.getMensaje(), clasePara(estado));
             pintarRequestId.run();
@@ -285,6 +294,12 @@ public class AlumnosController implements ControladorVista {
     /** Ejecuta la búsqueda con el texto actual. */
     @FXML
     private void buscar() {
+        consulta.buscar();
+    }
+
+    /** Reintenta la última consulta tras un error de red o de la API. */
+    @FXML
+    private void reintentar() {
         consulta.buscar();
     }
 

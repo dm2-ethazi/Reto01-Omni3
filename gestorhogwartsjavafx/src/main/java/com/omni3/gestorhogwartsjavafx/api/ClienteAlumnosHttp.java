@@ -392,14 +392,20 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         } catch (ExcepcionApi excepcion) {
             throw excepcion;
         } catch (IOException excepcion) {
+            // Causa real en el log de consola siempre (§ UX): el usuario
+            // ve un mensaje breve; el desarrollador ve la traza completa.
+            excepcion.printStackTrace(System.err);
             String detalle;
             if (excepcion instanceof HttpTimeoutException) {
                 detalle = "se agotó el tiempo de espera de "
                         + config.getTimeout().toMillis() + " ms";
+            } else if (excepcion instanceof java.net.ConnectException) {
+                detalle = "ningún servicio está escuchando en esa dirección "
+                        + "(conexión rechazada). Compruebe que la API está arrancada.";
+            } else if (excepcion instanceof java.net.UnknownHostException) {
+                detalle = "no se pudo resolver el host de la URL (nombre o red no válidos).";
             } else if (excepcion.getMessage() == null || excepcion.getMessage().isBlank()) {
-                // Excepciones de red sin detalle (p. ej. la conexión
-                // rechazada en algunos JDK): "…: null" no le sirve a nadie.
-                detalle = "sin detalles del fallo ("
+                detalle = "fallo de red sin mensaje adicional ("
                         + excepcion.getClass().getSimpleName() + ")";
             } else {
                 detalle = excepcion.getMessage();

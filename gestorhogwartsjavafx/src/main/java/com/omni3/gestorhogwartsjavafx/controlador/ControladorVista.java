@@ -22,7 +22,7 @@ public interface ControladorVista {
      * {@code controlador}, así que las cargas son relativas a esta
      * constante.
      */
-    String RUTA_VISTAS = "/com/omni3/gestorhogwartsjavafx/vista/";
+    String RUTA_VISTAS = "/com/omni3/gestorhogwartsjavafx/vista/fxml/";
 
     /**
      * Entrega la fábrica de la aplicación a la vista.

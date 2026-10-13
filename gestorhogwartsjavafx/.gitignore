@@ -1,5 +1,6 @@
 # Compilación
 target/
+dependency-reduced-pom.xml
 
 # Registros de ejecución
 *.log
