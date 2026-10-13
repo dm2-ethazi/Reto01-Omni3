@@ -185,6 +185,9 @@ public class AlumnosController implements ControladorVista {
 
         tabla.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         tabla.setItems(consulta.getAlumnos());
+        // No se puede fijar en FXML: CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN
+        // no es coercible como Callback y FXMLLoader lanza IllegalArgumentException.
+        tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     /** Texto de celda, nunca {@code null}. */

@@ -32,8 +32,7 @@
   </HBox>
 
   <StackPane fx:id="contenedorTabla" VBox.vgrow="ALWAYS">
-    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS"
-               columnResizePolicy="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN">
+    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS">
       <columns>
         <TableColumn fx:id="colDni" text="DNI" prefWidth="110"/>
         <TableColumn fx:id="colNombre" text="Nombre" prefWidth="280"/>
