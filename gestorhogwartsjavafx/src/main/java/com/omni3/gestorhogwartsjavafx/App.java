@@ -2,6 +2,7 @@ package com.omni3.gestorhogwartsjavafx;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import com.omni3.gestorhogwartsjavafx.controlador.PrincipalController;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -20,15 +22,25 @@ import java.util.List;
  * controlador de la vista principal. Al cerrarse la ventana se libera el
  * pool de hilos.</p>
  *
+ * <p>Es también el responsable del cambio de idioma: registra un oyente
+ * en {@link Idiomas} que reconstruye la raíz de la escena con los
+ * recursos del nuevo idioma, conservando la pantalla visible.</p>
+ *
  * @author jairoben
  */
 public class App extends Application {
 
-    /** Título de la ventana. */
-    public static final String TITULO = "Gestor Hogwarts - Cliente de escritorio";
-
     /** Fábrica de la aplicación; se cierra al terminar. */
     private FabricaAplicacion fabrica;
+
+    /** Escenario principal; se conserva para cambiar el título. */
+    private Stage escenario;
+
+    /** Escena principal; a ella se le sustituye la raíz al cambiar de idioma. */
+    private Scene escena;
+
+    /** Controlador de la raíz vigente; aporta la pantalla actual. */
+    private PrincipalController controlador;
 
     /**
      * Crea la aplicación de escritorio.
@@ -44,17 +56,22 @@ public class App extends Application {
     public void start(Stage escenario) throws Exception {
         cargarFuentes();
         fabrica = new FabricaAplicacion();
+        this.escenario = escenario;
+        Idiomas.observar(this::recargarIdioma);
 
         FXMLLoader cargador = new FXMLLoader(App.class.getResource("vista/fxml/principal.fxml"));
+        cargador.setResources(Idiomas.bundle());
         Parent raiz = cargador.load();
 
-        Object controlador = cargador.getController();
-        if (controlador instanceof PrincipalController principal) {
+        Object controladorCargado = cargador.getController();
+        if (controladorCargado instanceof PrincipalController principal) {
             principal.conectar(fabrica);
+            controlador = principal;
         }
 
         Scene escena = new Scene(raiz);
         escena.getStylesheets().add(App.class.getResource("vista/css/tema.css").toExternalForm());
+        this.escena = escena;
 
         // Icono de la ventana
         List<Image> iconos = List.of(
@@ -67,12 +84,43 @@ public class App extends Application {
         );
         escenario.getIcons().addAll(iconos);
 
-        escenario.setTitle(TITULO);
+        escenario.setTitle(Idiomas.texto("app.titulo"));
         escenario.setScene(escena);
         escenario.setMinWidth(900);
         escenario.setMinHeight(600);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
+    }
+
+    /**
+     * Reconstruye la interfaz en el nuevo idioma.
+     *
+     * <p>Se recarga {@code principal.fxml} con los recursos recién
+     * cambiados, se restaura la pantalla que estaba visible y se
+     * sustituye la raíz de la escena (el {@code Scene} y su hoja de
+     * estilos se conservan).</p>
+     */
+    private void recargarIdioma() {
+        if (escena == null || fabrica == null) {
+            return;
+        }
+        try {
+            String pantalla = controlador == null ? null : controlador.getPantallaActual();
+            FXMLLoader cargador = new FXMLLoader(App.class.getResource("vista/fxml/principal.fxml"));
+            cargador.setResources(Idiomas.bundle());
+            Parent raiz = cargador.load();
+
+            Object controladorCargado = cargador.getController();
+            if (controladorCargado instanceof PrincipalController principal) {
+                principal.setPantallaInicial(pantalla);
+                principal.conectar(fabrica);
+                controlador = principal;
+            }
+            escena.setRoot(raiz);
+            escenario.setTitle(Idiomas.texto("app.titulo"));
+        } catch (IOException excepcion) {
+            System.err.println("[aviso] No se pudo recargar la interfaz: " + excepcion.getMessage());
+        }
     }
 
     /**

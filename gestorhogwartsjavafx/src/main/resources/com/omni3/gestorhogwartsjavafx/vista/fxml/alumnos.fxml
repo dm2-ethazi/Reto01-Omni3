@@ -20,25 +20,25 @@
       stylesheets="@../css/tema.css">
 
   <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
-    <Label text="Alumnos" styleClass="titulo-seccion" minWidth="90"/>
-    <TextField fx:id="campoBusqueda" promptText="Buscar por DNI o nombre" prefWidth="200"
+    <Label text="%pantalla.alumnos" styleClass="titulo-seccion" minWidth="90"/>
+    <TextField fx:id="campoBusqueda" promptText="%campo.buscar" prefWidth="200"
                minWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"
                styleClass="campo" onAction="#buscar"/>
     <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="150" styleClass="campo-combo"/>
-    <Button fx:id="botonBuscar" text="Buscar" styleClass="boton-secundario" onAction="#buscar">
-      <tooltip><Tooltip text="Busca alumnos por DNI o nombre con la fuente seleccionada"/></tooltip>
+    <Button fx:id="botonBuscar" text="%boton.buscar" styleClass="boton-secundario" onAction="#buscar">
+      <tooltip><Tooltip text="%tooltip.buscar"/></tooltip>
     </Button>
-    <Button fx:id="botonLimpiar" text="Limpiar" styleClass="boton-secundario" onAction="#limpiar">
-      <tooltip><Tooltip text="Quita la búsqueda y el filtro de fuente, y recarga el listado completo"/></tooltip>
+    <Button fx:id="botonLimpiar" text="%boton.limpiar" styleClass="boton-secundario" onAction="#limpiar">
+      <tooltip><Tooltip text="%tooltip.limpiar"/></tooltip>
     </Button>
-    <Button fx:id="botonNuevo" text="Nuevo alumno" styleClass="boton-primario" onAction="#nuevo">
-      <tooltip><Tooltip text="Abre el formulario para dar de alta un alumno nuevo en MariaDB central"/></tooltip>
+    <Button fx:id="botonNuevo" text="%boton.nuevo" styleClass="boton-primario" onAction="#nuevo">
+      <tooltip><Tooltip text="%tooltip.boton.nuevo"/></tooltip>
     </Button>
-    <Button fx:id="botonEditar" text="Editar" styleClass="boton-secundario" onAction="#editar">
-      <tooltip><Tooltip text="Abre la ficha del alumno seleccionado en la tabla para modificarla"/></tooltip>
+    <Button fx:id="botonEditar" text="%boton.editar" styleClass="boton-secundario" onAction="#editar">
+      <tooltip><Tooltip text="%tooltip.editar"/></tooltip>
     </Button>
-    <Button fx:id="botonBaja" text="Dar de baja" styleClass="boton-peligro" onAction="#baja">
-      <tooltip><Tooltip text="Da de baja al alumno seleccionado tras pedir confirmación"/></tooltip>
+    <Button fx:id="botonBaja" text="%boton.baja" styleClass="boton-peligro" onAction="#baja">
+      <tooltip><Tooltip text="%tooltip.baja"/></tooltip>
     </Button>
   </HBox>
 
@@ -46,39 +46,39 @@
     <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS">
       <columns>
         <TableColumn fx:id="colDni" text="DNI" prefWidth="110"/>
-        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="280"/>
-        <TableColumn fx:id="colCasa" text="Casa" prefWidth="130"/>
+        <TableColumn fx:id="colNombre" text="%col.nombre" prefWidth="280"/>
+        <TableColumn fx:id="colCasa" text="%col.casa" prefWidth="130"/>
         <TableColumn fx:id="colPatronus" text="Patronus" prefWidth="140"/>
-        <TableColumn fx:id="colOrigen" text="Origen" prefWidth="120"/>
+        <TableColumn fx:id="colOrigen" text="%col.origen" prefWidth="120"/>
       </columns>
       <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
     </TableView>
 
     <VBox fx:id="capaCarga" alignment="CENTER" spacing="8" styleClass="overlay-carga" visible="false">
       <ProgressIndicator prefWidth="32" prefHeight="32"/>
-      <Label fx:id="textoCarga" text="Cargando…" styleClass="texto-secundario"/>
+      <Label fx:id="textoCarga" text="%cargando" styleClass="texto-secundario"/>
     </VBox>
 
     <VBox fx:id="capaVacio" alignment="CENTER" spacing="10" visible="false">
-      <Label fx:id="textoVacio" text="Sin resultados" styleClass="texto-vacio"/>
-      <Button fx:id="botonNuevoVacio" text="Dar de alta un alumno" styleClass="boton-primario"
+      <Label fx:id="textoVacio" text="%capa.vacio" styleClass="texto-vacio"/>
+      <Button fx:id="botonNuevoVacio" text="%boton.vacio.nuevo" styleClass="boton-primario"
               onAction="#nuevo">
-        <tooltip><Tooltip text="Abre el formulario para dar de alta un alumno nuevo"/></tooltip>
+        <tooltip><Tooltip text="%tooltip.vacio.nuevo"/></tooltip>
       </Button>
     </VBox>
 
     <VBox fx:id="capaError" alignment="CENTER" spacing="10" visible="false">
-      <Label fx:id="textoError" text="Error al cargar" styleClass="texto-error"
+      <Label fx:id="textoError" text="%capa.error" styleClass="texto-error"
              wrapText="true" maxWidth="520" alignment="CENTER"/>
-      <Button fx:id="botonReintentar" text="Reintentar" styleClass="boton-primario"
+      <Button fx:id="botonReintentar" text="%boton.reintentar" styleClass="boton-primario"
               onAction="#reintentar">
-        <tooltip><Tooltip text="Vuelve a intentar la consulta que ha fallado"/></tooltip>
+        <tooltip><Tooltip text="%tooltip.reintentar"/></tooltip>
       </Button>
     </VBox>
   </StackPane>
 
   <HBox alignment="CENTER_LEFT" spacing="16" styleClass="barra-conteo">
-    <Label fx:id="etiquetaConteo" text="0 alumnos" styleClass="texto-secundario"/>
+    <Label fx:id="etiquetaConteo" text="%conteo.inicial" styleClass="texto-secundario"/>
     <Region HBox.hgrow="ALWAYS"/>
     <Label fx:id="etiquetaMensaje" text="" styleClass="texto-secundario"/>
     <Label fx:id="etiquetaRequestId" text="" styleClass="texto-secundario"/>

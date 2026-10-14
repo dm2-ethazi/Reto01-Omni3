@@ -2,6 +2,7 @@ package com.omni3.gestorhogwartsjavafx.viewmodel;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -23,7 +24,7 @@ public class SaludViewModel extends ViewModelBase {
      */
     public SaludViewModel(ServicioAlumnos servicio) {
         super(servicio);
-        reiniciar("Aún no se ha consultado el estado del sistema.");
+        reiniciar(Idiomas.texto("salud.inicial"));
     }
 
     /**
@@ -50,11 +51,11 @@ public class SaludViewModel extends ViewModelBase {
      * Consulta el estado del sistema.
      */
     public void comprobar() {
-        marcarCargando("Consultando /health…");
+        marcarCargando(Idiomas.texto("salud.cargando"));
         servicio.salud(
                 respuesta -> {
                     salud.set(respuesta);
-                    marcarOk("Estado recibido de " + (respuesta.esR01() ? "R01" : "la API") + ".");
+                    marcarOk(Idiomas.texto(respuesta.esR01() ? "salud.ok.r01" : "salud.ok.api"));
                 },
                 error -> {
                     salud.set(null);

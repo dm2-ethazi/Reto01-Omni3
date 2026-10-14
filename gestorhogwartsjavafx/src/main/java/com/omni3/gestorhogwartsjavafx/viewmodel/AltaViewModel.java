@@ -4,6 +4,7 @@ import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;
 import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.util.ResultadoValidacion;
 import com.omni3.gestorhogwartsjavafx.util.Validaciones;
 import javafx.beans.property.BooleanProperty;
@@ -55,7 +56,7 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
      */
     public AltaViewModel(ServicioAlumnos servicio) {
         super(servicio);
-        reiniciar("Complete los datos del alumno nuevo.");
+        reiniciar(Idiomas.texto("alta.inicial"));
         Runnable recalcular = this::validar;
         dni.addListener((o, a, b) -> recalcular.run());
         nombre.addListener((o, a, b) -> recalcular.run());
@@ -310,11 +311,11 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
     public void guardar() {
         if (!validar()) {
             marcarError(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
-                    400, "VALIDACION", "Revise los campos marcados antes de guardar.", null));
+                    400, "VALIDACION", Idiomas.texto("form.revise"), null));
             return;
         }
         altaRealizada.set(null);
-        marcarCargando("Dando de alta al alumno…");
+        marcarCargando(Idiomas.texto("alta.cargando"));
         AlumnoDto aEnviar = new AlumnoDto(
                 Validaciones.normalizarDNI(dni.get()),
                 nombre.get().trim(),
@@ -328,7 +329,7 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
         servicio.altaAlumno(aEnviar,
                 creado -> {
                     altaRealizada.set(creado);
-                    marcarOk("Alumno dado de alta correctamente.");
+                    marcarOk(Idiomas.texto("alta.ok"));
                 },
                 this::marcarError);
     }
@@ -342,7 +343,7 @@ public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
         casa.set("");
         patronus.set("");
         altaRealizada.set(null);
-        reiniciar("Complete los datos del alumno nuevo.");
+        reiniciar(Idiomas.texto("alta.inicial"));
         validar();
     }
 

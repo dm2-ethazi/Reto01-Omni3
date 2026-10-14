@@ -32,6 +32,11 @@ Reglas de negocio implementadas:
   base de origen aplica su propio comportamiento.
 - Los DNI **nunca se muestran completos** en mensajes de error (se enmascaran: `12***78A`).
 - Toda petición envía una cabecera **`request-id`** que se muestra en la UI cuando hay error.
+- **Tres idiomas** (castellano, euskera e inglés): el desplegable de la barra de estado
+  (abajo a la izquierda, con el código actual `ES`/`EU`/`EN`) cambia el idioma en caliente y
+  conserva la pantalla visible. El texto vive en `src/main/resources/i18n/mensajes*.properties`
+  (base inglesa de respaldo); los FXML usan `%clave` y el código Java `Idiomas.texto(...)`.
+  Arranca en el idioma del sistema si es `es`, `eu` o `en`; si no, en inglés.
 
 ---
 
@@ -47,7 +52,7 @@ Reglas de negocio implementadas:
 No hay que instalar JavaFX a mano: `pom.xml` ya declara las dependencias.
 
 > **Nota de compilación.** El proyecto fija `maven.compiler.release=17`, así que compila con
-> cualquier JDK 17 o posterior; la verificación completa de este encargo (compilación, 71 pruebas
+> cualquier JDK 17 o posterior; la verificación completa de este encargo (compilación, 75 pruebas
 > y Javadoc sin avisos) se ha hecho con un **JDK 25** instalado, sin necesidad de cambiar nada.
 
 ---
@@ -69,6 +74,10 @@ En Windows, si Maven no está en el `PATH`:
 
 Al abrir la ventana se ve en la cabecera la **URL base de la API**, que se puede ajustar antes
 de cada petición (§4.2).
+
+> **Idioma.** El idioma inicial sigue al del sistema cuando es español, euskera o inglés y cae
+> a inglés en caso contrario; se puede forzar con la propiedad `-Dgestor.idioma=es|eu|en`
+> (la usan las pruebas). Después se cambia con el desplegable de la barra de estado.
 
 ---
 
@@ -197,7 +206,8 @@ Patrón **MVVM** en tres capas; la vista solo traduce estado visible, sin lógic
 src/main/java/com/omni3/gestorhogwartsjavafx/
 ├── App.java               Punto de entrada (ventana, escena, fábrica)
 ├── modelo/                Origen, TipoAlumno, Alumno
-├── util/                  Validaciones (DNI, nombre, patronus, casa) + resultado
+├── util/                  Validaciones (DNI, nombre, patronus, casa) + resultado · Idiomas
+│                          (selector de idioma y bundles i18n)
 ├── api/                   ClienteAlumnos (interfaz) · Http · ConfigApi · ExcepcionApi · dto/
 ├── servicio/              ServicioAlumnos (hilos de fondo + publicación en el hilo FX)
 │                          FabricaAplicacion (monta config + cliente + servicio + viewmodels)
@@ -209,6 +219,9 @@ src/main/resources/com/omni3/gestorhogwartsjavafx/vista/    (FXML y CSS: la vist
 ├── principal.fxml         Marco: cabecera, navegación lateral, contenedor, barra de estado
 ├── tema.css               Sistema de diseño «dark academia»
 └── estado.fxml · alumnos.fxml · formulario-alumno.fxml
+
+src/main/resources/i18n/  (mensajes por idioma; base en inglés como red de seguridad)
+└── mensajes.properties · mensajes_es.properties · mensajes_eu.properties
 ```
 
 Los controladores y las vistas van en paquetes separados: `controlador/` solo contiene Java y
@@ -243,8 +256,10 @@ en FXML o Java.
 mvn test
 ```
 
-Cobertura actual: doble del cliente, mapeo de DTOs, validaciones, servicio y fábrica de aplicación.
-Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son deterministas.
+Cobertura actual: doble del cliente, mapeo de DTOs, validaciones, servicio, fábrica de
+aplicación y selector de idioma. Las pruebas no arrancan el toolkit JavaFX (usan ejecutores
+síncronos) y son deterministas: fijan `gestor.idioma=es` para no depender del idioma del
+equipo que las ejecute.
 
 ---
 

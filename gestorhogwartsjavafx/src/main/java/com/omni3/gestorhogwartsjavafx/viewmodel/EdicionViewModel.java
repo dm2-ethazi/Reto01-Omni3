@@ -3,6 +3,7 @@ package com.omni3.gestorhogwartsjavafx.viewmodel;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;
 import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.util.ResultadoValidacion;
 import com.omni3.gestorhogwartsjavafx.util.Validaciones;
 import javafx.beans.property.BooleanProperty;
@@ -64,7 +65,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
      */
     public EdicionViewModel(ServicioAlumnos servicio) {
         super(servicio);
-        reiniciar("Seleccione una ficha para editarla.");
+        reiniciar(Idiomas.texto("edicion.inicial"));
         Runnable recalcular = this::validar;
         nombre.addListener((o, a, b) -> recalcular.run());
         casa.addListener((o, a, b) -> recalcular.run());
@@ -335,7 +336,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
      */
     public void cargar(String dniAlumno) {
         guardado.set(null);
-        marcarCargando("Cargando ficha…");
+        marcarCargando(Idiomas.texto("edicion.cargando"));
         servicio.obtenerAlumno(dniAlumno,
                 ficha -> {
                     dni.set(ficha.dni());
@@ -346,7 +347,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
                     tipoTexto.set(ficha.tipo());
                     versionPrevia.set(ficha.version());
                     validar();
-                    marcarOk("Ficha cargada (versión " + ficha.version() + ").");
+                    marcarOk(Idiomas.texto("edicion.cargada", String.valueOf(ficha.version())));
                 },
                 this::marcarFallo);
     }
@@ -389,11 +390,11 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
     public void guardar() {
         if (!validar()) {
             marcarFallo(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
-                    400, "VALIDACION", "Revise los campos marcados antes de guardar.", null));
+                    400, "VALIDACION", Idiomas.texto("form.revise"), null));
             return;
         }
         guardado.set(null);
-        marcarCargando("Guardando cambios…");
+        marcarCargando(Idiomas.texto("edicion.guardando"));
         TipoAlumno tipo = TipoAlumno.desdeTexto(tipoTexto.get()).orElse(TipoAlumno.HISTORICO);
         String casaLimpia = casa.get() == null || casa.get().isBlank() ? null : casa.get().trim();
         String patronusLimpio = patronus.get() == null || patronus.get().isBlank()
@@ -412,7 +413,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
                 actualizado -> {
                     guardado.set(actualizado);
                     versionPrevia.set(actualizado.version());
-                    marcarOk("Cambios guardados (versión " + actualizado.version() + ").");
+                    marcarOk(Idiomas.texto("edicion.guardada", String.valueOf(actualizado.version())));
                 },
                 this::marcarFallo);
     }

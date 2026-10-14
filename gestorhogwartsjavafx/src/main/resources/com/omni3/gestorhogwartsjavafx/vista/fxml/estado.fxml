@@ -17,12 +17,12 @@
       stylesheets="@../css/tema.css">
 
   <HBox alignment="CENTER_LEFT" spacing="12">
-    <Label text="Estado del sistema" styleClass="titulo-seccion"/>
+    <Label text="%boton.salud" styleClass="titulo-seccion"/>
     <Region HBox.hgrow="ALWAYS"/>
     <ProgressIndicator fx:id="indicadorCarga" prefWidth="18" prefHeight="18" maxHeight="18" visible="false"/>
-    <Button fx:id="botonComprobar" text="Comprobar ahora" styleClass="boton-primario"
+    <Button fx:id="botonComprobar" text="%boton.comprobar" styleClass="boton-primario"
             onAction="#comprobar">
-      <tooltip><Tooltip text="Consulta la API de nuevo y actualiza la ficha de estado"/></tooltip>
+      <tooltip><Tooltip text="%tooltip.comprobar"/></tooltip>
     </Button>
   </HBox>
 
@@ -32,17 +32,17 @@
       <ColumnConstraints hgrow="ALWAYS"/>
     </columnConstraints>
 
-    <Label text="IDENTIFICADOR" styleClass="etiqueta-seccion" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label text="%ficha.identificador" styleClass="etiqueta-seccion" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
     <Label fx:id="campoIdentificador" text="—" styleClass="valor-dato" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    <Label text="ESTADO" styleClass="etiqueta-seccion" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label text="%ficha.estado" styleClass="etiqueta-seccion" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
     <Label fx:id="campoEstado" text="—" styleClass="valor-dato" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <Label text="MENSAJE" styleClass="etiqueta-seccion" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label text="%ficha.mensaje" styleClass="etiqueta-seccion" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
     <Label fx:id="campoMensaje" text="—" styleClass="valor-dato" wrapText="true"
            GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-    <Label text="MOMENTO" styleClass="etiqueta-seccion" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <Label text="%ficha.momento" styleClass="etiqueta-seccion" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
     <Label fx:id="campoMomento" text="—" styleClass="valor-dato" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
 

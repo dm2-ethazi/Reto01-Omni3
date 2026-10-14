@@ -2,6 +2,7 @@ package com.omni3.gestorhogwartsjavafx.viewmodel;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.util.Validaciones;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,7 +28,7 @@ public class BajaViewModel extends ViewModelBase {
      */
     public BajaViewModel(ServicioAlumnos servicio) {
         super(servicio);
-        reiniciar("Listo");
+        reiniciar(Idiomas.texto("comun.listo"));
     }
 
     /**
@@ -61,16 +62,16 @@ public class BajaViewModel extends ViewModelBase {
         String normalizado = Validaciones.normalizarDNI(dni);
         if (normalizado == null || normalizado.isEmpty()) {
             marcarFallo(new com.omni3.gestorhogwartsjavafx.api.ExcepcionApi(
-                    400, "VALIDACION", "Debe indicar el DNI del alumno a dar de baja.", null));
+                    400, "VALIDACION", Idiomas.texto("baja.sin.dni"), null));
             return;
         }
         bajaRealizada.set(null);
-        marcarCargando("Dando de baja…");
+        marcarCargando(Idiomas.texto("baja.cargando"));
         servicio.bajarAlumno(normalizado,
                 () -> {
                     bajaRealizada.set(new com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto(
                             normalizado, "", null, null, "", "", 0L, null, false));
-                    marcarOk("Alumno dado de baja.");
+                    marcarOk(Idiomas.texto("baja.ok"));
                     if (trasExito != null) {
                         trasExito.run();
                     }

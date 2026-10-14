@@ -613,3 +613,59 @@
 
 /* Separador del lateral sobre azul noche */
 .lateral .separator .line { -fx-border-color: #314052 transparent transparent transparent; }
+
+/* =====================================================================
+ * 11. Selector de idioma (barra de estado) y su menú desplegable
+ * ===================================================================== */
+
+.boton-idioma {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: -borde;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 3 8 3 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.boton-idioma > .label {
+    -fx-text-fill: -texto-sec;
+}
+.boton-idioma:hover {
+    -fx-background-color: -seleccion;
+    -fx-border-color: -dorado;
+}
+.boton-idioma:hover > .label {
+    -fx-text-fill: -dorado;
+}
+.boton-idioma > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 4;
+}
+.boton-idioma > .arrow-button > .arrow {
+    -fx-background-color: -texto-sec;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+/* El popup del MenuButton: panel oscuro con opciones doradas al pasar */
+.context-menu {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4;
+}
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-text-background-color: -texto;
+    -fx-padding: 6 12 6 12;
+}
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: -seleccion;
+}
+.menu-item:focused {
+    -fx-text-background-color: -dorado;
+}

@@ -13,8 +13,8 @@
       fx:controller="com.omni3.gestorhogwartsjavafx.controlador.FormularioAlumnoController"
       stylesheets="@../css/tema.css">
 
-  <Label fx:id="tituloFormulario" text="Nuevo alumno" styleClass="titulo-seccion"/>
-  <Label fx:id="textoAyuda" text="Los alumnos nuevos se crean en la central MariaDB."
+  <Label fx:id="tituloFormulario" text="%form.titulo.nuevo" styleClass="titulo-seccion"/>
+  <Label fx:id="textoAyuda" text="%form.ayuda.nuevo.fxml"
          styleClass="texto-secundario" wrapText="true"/>
 
   <GridPane hgap="12" vgap="6">
@@ -29,29 +29,29 @@
     <Label fx:id="errorDni" text="" styleClass="texto-error"
            GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <Label text="Nombre *" styleClass="etiqueta-campo" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-    <TextField fx:id="campoNombre" promptText="Nombre y apellidos" styleClass="campo"
+    <Label text="%form.campo.nombre" styleClass="etiqueta-campo" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <TextField fx:id="campoNombre" promptText="%form.prompt.nombre" styleClass="campo"
                GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     <Label fx:id="errorNombre" text="" styleClass="texto-error"
            GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-    <Label text="Casa" styleClass="etiqueta-campo" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <ComboBox fx:id="comboCasa" promptText="Sin casa (alumno nuevo)" styleClass="campo-combo"
+    <Label text="%form.campo.casa" styleClass="etiqueta-campo" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <ComboBox fx:id="comboCasa" promptText="%form.prompt.casa" styleClass="campo-combo"
               GridPane.rowIndex="4" GridPane.columnIndex="1"/>
     <Label fx:id="errorCasa" text="" styleClass="texto-error"
            GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
     <Label text="Patronus *" styleClass="etiqueta-campo" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-    <TextField fx:id="campoPatronus" promptText="Ej. Ciervo" styleClass="campo"
+    <TextField fx:id="campoPatronus" promptText="%form.prompt.patronus" styleClass="campo"
                GridPane.rowIndex="6" GridPane.columnIndex="1"/>
     <Label fx:id="errorPatronus" text="" styleClass="texto-error"
            GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
-    <Label text="Origen" styleClass="etiqueta-campo" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Label text="%form.campo.origen" styleClass="etiqueta-campo" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
     <Label fx:id="campoOrigen" text="—" styleClass="valor-dato"
            GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
-    <Label text="Versión" styleClass="etiqueta-campo" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+    <Label text="%form.campo.version" styleClass="etiqueta-campo" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
     <Label fx:id="campoVersion" text="—" styleClass="valor-dato"
            GridPane.rowIndex="9" GridPane.columnIndex="1"/>
   </GridPane>

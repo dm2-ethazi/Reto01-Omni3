@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.ImageView?>
@@ -19,39 +21,46 @@
     <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
     <ImageView fx:id="iconoCabecera" fitWidth="28" fitHeight="28" preserveRatio="true"/>
     <Label text="Gestor Hogwarts" styleClass="titulo-cabecera"/>
-    <Label text="Cliente de escritorio" styleClass="subtitulo-cabecera"/>
+    <Label text="%cabecera.subtitulo" styleClass="subtitulo-cabecera"/>
     <Region HBox.hgrow="ALWAYS"/>
-    <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud">
-      <tooltip><Tooltip text="Vuelve a consultar la API y muestra el estado de la conexión y de las bases de datos"/></tooltip>
+    <Button fx:id="botonSalud" text="%boton.salud" styleClass="boton-secundario" onAction="#comprobarSalud">
+      <tooltip><Tooltip text="%tooltip.salud"/></tooltip>
     </Button>
   </HBox>
 
   <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">
     <VBox fx:id="lateral" prefWidth="230" spacing="6" styleClass="lateral">
       <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
-      <Label text="NAVEGACIÓN" styleClass="etiqueta-seccion"/>
-      <Button fx:id="navEstado" text="Estado del sistema" maxWidth="Infinity" styleClass="boton-lateral"
+      <Label text="%nav.seccion" styleClass="etiqueta-seccion"/>
+      <Button fx:id="navEstado" text="%boton.salud" maxWidth="Infinity" styleClass="boton-lateral"
               onAction="#navegarEstado">
-        <tooltip><Tooltip text="Muestra el estado actual de la API y de las bases de datos de las cinco casas"/></tooltip>
+        <tooltip><Tooltip text="%tooltip.nav.estado"/></tooltip>
       </Button>
-      <Button fx:id="navAlumnos" text="Alumnos" maxWidth="Infinity" styleClass="boton-lateral"
+      <Button fx:id="navAlumnos" text="%nav.alumnos" maxWidth="Infinity" styleClass="boton-lateral"
               onAction="#navegarAlumnos">
-        <tooltip><Tooltip text="Listado de alumnado con búsqueda, alta, edición y baja"/></tooltip>
+        <tooltip><Tooltip text="%tooltip.nav.alumnos"/></tooltip>
       </Button>
       <Separator/>
       <Region VBox.vgrow="ALWAYS"/>
-      <Label text="Reto R01 · Omni3" styleClass="texto-secundario"/>
+      <Label text="%pie.reto" styleClass="texto-secundario"/>
     </VBox>
 
     <StackPane fx:id="contenedorContenido" styleClass="contenido" HBox.hgrow="ALWAYS">
       <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
-      <Label text="Cargando…" styleClass="texto-secundario"/>
+      <Label text="%cargando" styleClass="texto-secundario"/>
     </StackPane>
   </HBox>
 
   <HBox alignment="CENTER_LEFT" spacing="12" styleClass="barra-estado">
     <padding><Insets top="8" right="20" bottom="8" left="20"/></padding>
-    <Label fx:id="estado" text="Listo" styleClass="texto-secundario"/>
+    <Label fx:id="estado" text="%barra.listo" styleClass="texto-secundario"/>
+    <MenuButton fx:id="botonIdioma" text="ES" styleClass="boton-idioma">
+      <items>
+        <MenuItem text="Castellano" onAction="#idiomaCastellano"/>
+        <MenuItem text="Euskara" onAction="#idiomaEuskara"/>
+        <MenuItem text="English" onAction="#idiomaIngles"/>
+      </items>
+    </MenuButton>
     <Region HBox.hgrow="ALWAYS"/>
     <Label fx:id="estadoDerecha" text="JDK 17+ · JavaFX 21" styleClass="texto-secundario"/>
   </HBox>

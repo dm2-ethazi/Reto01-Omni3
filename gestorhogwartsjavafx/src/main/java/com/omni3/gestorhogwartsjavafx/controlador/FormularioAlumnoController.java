@@ -2,6 +2,7 @@ package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.viewmodel.AltaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EdicionViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EstadoCarga;
@@ -91,14 +92,14 @@ public class FormularioAlumnoController implements ControladorVista {
     private void prepararAlta() {
         AltaViewModel alta = fabrica.crearAltaViewModel();
         formulario = alta;
-        tituloFormulario.setText("Nuevo alumno");
-        textoAyuda.setText("El alta se realiza en la central MariaDB: sin casa y con patronus obligatorio.");
+        tituloFormulario.setText(Idiomas.texto("form.titulo.nuevo"));
+        textoAyuda.setText(Idiomas.texto("form.ayuda.nuevo"));
         campoDni.setDisable(false);
         campoDni.setText("");
         comboCasa.setDisable(true);
         comboCasa.setValue("");
         campoOrigen.setText(Origen.MARIADB.name());
-        campoVersion.setText("— (se asigna al guardar)");
+        campoVersion.setText(Idiomas.texto("form.version.nueva"));
 
         campoDni.textProperty().bindBidirectional(alta.dniProperty());
         campoNombre.textProperty().bindBidirectional(alta.nombreProperty());
@@ -114,8 +115,8 @@ public class FormularioAlumnoController implements ControladorVista {
     private void prepararEdicion(String dni) {
         EdicionViewModel edicion = fabrica.crearEdicionViewModel();
         formulario = edicion;
-        tituloFormulario.setText("Editar alumno");
-        textoAyuda.setText("Los cambios se envían con la versión previa; si otra sesión lo modificó, se avisará sin sobrescribir.");
+        tituloFormulario.setText(Idiomas.texto("form.titulo.editar"));
+        textoAyuda.setText(Idiomas.texto("form.ayuda.editar"));
         campoDni.setDisable(true);
         campoDni.textProperty().bind(edicion.dniProperty());
         campoNombre.textProperty().bindBidirectional(edicion.nombreProperty());

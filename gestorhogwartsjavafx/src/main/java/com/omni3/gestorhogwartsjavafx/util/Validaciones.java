@@ -6,8 +6,9 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Validaciones del dominio (§4 del contrato). Métodos estáticos, sin
- * estado y siempre con mensajes de error en español.
+ * Validaciones del dominio (§4 del contrato). Métodos estáticos y sin
+ * estado; los mensajes de error se traducen con {@link Idiomas} según
+ * el idioma activo de la interfaz.
  *
  * <p>Regla de enmascarado de DNI para logs (§2.6): nunca se muestra un
  * DNI completo. Ver {@link #enmascararDNI(String)}.</p>
@@ -60,7 +61,7 @@ public final class Validaciones {
     }
 
     /**
-     * Valida un DNI con mensaje de error en español.
+     * Valida un DNI con mensaje de error traducido.
      *
      * @param dni DNI a validar; puede ser {@code null}
      * @return resultado con el motivo del rechazo, si lo hay
@@ -68,11 +69,10 @@ public final class Validaciones {
     public static ResultadoValidacion validarDNI(String dni) {
         String normalizado = normalizarDNI(dni);
         if (normalizado == null || normalizado.isEmpty()) {
-            return ResultadoValidacion.error("El DNI es obligatorio.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.dni.obligatorio"));
         }
         if (!PATRON_DNI.matcher(normalizado).matches()) {
-            return ResultadoValidacion.error(
-                    "El DNI debe tener exactamente 9 caracteres: 8 dígitos y una letra en mayúscula (ej. 12345678A).");
+            return ResultadoValidacion.error(Idiomas.texto("valid.dni.formato"));
         }
         return ResultadoValidacion.correcto();
     }
@@ -86,12 +86,12 @@ public final class Validaciones {
      */
     public static ResultadoValidacion validarNombre(String nombre) {
         if (nombre == null || nombre.isBlank()) {
-            return ResultadoValidacion.error("El nombre es obligatorio.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.nombre.obligatorio"));
         }
         String limpio = nombre.trim();
         if (limpio.length() < NOMBRE_MIN || limpio.length() > NOMBRE_MAX) {
-            return ResultadoValidacion.error(
-                    "El nombre debe tener entre " + NOMBRE_MIN + " y " + NOMBRE_MAX + " caracteres.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.nombre.longitud",
+                    NOMBRE_MIN, NOMBRE_MAX));
         }
         return ResultadoValidacion.correcto();
     }
@@ -111,13 +111,13 @@ public final class Validaciones {
         boolean nuevo = tipo != TipoAlumno.HISTORICO;
         if (vacio) {
             if (nuevo) {
-                return ResultadoValidacion.error("El patronus es obligatorio para los alumnos nuevos.");
+                return ResultadoValidacion.error(Idiomas.texto("valid.patronus.obligatorio"));
             }
             return ResultadoValidacion.correcto();
         }
         if (limpio.length() < PATRONUS_MIN || limpio.length() > PATRONUS_MAX) {
-            return ResultadoValidacion.error(
-                    "El patronus debe tener entre " + PATRONUS_MIN + " y " + PATRONUS_MAX + " caracteres.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.patronus.longitud",
+                    PATRONUS_MIN, PATRONUS_MAX));
         }
         return ResultadoValidacion.correcto();
     }
@@ -135,10 +135,10 @@ public final class Validaciones {
         boolean vacio = limpio.isEmpty();
         boolean historico = tipo == TipoAlumno.HISTORICO;
         if (historico && vacio) {
-            return ResultadoValidacion.error("La casa es obligatoria para los alumnos históricos.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.casa.obligatoria"));
         }
         if (!historico && !vacio) {
-            return ResultadoValidacion.error("Los alumnos nuevos no deben tener casa.");
+            return ResultadoValidacion.error(Idiomas.texto("valid.casa.prohibida"));
         }
         return ResultadoValidacion.correcto();
     }

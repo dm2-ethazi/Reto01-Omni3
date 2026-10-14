@@ -8,6 +8,7 @@ import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.ErrorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 
 import java.io.IOException;
 import java.net.URI;
@@ -101,7 +102,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         return new SaludDto(
                 "OK",
                 "R01",
-                "API de proyecto_reto1 operativa · " + alumnos.size() + " alumno(s) consultados.",
+                Idiomas.texto("api.salud", String.valueOf(alumnos.size())),
                 Instant.now().toString());
     }
 
@@ -343,25 +344,24 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             excepcion.printStackTrace(System.err);
             String detalle;
             if (excepcion instanceof HttpTimeoutException) {
-                detalle = "se agotó el tiempo de espera de "
-                        + config.getTimeout().toMillis() + " ms";
+                detalle = Idiomas.texto("red.timeout",
+                        String.valueOf(config.getTimeout().toMillis()));
             } else if (excepcion instanceof java.net.ConnectException) {
-                detalle = "ningún servicio está escuchando en esa dirección "
-                        + "(conexión rechazada). Compruebe que la API está arrancada.";
+                detalle = Idiomas.texto("red.rechazada");
             } else if (excepcion instanceof java.net.UnknownHostException) {
-                detalle = "no se pudo resolver el host de la URL (nombre o red no válidos).";
+                detalle = Idiomas.texto("red.host");
             } else if (excepcion.getMessage() == null || excepcion.getMessage().isBlank()) {
-                detalle = "fallo de red sin mensaje adicional ("
-                        + excepcion.getClass().getSimpleName() + ")";
+                detalle = Idiomas.texto("red.generico",
+                        excepcion.getClass().getSimpleName());
             } else {
                 detalle = excepcion.getMessage();
             }
             throw new ExcepcionApi(0, "RED",
-                    "No se pudo contactar con la API en " + config.getBaseUrl() + ": " + detalle,
+                    Idiomas.texto("red.contacto", config.getBaseUrl(), detalle),
                     requestId);
         } catch (InterruptedException excepcion) {
             Thread.currentThread().interrupt();
-            throw new ExcepcionApi(0, "INTERRUMPIDO", "Petición interrumpida por el llamante.", requestId);
+            throw new ExcepcionApi(0, "INTERRUMPIDO", Idiomas.texto("red.interrumpida"), requestId);
         }
     }
 
@@ -383,7 +383,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             String codigo = detalle.codigo() == null || detalle.codigo().isBlank()
                     ? codigoPorEstado(status) : detalle.codigo();
             String mensaje = detalle.mensaje() == null || detalle.mensaje().isBlank()
-                    ? "La API ha devuelto el estado HTTP " + status + "." : detalle.mensaje();
+                    ? Idiomas.texto("http.estado", String.valueOf(status)) : detalle.mensaje();
             String completo = detalle.detalle() == null || detalle.detalle().isBlank()
                     ? mensaje : mensaje + " (" + detalle.detalle() + ")";
             return new ExcepcionApi(status, codigo, completo, requestId);
@@ -397,7 +397,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             texto = texto.substring(0, 200) + "...";
         }
         String mensaje = texto.isEmpty()
-                ? "La API ha devuelto el estado HTTP " + status + "." : texto;
+                ? Idiomas.texto("http.estado", String.valueOf(status)) : texto;
         return new ExcepcionApi(status, codigoPorEstado(status), mensaje, requestId);
     }
 
@@ -441,7 +441,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             return mapper.writeValueAsString(cuerpo);
         } catch (JsonProcessingException excepcion) {
             throw new ExcepcionApi(0, "SINTAXIS_JSON",
-                    "No se pudo serializar la petición: " + excepcion.getOriginalMessage(), null);
+                    Idiomas.texto("json.serializar", excepcion.getOriginalMessage()), null);
         }
     }
 
@@ -451,7 +451,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             return mapper.readValue(cuerpo.texto(), tipo);
         } catch (JsonProcessingException excepcion) {
             throw new ExcepcionApi(0, "SINTAXIS_JSON",
-                    "Respuesta inesperada de la API: " + excepcion.getOriginalMessage(),
+                    Idiomas.texto("json.respuesta", excepcion.getOriginalMessage()),
                     cuerpo.requestId());
         }
     }
@@ -463,7 +463,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
                     mapper.getTypeFactory().constructCollectionType(List.class, tipo));
         } catch (JsonProcessingException excepcion) {
             throw new ExcepcionApi(0, "SINTAXIS_JSON",
-                    "Respuesta inesperada de la API: " + excepcion.getOriginalMessage(),
+                    Idiomas.texto("json.respuesta", excepcion.getOriginalMessage()),
                     cuerpo.requestId());
         }
     }
@@ -475,8 +475,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             return URI.create(completa);
         } catch (IllegalArgumentException excepcion) {
             throw new ExcepcionApi(0, "URL_INVALIDA",
-                    "La URL de la API no es válida: " + completa
-                            + ". Corrija la URL en la cabecera de la aplicación.", null);
+                    Idiomas.texto("url.invalida", completa), null);
         }
     }
 

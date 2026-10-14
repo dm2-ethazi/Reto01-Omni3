@@ -1,11 +1,13 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
@@ -18,6 +20,10 @@ import java.io.IOException;
  *
  * <p>Los {@code fx:id} de {@code principal.fxml} son contrato con esta
  * clase y no deben renombrarse sin actualizar ambos lados.</p>
+ *
+ * <p>También gestiona el selector de idioma de la barra de estado: cada
+ * opción delega en {@link Idiomas#cambiar(String)} y la aplicación
+ * recarga la raíz con el nuevo bundle.</p>
  */
 public class PrincipalController implements ControladorVista {
 
@@ -27,9 +33,16 @@ public class PrincipalController implements ControladorVista {
     @FXML private StackPane contenedorContenido;
     @FXML private Button navEstado;
     @FXML private Button navAlumnos;
+    @FXML private MenuButton botonIdioma;
 
     private FabricaAplicacion fabrica;
     private Button navegacionActiva;
+
+    /** Pantalla a abrir la primera vez; {@code null} = estado del sistema. */
+    private String pantallaInicial;
+
+    /** Pantalla visible en este momento ({@code estado} o {@code alumnos}). */
+    private String pantallaActual;
 
     /**
      * Crea el controlador de la vista principal.
@@ -41,24 +54,60 @@ public class PrincipalController implements ControladorVista {
     public PrincipalController() {
     }
 
+    /**
+     * Fija la pantalla que debe abrirse al conectar; la usa la aplicación
+     * al reconstruir la raíz tras un cambio de idioma.
+     *
+     * @param pantalla {@code estado}, {@code alumnos} o {@code null} para
+     *                 la pantalla por defecto
+     */
+    public void setPantallaInicial(String pantalla) {
+        this.pantallaInicial = pantalla;
+    }
+
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
         iconoCabecera.setImage(new javafx.scene.image.Image(
                 getClass().getResource("/com/omni3/gestorhogwartsjavafx/icons/icon-32.png").toExternalForm()));
-        cargarEstado();
+        botonIdioma.setText(Idiomas.simbolo());
+        abrir(pantallaInicial);
+    }
+
+    /**
+     * Abre una pantalla por su identificador.
+     *
+     * @param pantalla {@code alumnos} para el listado; cualquier otro
+     *                 valor (incluido {@code null}) abre el estado
+     */
+    public void abrir(String pantalla) {
+        if ("alumnos".equals(pantalla)) {
+            cargar("alumnos.fxml", navAlumnos, Idiomas.texto("pantalla.alumnos"));
+        } else {
+            cargarEstado();
+        }
+    }
+
+    /**
+     * Pantalla visible en este momento.
+     *
+     * @return {@code estado} o {@code alumnos}; {@code null} si todavía
+     *         no se ha cargado ninguna
+     */
+    public String getPantallaActual() {
+        return pantallaActual;
     }
 
     /** Carga la pantalla de estado del sistema. */
     @FXML
     private void navegarEstado() {
-        cargar("estado.fxml", navEstado, "Estado del sistema");
+        cargarEstado();
     }
 
     /** Carga la pantalla de alumnado. */
     @FXML
     private void navegarAlumnos() {
-        cargar("alumnos.fxml", navAlumnos, "Alumnos");
+        cargar("alumnos.fxml", navAlumnos, Idiomas.texto("pantalla.alumnos"));
     }
 
     /** Atajo del botón de cabecera: muestra el estado del sistema. */
@@ -67,9 +116,27 @@ public class PrincipalController implements ControladorVista {
         cargarEstado();
     }
 
+    /** Cambia el idioma de la interfaz a castellano. */
+    @FXML
+    private void idiomaCastellano() {
+        Idiomas.cambiar(Idiomas.CASTELLANO);
+    }
+
+    /** Cambia el idioma de la interfaz a euskera. */
+    @FXML
+    private void idiomaEuskara() {
+        Idiomas.cambiar(Idiomas.EUSKERA);
+    }
+
+    /** Cambia el idioma de la interfaz a inglés. */
+    @FXML
+    private void idiomaIngles() {
+        Idiomas.cambiar(Idiomas.INGLES);
+    }
+
     /** Carga la pantalla de estado sin cambiar la navegación activa. */
     private void cargarEstado() {
-        cargar("estado.fxml", navEstado, "Estado del sistema");
+        cargar("estado.fxml", navEstado, Idiomas.texto("boton.salud"));
     }
 
     /**
@@ -86,6 +153,7 @@ public class PrincipalController implements ControladorVista {
         }
         try {
             FXMLLoader cargador = new FXMLLoader(getClass().getResource(RUTA_VISTAS + fichero));
+            cargador.setResources(Idiomas.bundle());
             Parent raiz = cargador.load();
             Object controlador = cargador.getController();
             if (controlador instanceof ControladorVista vista) {
@@ -98,9 +166,10 @@ public class PrincipalController implements ControladorVista {
             }
             boton.getStyleClass().add("activo");
             navegacionActiva = boton;
+            pantallaActual = fichero.replace(".fxml", "");
             estado.setText(titulo);
         } catch (IOException excepcion) {
-            estado.setText("No se pudo cargar " + fichero + ": " + excepcion.getMessage());
+            estado.setText(Idiomas.texto("error.carga.pantalla", fichero, excepcion.getMessage()));
         }
     }
 

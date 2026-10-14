@@ -3,6 +3,7 @@ package com.omni3.gestorhogwartsjavafx.controlador;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.viewmodel.BajaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.ConsultaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EstadoCarga;
@@ -42,13 +43,11 @@ import java.util.Optional;
  */
 public class AlumnosController implements ControladorVista {
 
-    /** Botón del diálogo: guardar. */
-    private static final ButtonType TIPO_GUARDAR =
-            new ButtonType("Guardar", ButtonType.OK.getButtonData());
+    /** Botón del diálogo: guardar; se crea al conectar (texto traducido). */
+    private ButtonType tipoGuardar;
 
-    /** Botón del diálogo: cancelar. */
-    private static final ButtonType TIPO_CANCELAR =
-            new ButtonType("Cancelar", ButtonType.CANCEL.getButtonData());
+    /** Botón del diálogo: cancelar; se crea al conectar (texto traducido). */
+    private ButtonType tipoCancelar;
 
     @FXML private TextField campoBusqueda;
     @FXML private ComboBox<Origen> comboOrigen;
@@ -89,6 +88,10 @@ public class AlumnosController implements ControladorVista {
         this.fabrica = fabrica;
         this.consulta = fabrica.crearConsultaViewModel();
         this.baja = fabrica.crearBajaViewModel();
+        this.tipoGuardar = new ButtonType(Idiomas.texto("comun.guardar"),
+                ButtonType.OK.getButtonData());
+        this.tipoCancelar = new ButtonType(Idiomas.texto("comun.cancelar"),
+                ButtonType.CANCEL.getButtonData());
 
         configurarOrigenes();
         configurarTabla();
@@ -139,7 +142,7 @@ public class AlumnosController implements ControladorVista {
     /** Etiqueta legible de una fuente, con su puerto si es un servicio. */
     private static String etiquetaDe(Origen origen) {
         if (origen.esCentral()) {
-            return "Todas las fuentes";
+            return Idiomas.texto("origen.todas");
         }
         return switch (origen) {
             case DERBY -> "Derby (1527)";
@@ -259,7 +262,8 @@ public class AlumnosController implements ControladorVista {
 
         consulta.getAlumnos().addListener(
                 (javafx.collections.ListChangeListener<AlumnoDto>) cambios ->
-                        etiquetaConteo.setText(consulta.getAlumnos().size() + " alumno(s)"));
+                        etiquetaConteo.setText(Idiomas.texto("conteo.alumnos",
+                                String.valueOf(consulta.getAlumnos().size()))));
     }
 
     /** {@code true} si el estado representa un error o un conflicto. */
@@ -330,7 +334,7 @@ public class AlumnosController implements ControladorVista {
     private void editar() {
         AlumnoDto seleccionado = consulta.getSeleccionado();
         if (seleccionado == null) {
-            mostrarEnBarra("Seleccione un alumno en la tabla para editarlo.", "texto-aviso");
+            mostrarEnBarra(Idiomas.texto("aviso.seleccionar.editar"), "texto-aviso");
             return;
         }
         abrirFormulario(seleccionado.dni());
@@ -341,22 +345,22 @@ public class AlumnosController implements ControladorVista {
     private void baja() {
         AlumnoDto seleccionado = consulta.getSeleccionado();
         if (seleccionado == null) {
-            mostrarEnBarra("Seleccione un alumno en la tabla para darlo de baja.", "texto-aviso");
+            mostrarEnBarra(Idiomas.texto("aviso.seleccionar.baja"), "texto-aviso");
             return;
         }
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar baja");
-        confirmacion.setHeaderText("Dar de baja a " + seleccionado.nombre());
-        confirmacion.setContentText("DNI " + seleccionado.dni()
-                + "\nSe aplicará sobre la fuente " + seleccionado.origen() + ".");
+        confirmacion.setTitle(Idiomas.texto("dialogo.baja.titulo"));
+        confirmacion.setHeaderText(Idiomas.texto("dialogo.baja.cabecera", seleccionado.nombre()));
+        confirmacion.setContentText(Idiomas.texto("dialogo.baja.cuerpo",
+                seleccionado.dni(), seleccionado.origen()));
         estilizarDialogo(confirmacion);
         // Aceptar aplica la baja: se pinta con el color de peligro.
         confirmacion.getDialogPane().lookupButton(ButtonType.OK)
                 .getStyleClass().add("boton-peligro");
         ayudar(confirmacion.getDialogPane().lookupButton(ButtonType.OK),
-                "Aplica la baja del alumno seleccionado en la tabla");
+                Idiomas.texto("tooltip.baja.ok"));
         ayudar(confirmacion.getDialogPane().lookupButton(ButtonType.CANCEL),
-                "Cierra el aviso sin dar de baja a nadie");
+                Idiomas.texto("tooltip.baja.cancel"));
         Optional<ButtonType> respuesta = confirmacion.showAndWait();
         if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
             return;
@@ -376,6 +380,7 @@ public class AlumnosController implements ControladorVista {
     private void abrirFormulario(String dni) {
         try {
             FXMLLoader cargador = new FXMLLoader(getClass().getResource(RUTA_VISTAS + "formulario-alumno.fxml"));
+            cargador.setResources(Idiomas.bundle());
             Parent raiz = cargador.load();
             FormularioAlumnoController controlador = cargador.getController();
             controlador.conectar(fabrica);
@@ -383,17 +388,17 @@ public class AlumnosController implements ControladorVista {
             FormularioAlumno formulario = controlador.getFormulario();
 
             Dialog<ButtonType> dialogo = new Dialog<>();
-            dialogo.setTitle(dni == null ? "Nuevo alumno" : "Editar alumno");
+            dialogo.setTitle(Idiomas.texto(dni == null ? "form.titulo.nuevo" : "form.titulo.editar"));
             dialogo.setHeaderText(null);
-            dialogo.getDialogPane().getButtonTypes().addAll(TIPO_GUARDAR, TIPO_CANCELAR);
+            dialogo.getDialogPane().getButtonTypes().addAll(tipoGuardar, tipoCancelar);
             dialogo.getDialogPane().setContent(raiz);
             estilizarDialogo(dialogo);
             dialogo.setResizable(true);
 
-            Node botonGuardar = dialogo.getDialogPane().lookupButton(TIPO_GUARDAR);
-            ayudar(botonGuardar, "Guarda los datos del formulario y cierra la ventana");
-            ayudar(dialogo.getDialogPane().lookupButton(TIPO_CANCELAR),
-                    "Cierra el formulario sin guardar los cambios");
+            Node botonGuardar = dialogo.getDialogPane().lookupButton(tipoGuardar);
+            ayudar(botonGuardar, Idiomas.texto("tooltip.form.guardar"));
+            ayudar(dialogo.getDialogPane().lookupButton(tipoCancelar),
+                    Idiomas.texto("tooltip.form.cancelar"));
             botonGuardar.addEventFilter(ActionEvent.ACTION, evento -> {
                 evento.consume();
                 formulario.guardar();
@@ -417,7 +422,8 @@ public class AlumnosController implements ControladorVista {
 
             dialogo.showAndWait();
         } catch (IOException excepcion) {
-            mostrarEnBarra("No se pudo abrir el formulario: " + excepcion.getMessage(), "texto-error");
+            mostrarEnBarra(Idiomas.texto("error.formulario.abrir", excepcion.getMessage()),
+                    "texto-error");
         }
     }
 
@@ -430,19 +436,18 @@ public class AlumnosController implements ControladorVista {
      */
     private void ofrecerRecarga(FormularioAlumno formulario) {
         Alert aviso = new Alert(Alert.AlertType.WARNING);
-        aviso.setTitle("Conflicto de concurrencia");
-        aviso.setHeaderText("Otra sesión ha modificado esta ficha");
-        aviso.setContentText(formulario.mensajeProperty().get()
-                + "\n\nPuede recargar la ficha (se descartan los cambios locales)"
-                + " o seguir editando sobre la versión vigente.");
-        ButtonType recargar = new ButtonType("Recargar ficha");
-        ButtonType seguir = new ButtonType("Seguir editando");
+        aviso.setTitle(Idiomas.texto("dialogo.conflicto.titulo"));
+        aviso.setHeaderText(Idiomas.texto("dialogo.conflicto.cabecera"));
+        aviso.setContentText(Idiomas.texto("dialogo.conflicto.cuerpo",
+                formulario.mensajeProperty().get()));
+        ButtonType recargar = new ButtonType(Idiomas.texto("boton.recargar.ficha"));
+        ButtonType seguir = new ButtonType(Idiomas.texto("boton.seguir.editando"));
         aviso.getButtonTypes().setAll(recargar, seguir);
         estilizarDialogo(aviso);
         ayudar(aviso.getDialogPane().lookupButton(recargar),
-                "Descarta tus cambios y carga la ficha guardada por la otra sesión");
+                Idiomas.texto("tooltip.recargar.ficha"));
         ayudar(aviso.getDialogPane().lookupButton(seguir),
-                "Conserva tus cambios y sigue editando sobre la versión vigente");
+                Idiomas.texto("tooltip.seguir.editando"));
         Optional<ButtonType> respuesta = aviso.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == recargar) {
             formulario.recargar();

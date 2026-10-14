@@ -5,6 +5,7 @@ import com.omni3.gestorhogwartsjavafx.api.ExcepcionApi;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.application.Platform;
 
 import java.util.List;
@@ -225,14 +226,14 @@ public class ServicioAlumnos {
                     return;
                 } catch (Exception inesperado) {
                     publicar(() -> fallo.alFallo(new ExcepcionApi(0, "FALLO_INESPERADO",
-                            "Error inesperado al consultar la API: " + mensajeDe(inesperado), null)));
+                            Idiomas.texto("servicio.error", mensajeDe(inesperado)), null)));
                     return;
                 }
                 publicar(() -> exito.alExito(resultado));
             });
         } catch (RejectedExecutionException rechazada) {
             publicar(() -> fallo.alFallo(new ExcepcionApi(0, "SERVICIO_CERRADO",
-                    "El servicio de acceso a la API esta cerrado.", null)));
+                    Idiomas.texto("servicio.cerrado"), null)));
         }
     }
 

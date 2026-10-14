@@ -1,5 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
+
 import java.net.URI;
 import java.time.Duration;
 import java.util.Locale;
@@ -54,7 +56,7 @@ public final class ConfigApi {
         Objects.requireNonNull(baseUrl, "La URL base es obligatoria");
         Objects.requireNonNull(timeout, "El timeout es obligatorio");
         if (timeout.isZero() || timeout.isNegative()) {
-            throw new IllegalArgumentException("El timeout debe ser positivo");
+            throw new IllegalArgumentException(Idiomas.texto("config.timeout"));
         }
         this.baseUrl = normalizar(baseUrl);
         this.timeout = timeout;
@@ -74,7 +76,7 @@ public final class ConfigApi {
             limpia = limpia.substring(0, limpia.length() - 1);
         }
         if (limpia.isEmpty()) {
-            throw new IllegalArgumentException("La URL base no puede estar vacía");
+            throw new IllegalArgumentException(Idiomas.texto("config.url.vacia"));
         }
         String minusculas = limpia.toLowerCase(Locale.ROOT);
         String conEsquema;
@@ -88,9 +90,7 @@ public final class ConfigApi {
         try {
             URI.create(conEsquema);
         } catch (IllegalArgumentException excepcion) {
-            throw new IllegalArgumentException(
-                    "La URL de la API no es válida: " + conEsquema
-                            + ". Ejemplo correcto: http://127.0.0.1:8000");
+            throw new IllegalArgumentException(Idiomas.texto("config.url.invalida", conEsquema));
         }
         return conEsquema;
     }

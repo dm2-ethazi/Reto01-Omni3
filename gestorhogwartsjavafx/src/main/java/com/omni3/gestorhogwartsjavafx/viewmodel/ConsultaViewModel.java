@@ -3,6 +3,7 @@ package com.omni3.gestorhogwartsjavafx.viewmodel;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.servicio.ServicioAlumnos;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -45,7 +46,7 @@ public class ConsultaViewModel extends ViewModelBase {
      */
     public ConsultaViewModel(ServicioAlumnos servicio) {
         super(servicio);
-        reiniciar("Listo");
+        reiniciar(Idiomas.texto("comun.listo"));
     }
 
     /**
@@ -121,7 +122,7 @@ public class ConsultaViewModel extends ViewModelBase {
      * Ejecuta la consulta con el texto de búsqueda y el filtro actuales.
      */
     public void buscar() {
-        marcarCargando("Consultando alumnado…");
+        marcarCargando(Idiomas.texto("consulta.cargando"));
         Origen origen = filtroOrigen.get();
         String texto = textoBusqueda.get() == null ? "" : textoBusqueda.get().trim();
         servicio.listarAlumnos(origen, texto, LIMITE_POR_DEFECTO, 0,
@@ -129,10 +130,10 @@ public class ConsultaViewModel extends ViewModelBase {
                     alumnos.setAll(lista);
                     if (lista.isEmpty()) {
                         marcarVacio(origen.esCentral() && texto.isEmpty()
-                                ? "No hay alumnos registrados todavía."
-                                : "Ningún alumno coincide con el filtro aplicado.");
+                                ? Idiomas.texto("consulta.vacio")
+                                : Idiomas.texto("consulta.vacio.filtro"));
                     } else {
-                        marcarOk(lista.size() + " alumno(s)");
+                        marcarOk(Idiomas.texto("conteo.alumnos", String.valueOf(lista.size())));
                     }
                 },
                 this::marcarFallo);
@@ -154,7 +155,7 @@ public class ConsultaViewModel extends ViewModelBase {
     public void vaciar() {
         alumnos.clear();
         seleccionado.set(null);
-        reiniciar("Listo");
+        reiniciar(Idiomas.texto("comun.listo"));
     }
 
     /**
@@ -170,7 +171,7 @@ public class ConsultaViewModel extends ViewModelBase {
         String normalizado = dni.trim().toUpperCase(Locale.ROOT);
         alumnos.removeIf(alumno -> normalizado.equals(alumno.dni()));
         if (alumnos.isEmpty()) {
-            marcarVacio("No hay alumnos registrados todavía.");
+            marcarVacio(Idiomas.texto("consulta.vacio"));
         }
     }
 
