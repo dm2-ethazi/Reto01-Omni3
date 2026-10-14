@@ -1,8 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_API_DIR = Path(__file__).resolve().parent.parent.parent
+_ENV_PATH = _API_DIR / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=str(_ENV_PATH), env_file_encoding="utf-8")
 
     db_engines: str = "oracle,mariadb,h2,hsqldb,derby"
     jars_dir: str = "jars"
@@ -30,6 +35,10 @@ class Settings(BaseSettings):
     derby_url: str = "jdbc:derby://localhost:1527/db"
     derby_user: str = ""
     derby_password: str = ""
+
+    def model_post_init(self, __context) -> None:
+        if not Path(self.jars_dir).is_absolute():
+            self.jars_dir = str(_API_DIR / self.jars_dir)
 
 
 settings = Settings()

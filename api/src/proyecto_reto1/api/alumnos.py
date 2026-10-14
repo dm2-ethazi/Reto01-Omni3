@@ -30,6 +30,19 @@ def listar_alumnos(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)
     return alumnos
 
 
+def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | None) -> str | None:
+    if not patronus:
+        return None
+    repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
+    if repositorio is None:
+        return None
+    try:
+        return repositorio.buscar_patronus_url(patronus)
+    except Exception as error:
+        logger.warning("No se pudo obtener patronus_url para '%s': %s", patronus, error)
+        return None
+
+
 @router.get("/alumnos/{dni}", response_model=Alumno)
 def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
     for repositorio in fuentes:
@@ -42,6 +55,7 @@ def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_rep
                 detail=f"La fuente '{repositorio.casa}' no responde: {error}",
             ) from error
         if alumno is not None:
+            alumno.patronus_url = _obtener_patronus_url(fuentes, alumno.patronus)
             return alumno
     raise HTTPException(
         status_code=404,
@@ -75,6 +89,24 @@ def crear_alumno(
             status_code=503,
             detail="La fuente 'mariadb' no esta activa (DB_ENGINES)",
         )
+    if datos.patronus:
+        try:
+            patronus_valido = repositorio.validar_patronus(datos.patronus, datos.patronus_lang)
+        except Exception as error:
+            logger.error("Fallo validando patronus en MariaDB: %s", error)
+            raise HTTPException(
+                status_code=503,
+                detail=f"La fuente '{repositorio.casa}' no responde: {error}",
+            ) from error
+        if not patronus_valido:
+            idiomas = {"es": "español", "en": "inglés", "eu": "euskera"}
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    f"El patronus '{datos.patronus}' no existe en la tabla PATRONUS_IMG "
+                    f"para el idioma '{idiomas[datos.patronus_lang]}'"
+                ),
+            )
     try:
         return repositorio.crear(datos)
     except Conflicto as error:

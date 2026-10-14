@@ -24,6 +24,40 @@ class RepositorioMariaDB:
             connect_timeout=5,
         )
 
+    def buscar_patronus_url(self, patronus: str) -> str | None:
+        """Busca en PATRONUS_IMG el URL de un patronus por nombre (en cualquier idioma)."""
+        if not patronus:
+            return None
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute(
+                    "SELECT URL FROM PATRONUS_IMG "
+                    "WHERE NOM_ESP = %s OR NOM_ENG = %s OR NOM_EUS = %s LIMIT 1",
+                    (patronus, patronus, patronus),
+                )
+                fila = cursor.fetchone()
+        finally:
+            conexion.close()
+        return texto(fila[0]) if fila else None
+
+    def validar_patronus(self, patronus: str, lang: str) -> bool:
+        """Comprueba que un patronus existe en PATRONUS_IMG en el idioma indicado."""
+        if not patronus:
+            return False
+        columna = {"es": "NOM_ESP", "en": "NOM_ENG", "eu": "NOM_EUS"}[lang]
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute(
+                    f"SELECT 1 FROM PATRONUS_IMG WHERE {columna} = %s LIMIT 1",
+                    (patronus,),
+                )
+                existe = cursor.fetchone() is not None
+        finally:
+            conexion.close()
+        return existe
+
     def listar(self) -> list[Alumno]:
         conexion = self._conectar()
         try:
@@ -82,7 +116,7 @@ class RepositorioMariaDB:
             raise
         finally:
             conexion.close()
-        return Alumno(**datos.model_dump(), casa=self.casa)
+        return Alumno(**datos.model_dump(exclude={"patronus_lang"}), casa=self.casa)
 
     def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
         columnas = campos_a_actualizar(datos)

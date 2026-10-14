@@ -9,6 +9,7 @@ class Alumno(BaseModel):
     apellido: str | None = None
     sexo: str | None = None
     patronus: str | None = None
+    patronus_url: str | None = None
     casa: str
 
 
@@ -18,6 +19,7 @@ class AlumnoEntrada(BaseModel):
     apellido: str | None = Field(default=None, max_length=100)
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
     patronus: str | None = Field(default=None, max_length=100)
+    patronus_lang: str = Field(default="es", pattern="^(es|en|eu)$")
 
 
 class Conflicto(Exception):
