@@ -2,7 +2,6 @@ package com.omni3.gestorhogwartsjavafx.api.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omni3.gestorhogwartsjavafx.modelo.Alumno;
-import com.omni3.gestorhogwartsjavafx.modelo.EstadoConector;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;
 import org.junit.jupiter.api.DisplayName;
@@ -120,23 +119,13 @@ class MapeoDtosTest {
     }
 
     @Test
-    @DisplayName("SaludDto y ConectorDto interpretan sus textos de dominio")
-    void interpretaSaludYConectores() throws Exception {
+    @DisplayName("SaludDto interpreta sus textos de dominio")
+    void interpretaLaSalud() throws Exception {
         SaludDto salud = mapper.readValue(
                 "{\"estado\":\"OK\",\"identificador\":\"R01\",\"mensaje\":\"todo bien\","
                         + "\"momento\":\"2026-01-15T10:00:00Z\",\"futuro\":1}",
                 SaludDto.class);
         assertTrue(salud.esR01());
         assertFalse(new SaludDto("OK", "R02", "", "").esR01());
-
-        ConectorDto conector = mapper.readValue(
-                "{\"origen\":\"H2\",\"estado\":\"degradado\",\"mensaje\":\"lento\","
-                        + "\"ultimaSincronizacion\":\"2026-01-15T10:00:00Z\"}",
-                ConectorDto.class);
-        assertEquals(EstadoConector.DEGRADADO, conector.estadoDeDominio());
-        assertEquals(Origen.H2, conector.origenDeDominio());
-        assertEquals(EstadoConector.DESCONOCIDO,
-                new ConectorDto("H2", "loquesea", "", "").estadoDeDominio());
-        assertEquals(Origen.CENTRAL, new ConectorDto("POSTGRES", "OK", "", "").origenDeDominio());
     }
 }

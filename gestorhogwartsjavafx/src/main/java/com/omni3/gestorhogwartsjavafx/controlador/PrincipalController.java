@@ -27,8 +27,6 @@ public class PrincipalController implements ControladorVista {
     @FXML private StackPane contenedorContenido;
     @FXML private Button navEstado;
     @FXML private Button navAlumnos;
-    @FXML private Button navConectores;
-    @FXML private Button navSincronizar;
 
     private FabricaAplicacion fabrica;
     private Button navegacionActiva;
@@ -61,18 +59,6 @@ public class PrincipalController implements ControladorVista {
     @FXML
     private void navegarAlumnos() {
         cargar("alumnos.fxml", navAlumnos, "Alumnos");
-    }
-
-    /** Carga la pantalla de conectores. */
-    @FXML
-    private void navegarConectores() {
-        cargar("conectores.fxml", navConectores, "Conectores");
-    }
-
-    /** Carga la pantalla de sincronización. */
-    @FXML
-    private void navegarSincronizar() {
-        cargar("sincronizar.fxml", navSincronizar, "Sincronización");
     }
 
     /** Atajo del botón de cabecera: muestra el estado del sistema. */

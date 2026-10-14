@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -20,7 +21,9 @@
     <Label text="Gestor Hogwarts" styleClass="titulo-cabecera"/>
     <Label text="Cliente de escritorio" styleClass="subtitulo-cabecera"/>
     <Region HBox.hgrow="ALWAYS"/>
-    <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud"/>
+    <Button fx:id="botonSalud" text="Estado del sistema" styleClass="boton-secundario" onAction="#comprobarSalud">
+      <tooltip><Tooltip text="Vuelve a consultar la API y muestra el estado de la conexión y de las bases de datos"/></tooltip>
+    </Button>
   </HBox>
 
   <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">
@@ -28,13 +31,13 @@
       <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
       <Label text="NAVEGACIÓN" styleClass="etiqueta-seccion"/>
       <Button fx:id="navEstado" text="Estado del sistema" maxWidth="Infinity" styleClass="boton-lateral"
-              onAction="#navegarEstado"/>
+              onAction="#navegarEstado">
+        <tooltip><Tooltip text="Muestra el estado actual de la API y de las bases de datos de las cinco casas"/></tooltip>
+      </Button>
       <Button fx:id="navAlumnos" text="Alumnos" maxWidth="Infinity" styleClass="boton-lateral"
-              onAction="#navegarAlumnos"/>
-      <Button fx:id="navConectores" text="Conectores" maxWidth="Infinity" styleClass="boton-lateral"
-              onAction="#navegarConectores"/>
-      <Button fx:id="navSincronizar" text="Sincronización" maxWidth="Infinity" styleClass="boton-lateral"
-              onAction="#navegarSincronizar"/>
+              onAction="#navegarAlumnos">
+        <tooltip><Tooltip text="Listado de alumnado con búsqueda, alta, edición y baja"/></tooltip>
+      </Button>
       <Separator/>
       <Region VBox.vgrow="ALWAYS"/>
       <Label text="Reto R01 · Omni3" styleClass="texto-secundario"/>

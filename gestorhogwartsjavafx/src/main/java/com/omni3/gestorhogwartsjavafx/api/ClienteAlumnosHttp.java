@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
-import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.ErrorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
@@ -51,11 +50,6 @@ import java.util.stream.Collectors;
  * dominio ({@code dni, nombre, casa, origen, tipo, version,
  * actualizadoEn, activo}), aplicando además el filtro de
  * origen/búsqueda/paginación en cliente porque la API no lo soporta.</p>
- *
- * <p>Las operaciones sin endpoint publicado (conectores, sincronización
- * y cola) fallan con {@link ExcepcionApi} de código
- * {@code NO_IMPLEMENTADO} y un mensaje claro en español, de modo que la
- * pantalla correspondiente lo muestre en su estado de error.</p>
  *
  * <p>Cada petición lleva una cabecera {@code request-id} generada en el
  * cliente; el mismo identificador se devuelve dentro de la
@@ -222,56 +216,6 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     @Override
     public void bajarAlumno(String dni) {
         peticion("DELETE", "/alumnos/" + codificar(normalizarId(dni)), null, Map.of());
-    }
-
-    /**
-     * Conectores no disponibles: la API actual no publica
-     * {@code GET /connectors}.
-     *
-     * @return nunca devuelve: siempre lanza la excepción
-     * @throws ExcepcionApi con status 501 y mensaje explicativo
-     */
-    @Override
-    public List<ConectorDto> listarConectores() {
-        throw noDisponible("GET", "/connectors");
-    }
-
-    /**
-     * Sincronización no disponible: la API actual no publica
-     * {@code POST /sync}.
-     *
-     * @return nunca devuelve: siempre lanza la excepción
-     * @throws ExcepcionApi con status 501 y mensaje explicativo
-     */
-    @Override
-    public String sincronizar() {
-        throw noDisponible("POST", "/sync");
-    }
-
-    /**
-     * Cola de refrescos no disponible: la API actual no publica
-     * {@code GET /admin/refresh-queue}.
-     *
-     * @return nunca devuelve: siempre lanza la excepción
-     * @throws ExcepcionApi con status 501 y mensaje explicativo
-     */
-    @Override
-    public List<Map<String, Object>> colaRefrescos() {
-        throw noDisponible("GET", "/admin/refresh-queue");
-    }
-
-    /**
-     * Excepción para las operaciones que la API desplegada no publica.
-     *
-     * @param metodo método HTTP que se habría usado
-     * @param ruta   ruta que se habría llamado
-     * @return excepción lista para lanzar
-     */
-    private ExcepcionApi noDisponible(String metodo, String ruta) {
-        return new ExcepcionApi(501, "NO_IMPLEMENTADO",
-                "La API actual no publica " + metodo + " " + ruta
-                        + ": esta operación no está disponible todavía.",
-                null);
     }
 
     /**

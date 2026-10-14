@@ -1,12 +1,10 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
-import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Interfaz única de acceso a los datos de alumnado (§3 del contrato).
@@ -87,34 +85,6 @@ public interface ClienteAlumnos {
      * @throws ExcepcionApi con status 404 si no existe
      */
     void bajarAlumno(String dni);
-
-    /**
-     * Fuentes de datos y su estado ({@code GET /connectors}).
-     *
-     * @return conectores conocidos
-     * @throws ExcepcionApi si la consulta falla
-     */
-    List<ConectorDto> listarConectores();
-
-    /**
-     * Dispara la sincronización ({@code POST /sync}).
-     *
-     * @return mensaje de la operación para mostrar al usuario
-     * @throws ExcepcionApi si la operación falla
-     */
-    String sincronizar();
-
-    /**
-     * Cola de refrescos pendientes ({@code GET /admin/refresh-queue}).
-     *
-     * <p>Se devuelve como lista de pares clave/valor porque la forma
-     * exacta del documento la fijará la API real; así la capa cliente no
-     * se rompe con los campos que se añadan.</p>
-     *
-     * @return entradas de la cola
-     * @throws ExcepcionApi si la consulta falla
-     */
-    List<Map<String, Object>> colaRefrescos();
 
     /**
      * Fábrica: crea el cliente de acceso a la API.

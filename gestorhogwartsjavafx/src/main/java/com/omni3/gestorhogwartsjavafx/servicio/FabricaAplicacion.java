@@ -4,11 +4,9 @@ import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnos;
 import com.omni3.gestorhogwartsjavafx.api.ConfigApi;
 import com.omni3.gestorhogwartsjavafx.viewmodel.AltaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.BajaViewModel;
-import com.omni3.gestorhogwartsjavafx.viewmodel.ConectoresViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.ConsultaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EdicionViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.SaludViewModel;
-import com.omni3.gestorhogwartsjavafx.viewmodel.SincronizacionViewModel;
 
 import java.util.Objects;
 
@@ -168,30 +166,12 @@ public class FabricaAplicacion {
     }
 
     /**
-     * Crea el viewmodel de la pantalla de conectores.
-     *
-     * @return viewmodel de conectores
-     */
-    public ConectoresViewModel crearConectoresViewModel() {
-        return new ConectoresViewModel(servicio);
-    }
-
-    /**
      * Crea el viewmodel de la pantalla de estado del sistema.
      *
      * @return viewmodel de salud
      */
     public SaludViewModel crearSaludViewModel() {
         return new SaludViewModel(servicio);
-    }
-
-    /**
-     * Crea el viewmodel de la pantalla de sincronizacion.
-     *
-     * @return viewmodel de sincronizacion
-     */
-    public SincronizacionViewModel crearSincronizacionViewModel() {
-        return new SincronizacionViewModel(servicio);
     }
 
     /**

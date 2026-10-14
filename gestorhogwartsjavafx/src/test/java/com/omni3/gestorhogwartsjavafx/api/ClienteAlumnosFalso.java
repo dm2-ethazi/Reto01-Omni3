@@ -1,7 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
-import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Alumno;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
@@ -42,9 +41,6 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
 
     /** Alumnos en memoria, indexados por DNI normalizado. */
     private final Map<String, AlumnoDto> alumnos = new LinkedHashMap<>();
-
-    /** Conectores (fuentes) y su estado. */
-    private final List<ConectorDto> conectores = new ArrayList<>();
 
     /** Latencia simulada por petición. */
     private long latenciaMs;
@@ -200,27 +196,6 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
         guardar(deBaja);
     }
 
-    @Override
-    public synchronized List<ConectorDto> listarConectores() {
-        dormir();
-        return List.copyOf(conectores);
-    }
-
-    @Override
-    public synchronized String sincronizar() {
-        dormir();
-        return "Sincronización completada: 0 elementos pendientes.";
-    }
-
-    @Override
-    public synchronized List<Map<String, Object>> colaRefrescos() {
-        dormir();
-        List<Map<String, Object>> cola = new ArrayList<>();
-        cola.add(Map.<String, Object>of("ruta", "/students?origen=DERBY", "pendientes", 0));
-        cola.add(Map.<String, Object>of("ruta", "/students?origen=MARIADB", "pendientes", 0));
-        return List.copyOf(cola);
-    }
-
     /**
      * Número de alumnos en memoria, contando también los de baja lógica.
      *
@@ -235,7 +210,6 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
      */
     public synchronized void reiniciar() {
         alumnos.clear();
-        conectores.clear();
         sembrar();
     }
 
@@ -255,13 +229,6 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
                 Origen.MARIADB, TipoAlumno.NUEVO, 1L, MOMENTO_SEMILLA, true));
         guardar(new Alumno("78901234G", "Carlos Ruiz", null, "Lobo",
                 Origen.MARIADB, TipoAlumno.NUEVO, 1L, MOMENTO_SEMILLA, true));
-
-        conectores.add(new ConectorDto("DERBY", "OK", "Conector Derby operativo", MOMENTO_SEMILLA.toString()));
-        conectores.add(new ConectorDto("HSQLDB", "OK", "Conector HSQLDB operativo", MOMENTO_SEMILLA.toString()));
-        conectores.add(new ConectorDto("H2", "DEGRADADO", "Respuestas lentas del conector H2", MOMENTO_SEMILLA.toString()));
-        conectores.add(new ConectorDto("ORACLE", "OK", "Conector Oracle operativo", MOMENTO_SEMILLA.toString()));
-        conectores.add(new ConectorDto("MARIADB", "OK", "Conector MariaDB operativo", MOMENTO_SEMILLA.toString()));
-        conectores.add(new ConectorDto("SQLITE", "CAIDO", "No responde en el puerto 9092", MOMENTO_SEMILLA.toString()));
     }
 
     /** Almacena el alumno y devuelve su DTO. */

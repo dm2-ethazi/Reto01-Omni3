@@ -1,15 +1,14 @@
 # Gestor Hogwarts — Cliente de escritorio (JavaFX)
 
-Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alumnado, gestionar
-conectores y lanzar sincronizaciones contra la API central de R01 · Omni3.
+Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alumnado contra la
+API central de R01 · Omni3.
 
 **La aplicación habla siempre por HTTP con la API real** de FastAPI (`src/proyecto_reto1/`,
 rama `Api`, `http://127.0.0.1:8000`) y consulta las cinco fuentes del `compose.yaml` —MariaDB,
 Derby, H2, HSQLDB y Oracle—, devolviendo a cada alumno su fuente de origen. **La aplicación nunca
 accede directamente a las bases de datos**: todo pasa por la API HTTP (requisito del contrato).
 Consulta, alta, **edición** (`PUT /alumnos/{dni}`) y **baja** (`DELETE /alumnos/{dni}`) están
-conectadas con la API; las operaciones que todavía no publica (conectores, sincronización y
-cola) se responden como `501 NO_IMPLEMENTADO` con un mensaje legible (§4.3). No existe ningún
+conectadas con la API. No existe ningún
 modo alternativo ni datos simulados en el cliente: el único cliente es `ClienteAlumnosHttp`.
 
 > Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
@@ -22,8 +21,6 @@ modo alternativo ni datos simulados en el cliente: el único cliente es `Cliente
 |---|---|
 | **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento y `request-id`). |
 | **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta, edición, baja y consulta de ficha. |
-| **Conectores** | Pantalla de fuentes de datos; requiere `GET /connectors` (ver §4.3). |
-| **Sincronización** | «Sincronizar ahora» y cola de refrescos; requiere `POST /sync` y `GET /admin/refresh-queue` (ver §4.3). |
 
 Reglas de negocio implementadas:
 
@@ -35,9 +32,6 @@ Reglas de negocio implementadas:
   base de origen aplica su propio comportamiento.
 - Los DNI **nunca se muestran completos** en mensajes de error (se enmascaran: `12***78A`).
 - Toda petición envía una cabecera **`request-id`** que se muestra en la UI cuando hay error.
-
-Las operaciones que la API todavía no publica (conectores, sincronización y cola) responden
-`501 NO_IMPLEMENTADO` con un mensaje legible en la pantalla correspondiente (§4.3).
 
 ---
 
@@ -53,7 +47,7 @@ Las operaciones que la API todavía no publica (conectores, sincronización y co
 No hay que instalar JavaFX a mano: `pom.xml` ya declara las dependencias.
 
 > **Nota de compilación.** El proyecto fija `maven.compiler.release=17`, así que compila con
-> cualquier JDK 17 o posterior; la verificación completa de este encargo (compilación, 75 pruebas
+> cualquier JDK 17 o posterior; la verificación completa de este encargo (compilación, 71 pruebas
 > y Javadoc sin avisos) se ha hecho con un **JDK 25** instalado, sin necesidad de cambiar nada.
 
 ---
@@ -133,16 +127,6 @@ el apellido si el texto editado sigue terminando en él, y después se envía `P
 completo y el patronus (vacío → `null`, que limpia el campo). Como la API no admite cambiar la
 fuente, el campo `casa` de la ficha es de solo lectura.
 
-**Operaciones sin endpoint publicado.** Cuando la API no publica la ruta, el cliente lanza
-`ExcepcionApi` con estado **501** y código `NO_IMPLEMENTADO`, y la pantalla muestra ese mensaje en
-su estado de error:
-
-| Método | Ruta | Pantalla afectada |
-|---|---|---|
-| `GET` | `/connectors` | Conectores. |
-| `POST` | `/sync` | Sincronización. |
-| `GET` | `/admin/refresh-queue` | Cola de refrescos. |
-
 **Mapeo de campos** (`api/ClienteAlumnosHttp.java`): el backend responde
 `{id, nombre, apellido, sexo, patronus, casa}` y la app recibe
 `{dni, nombre, casa, origen, tipo, version, actualizadoEn, activo}`:
@@ -212,20 +196,19 @@ Patrón **MVVM** en tres capas; la vista solo traduce estado visible, sin lógic
 ```
 src/main/java/com/omni3/gestorhogwartsjavafx/
 ├── App.java               Punto de entrada (ventana, escena, fábrica)
-├── modelo/                Origen, TipoAlumno, EstadoConector, Alumno
+├── modelo/                Origen, TipoAlumno, Alumno
 ├── util/                  Validaciones (DNI, nombre, patronus, casa) + resultado
 ├── api/                   ClienteAlumnos (interfaz) · Http · ConfigApi · ExcepcionApi · dto/
 ├── servicio/              ServicioAlumnos (hilos de fondo + publicación en el hilo FX)
 │                          FabricaAplicacion (monta config + cliente + servicio + viewmodels)
-├── viewmodel/             Consulta, Alta, Edición, Baja, Salud, Conectores, Sincronización, Formulario
-└── controlador/           Controladores de cada pantalla (Alumnos, Conectores, Estado,
-                           FormularioAlumno, Principal, Sincronización + ControladorVista)
+├── viewmodel/             Consulta, Alta, Edición, Baja, Salud, Formulario
+└── controlador/           Controladores de cada pantalla (Alumnos, Estado,
+                           FormularioAlumno, Principal + ControladorVista)
 
 src/main/resources/com/omni3/gestorhogwartsjavafx/vista/    (FXML y CSS: la vista, sin Java)
 ├── principal.fxml         Marco: cabecera, navegación lateral, contenedor, barra de estado
-├── estilos.css            Sistema de diseño «azul tenue»
-├── estado.fxml · alumnos.fxml · formulario-alumno.fxml
-└── conectores.fxml · sincronizar.fxml
+├── tema.css               Sistema de diseño «dark academia»
+└── estado.fxml · alumnos.fxml · formulario-alumno.fxml
 ```
 
 Los controladores y las vistas van en paquetes separados: `controlador/` solo contiene Java y
@@ -272,9 +255,6 @@ Las pruebas no arrancan el toolkit JavaFX (usan ejecutores síncronos) y son det
   fuentes), ficha por DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja
   (`DELETE /alumnos/{dni}`), búsqueda y filtro por origen, `404` con el `detail` del backend y
   pantalla de estado.
-- **Operaciones pendientes de la API**: conectores, sincronización y cola responden
-  `501 NO_IMPLEMENTADO` con mensaje explicativo en la UI; al no haber versionado, tampoco hay
-  control de concurrencia (`version = 0`).
 - **La fuente (`casa`) no es editable**: la API identifica la fuente con la que responde cada
   alumno y no admite cambiarla.
 - La URL base **no es configurable desde la interfaz** (§4.2).

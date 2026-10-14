@@ -3,13 +3,11 @@ package com.omni3.gestorhogwartsjavafx.servicio;
 import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnos;
 import com.omni3.gestorhogwartsjavafx.api.ExcepcionApi;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
-import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import javafx.application.Platform;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -186,36 +184,6 @@ public class ServicioAlumnos {
             cliente.bajarAlumno(dni);
             return null;
         }, resultado -> exito.run(), fallo);
-    }
-
-    /**
-     * Fuentes de datos y su estado ({@code GET /connectors}).
-     *
-     * @param exito callback de exito
-     * @param fallo callback de fallo
-     */
-    public void listarConectores(CallbackExito<List<ConectorDto>> exito, CallbackFallo fallo) {
-        ejecutarEnFondo(cliente::listarConectores, exito, fallo);
-    }
-
-    /**
-     * Dispara la sincronizacion ({@code POST /sync}).
-     *
-     * @param exito callback de exito con el mensaje de la operacion
-     * @param fallo callback de fallo
-     */
-    public void sincronizar(CallbackExito<String> exito, CallbackFallo fallo) {
-        ejecutarEnFondo(cliente::sincronizar, exito, fallo);
-    }
-
-    /**
-     * Cola de refrescos pendientes ({@code GET /admin/refresh-queue}).
-     *
-     * @param exito callback de exito
-     * @param fallo callback de fallo
-     */
-    public void colaRefrescos(CallbackExito<List<Map<String, Object>>> exito, CallbackFallo fallo) {
-        ejecutarEnFondo(cliente::colaRefrescos, exito, fallo);
     }
 
     /**

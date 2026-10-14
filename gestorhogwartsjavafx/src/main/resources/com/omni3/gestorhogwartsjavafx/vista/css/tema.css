@@ -586,7 +586,7 @@
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-padding: 6 9 6 9;
-    -fx-show-delay: 300ms;
+    -fx-show-delay: 800ms;
 }
 
 .scroll-bar { -fx-background-color: transparent; }

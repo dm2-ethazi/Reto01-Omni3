@@ -5,11 +5,9 @@ import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnosHttp;
 import com.omni3.gestorhogwartsjavafx.api.ConfigApi;
 import com.omni3.gestorhogwartsjavafx.viewmodel.AltaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.BajaViewModel;
-import com.omni3.gestorhogwartsjavafx.viewmodel.ConectoresViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.ConsultaViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EdicionViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.SaludViewModel;
-import com.omni3.gestorhogwartsjavafx.viewmodel.SincronizacionViewModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -95,25 +93,19 @@ class FabricaAplicacionTest {
             AltaViewModel alta = fabrica.crearAltaViewModel();
             EdicionViewModel edicion = fabrica.crearEdicionViewModel();
             BajaViewModel baja = fabrica.crearBajaViewModel();
-            ConectoresViewModel conectores = fabrica.crearConectoresViewModel();
             SaludViewModel salud = fabrica.crearSaludViewModel();
-            SincronizacionViewModel sincronizacion = fabrica.crearSincronizacionViewModel();
 
             assertNotNull(consulta);
             assertNotNull(alta);
             assertNotNull(edicion);
             assertNotNull(baja);
-            assertNotNull(conectores);
             assertNotNull(salud);
-            assertNotNull(sincronizacion);
 
             assertSame(fabrica.getServicio(), consulta.getServicio());
             assertSame(fabrica.getServicio(), alta.getServicio());
             assertSame(fabrica.getServicio(), edicion.getServicio());
             assertSame(fabrica.getServicio(), baja.getServicio());
-            assertSame(fabrica.getServicio(), conectores.getServicio());
             assertSame(fabrica.getServicio(), salud.getServicio());
-            assertSame(fabrica.getServicio(), sincronizacion.getServicio());
         } finally {
             fabrica.cerrar();
         }

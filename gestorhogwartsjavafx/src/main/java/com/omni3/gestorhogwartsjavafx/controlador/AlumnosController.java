@@ -24,6 +24,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -352,6 +353,10 @@ public class AlumnosController implements ControladorVista {
         // Aceptar aplica la baja: se pinta con el color de peligro.
         confirmacion.getDialogPane().lookupButton(ButtonType.OK)
                 .getStyleClass().add("boton-peligro");
+        ayudar(confirmacion.getDialogPane().lookupButton(ButtonType.OK),
+                "Aplica la baja del alumno seleccionado en la tabla");
+        ayudar(confirmacion.getDialogPane().lookupButton(ButtonType.CANCEL),
+                "Cierra el aviso sin dar de baja a nadie");
         Optional<ButtonType> respuesta = confirmacion.showAndWait();
         if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
             return;
@@ -386,6 +391,9 @@ public class AlumnosController implements ControladorVista {
             dialogo.setResizable(true);
 
             Node botonGuardar = dialogo.getDialogPane().lookupButton(TIPO_GUARDAR);
+            ayudar(botonGuardar, "Guarda los datos del formulario y cierra la ventana");
+            ayudar(dialogo.getDialogPane().lookupButton(TIPO_CANCELAR),
+                    "Cierra el formulario sin guardar los cambios");
             botonGuardar.addEventFilter(ActionEvent.ACTION, evento -> {
                 evento.consume();
                 formulario.guardar();
@@ -431,9 +439,26 @@ public class AlumnosController implements ControladorVista {
         ButtonType seguir = new ButtonType("Seguir editando");
         aviso.getButtonTypes().setAll(recargar, seguir);
         estilizarDialogo(aviso);
+        ayudar(aviso.getDialogPane().lookupButton(recargar),
+                "Descarta tus cambios y carga la ficha guardada por la otra sesión");
+        ayudar(aviso.getDialogPane().lookupButton(seguir),
+                "Conserva tus cambios y sigue editando sobre la versión vigente");
         Optional<ButtonType> respuesta = aviso.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == recargar) {
             formulario.recargar();
+        }
+    }
+
+    /**
+     * Asigna un texto de ayuda a un botón de diálogo: al mantener el
+     * ratón encima explica qué hace ese botón.
+     *
+     * @param boton botón del diálogo; si no es un {@link Button}, no hace nada
+     * @param texto texto del tooltip
+     */
+    private static void ayudar(Node boton, String texto) {
+        if (boton instanceof Button botonReal) {
+            botonReal.setTooltip(new Tooltip(texto));
         }
     }
 }

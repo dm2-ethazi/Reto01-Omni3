@@ -1,9 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
-import com.omni3.gestorhogwartsjavafx.api.dto.ConectorDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
-import com.omni3.gestorhogwartsjavafx.modelo.EstadoConector;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -241,26 +239,6 @@ class ClienteAlumnosFalsoTest {
         assertTrue(salud.esR01());
         assertEquals("OK", salud.estado());
         assertNotNull(salud.momento());
-    }
-
-    @Test
-    @DisplayName("Los conectores devuelven las fuentes con un estado reconocible")
-    void conectoresConEstadoReconocible() {
-        List<ConectorDto> conectores = falso.listarConectores();
-
-        assertEquals(6, conectores.size());
-        assertTrue(conectores.stream().allMatch(c -> !c.estado().isBlank()));
-        assertTrue(conectores.stream().anyMatch(c -> c.estadoDeDominio() == EstadoConector.OK));
-        assertTrue(conectores.stream().allMatch(c -> c.origenDeDominio().esBaseReal()),
-                "Un conector siempre apunta a una base real, nunca a la vista unificada");
-    }
-
-    @Test
-    @DisplayName("La sincronización y la cola de refrescos responden sin red")
-    void sincronizacionYColaDeRefrescos() {
-        assertTrue(falso.sincronizar().toLowerCase().contains("sincroniz"));
-        assertFalse(falso.colaRefrescos().isEmpty());
-        assertTrue(falso.colaRefrescos().stream().allMatch(fila -> fila.containsKey("ruta")));
     }
 
     @Test
