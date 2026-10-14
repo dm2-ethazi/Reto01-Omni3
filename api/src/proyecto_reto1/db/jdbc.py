@@ -71,7 +71,7 @@ class RepositorioJDBC:
         try:
             cursor = conexion.cursor()
             try:
-                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS")
+                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS")
                 filas = cursor.fetchall()
             finally:
                 cursor.close()
@@ -84,6 +84,42 @@ class RepositorioJDBC:
                 apellido=texto(fila[2]),
                 sexo=texto(fila[3]),
                 patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
+                casa=self.casa,
+            )
+            for fila in filas
+        ]
+
+    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+        credenciales = {"user": self.usuario, "password": self.password}
+        if not self.usuario and not self.password:
+            credenciales = {}
+        conexion = jaydebeapi.connect(
+            self.driver,
+            self.url,
+            credenciales,
+        )
+        try:
+            cursor = conexion.cursor()
+            try:
+                cursor.execute(
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS "
+                    "WHERE UPPER(NOMBRE) LIKE UPPER(?) ORDER BY NOMBRE",
+                    (prefijo + "%",),
+                )
+                filas = cursor.fetchall()
+            finally:
+                cursor.close()
+        finally:
+            conexion.close()
+        return [
+            Alumno(
+                id=texto(fila[0]) or "",
+                nombre=texto(fila[1]) or "",
+                apellido=texto(fila[2]),
+                sexo=texto(fila[3]),
+                patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
                 casa=self.casa,
             )
             for fila in filas
@@ -102,7 +138,7 @@ class RepositorioJDBC:
             cursor = conexion.cursor()
             try:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS WHERE ID = ?",
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS WHERE ID = ?",
                     (id_alumno,),
                 )
                 fila = cursor.fetchone()
@@ -118,6 +154,7 @@ class RepositorioJDBC:
             apellido=texto(fila[2]),
             sexo=texto(fila[3]),
             patronus=texto(fila[4]),
+            imagen=texto(fila[5]),
             casa=self.casa,
         )
 

@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
-from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, RepositorioAlumnos
+from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, Patronus, RepositorioAlumnos
 from ..db.factory import obtener_repositorios
 from ..db.mariadb import RepositorioMariaDB
 
@@ -16,11 +16,17 @@ def get_repositorios() -> list[RepositorioAlumnos]:
 
 
 @router.get("/alumnos", response_model=list[Alumno])
-def listar_alumnos(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
+def listar_alumnos(
+    nombre: str | None = Query(default=None, min_length=1, max_length=100),
+    fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
+):
     alumnos: list[Alumno] = []
     for repositorio in fuentes:
         try:
-            alumnos.extend(repositorio.listar())
+            if nombre:
+                alumnos.extend(repositorio.buscar_por_nombre(nombre))
+            else:
+                alumnos.extend(repositorio.listar())
         except Exception as error:
             logger.error("Fallo consultando %s: %s", repositorio.casa, error)
             raise HTTPException(
@@ -28,6 +34,24 @@ def listar_alumnos(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)
                 detail=f"La fuente '{repositorio.casa}' no responde: {error}",
             ) from error
     return alumnos
+
+
+@router.get("/patronus", response_model=list[Patronus])
+def listar_patronus(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
+    repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
+    if repositorio is None:
+        raise HTTPException(
+            status_code=503,
+            detail="La fuente 'mariadb' no esta activa (DB_ENGINES)",
+        )
+    try:
+        return repositorio.listar_patronus()
+    except Exception as error:
+        logger.error("Fallo consultando PATRONUS_IMG: %s", error)
+        raise HTTPException(
+            status_code=503,
+            detail=f"La fuente '{repositorio.casa}' no responde: {error}",
+        ) from error
 
 
 def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | None) -> str | None:

@@ -19,7 +19,7 @@ proyecto-reto1/
 ├── jars/                   # drivers JDBC: h2.jar, hsqldb.jar, derbyclient.jar, derbyshared.jar
 ├── pyproject.toml
 └── src/proyecto_reto1/
-    ├── config.py           # Settings cargados desde .env
+    ├── config.py           # Settings cargados desde .env (rutas absolutas)
     ├── main.py             # app FastAPI (esta API)
     ├── main_tareas.py      # app de ejemplo independiente (API Tareas en memoria)
     ├── api/
@@ -40,6 +40,7 @@ proyecto-reto1/
 - Python **3.14** y [uv](https://docs.astral.sh/uv/) (o un virtualenv equivalente)
 - **Java/JVM** en el `PATH` (necesaria para H2, HSQLDB y Derby vía JDBC)
 - Las 5 bases de datos accesibles con los datos cargados (tabla `ALUMNOS` en cada una)
+- MariaDB con la tabla `PATRONUS_IMG` cargada (ver [Tabla PATRONUS_IMG](#tabla-patronus_img))
 
 ## Instalación y arranque
 
@@ -56,12 +57,15 @@ La API queda en `http://127.0.0.1:8000` (Swagger en `http://127.0.0.1:8000/docs`
 | Variable | Descripción |
 |---|---|
 | `DB_ENGINES` | Motores activos, separados por coma (`oracle,mariadb,h2,hsqldb,derby`). Si quitas uno, la API deja de usarlo |
-| `JARS_DIR` | Carpeta con los `.jar` JDBC (por defecto `jars`) |
+| `JARS_DIR` | Carpeta con los `.jar` JDBC (por defecto `jars`, resuelta a ruta absoluta) |
 | `ORACLE_HOST/PORT/SERVICE/USER/PASSWORD` | Oracle (Ravenclaw) |
 | `MARIADB_HOST/PORT/DATABASE/USER/PASSWORD` | MariaDB (Hogwarts, base `r01_central`) |
 | `H2_URL/USER/PASSWORD` | H2 (Hufflepuff), URL `jdbc:h2:tcp://localhost:9092/r01db` |
 | `HSQLDB_URL/USER/PASSWORD` | HSQLDB (Slytherin), URL `jdbc:hsqldb:hsql://localhost:9001/slytherin` |
 | `DERBY_URL/USER/PASSWORD` | Derby (Gryffindor), URL `jdbc:derby://localhost:1527/db` |
+
+> **Nota**: `.env` y `JARS_DIR` se resuelven como rutas absolutas respecto a la carpeta `api/`,
+> por lo que la API funciona correctamente independientemente del directorio desde el que se ejecute.
 
 Las 5 fuentes y su etiqueta `casa`:
 
@@ -75,7 +79,7 @@ Las 5 fuentes y su etiqueta `casa`:
 
 ## Modelo de datos
 
-Tabla `ALUMNOS` (igual en los 5 motores):
+### Tabla ALUMNOS (en los 5 motores)
 
 | Campo | Tipo | Restricciones en la API |
 |---|---|---|
@@ -87,6 +91,26 @@ Tabla `ALUMNOS` (igual en los 5 motores):
 
 `casa` **no** es una columna: la añade la API a partir del repositorio que respondió.
 
+### Tabla PATRONUS_IMG
+
+Catálogo de patronus con imagen, almacenada **solo en MariaDB** (`r01_central`).
+Usada para validar el patronus en el POST y para devolver la imagen en el GET.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `ID` | INT autoincrement | clave primaria |
+| `NOM_ESP` | varchar(100) | nombre en español (único) |
+| `NOM_ENG` | varchar(100) | nombre en inglés (único) |
+| `NOM_EUS` | varchar(100) | nombre en euskera (único) |
+| `URL` | varchar(500) | URL de la imagen del patronus |
+
+Para crear la tabla y cargar los datos:
+
+```bash
+mysql -u r01 -p r01_central < createPatronusImg.sql
+mysql -u r01 -p r01_central < inserts_patronus_img.sql
+```
+
 ---
 
 ## Endpoints
@@ -94,12 +118,14 @@ Tabla `ALUMNOS` (igual en los 5 motores):
 | Método | Ruta | Éxito | Descripción |
 |---|---|---|---|
 | `GET` | `/alumnos` | 200 | Lista el alumnado de **las 5** bases de datos |
-| `GET` | `/alumnos/{dni}` | 200 | Busca el DNI en cada fuente y devuelve la primera coincidencia |
-| `POST` | `/alumnos` | 201 | Crea el alumno en MariaDB (409 si el DNI ya existe en cualquier fuente) |
+| `GET` | `/alumnos?nombre={texto}` | 200 | Busca alumnos cuyo nombre **empiece por** el texto indicado |
+| `GET` | `/alumnos/{dni}` | 200 | Busca el DNI en cada fuente y devuelve la primera coincidencia con `patronus_url` |
+| `POST` | `/alumnos` | 201 | Crea el alumno en MariaDB (valida patronus contra `PATRONUS_IMG`) |
 | `PUT` | `/alumnos/{dni}` | 200 | Actualiza el registro en **todas** las fuentes donde exista |
 | `DELETE` | `/alumnos/{dni}` | 204 | Borra el registro en **todas** las fuentes donde exista |
 
-Códigos de error comunes: **404** DNI inexistente · **409** DNI duplicado · **422** validación · **503** una fuente no responde.
+Códigos de error comunes: **404** DNI inexistente · **409** DNI duplicado · **422** validación
+(patronus no existe en `PATRONUS_IMG` para el idioma indicado) · **503** una fuente no responde.
 
 ### GET /alumnos
 
@@ -109,9 +135,28 @@ curl http://127.0.0.1:8000/alumnos
 
 ```json
 [
-  { "id": "10000000Z", "nombre": "Abigail", "apellido": "Pugh", "sexo": "M", "patronus": null, "casa": "Slytherin" }
+  { "id": "10000000Z", "nombre": "Abigail", "apellido": "Pugh", "sexo": "M", "patronus": null, "patronus_url": null, "casa": "Slytherin" }
 ]
 ```
+
+### GET /alumnos?nombre={texto}
+
+Búsqueda por **prefijo** de nombre (no distingue mayúsculas/minúsculas). Devuelve los
+coincidencias de las 5 bases de datos, ordenadas por nombre.
+
+```bash
+curl "http://127.0.0.1:8000/alumnos?nombre=Al"
+```
+
+```json
+[
+  { "id": "10000267M", "nombre": "Alannis", "apellido": null, "sexo": "M", "patronus": null, "patronus_url": null, "casa": "Ravenclaw" },
+  { "id": "10000470W", "nombre": "Albert", "apellido": "Nott", "sexo": "H", "patronus": null, "patronus_url": null, "casa": "Gryffindor" },
+  { "id": "10000773Y", "nombre": "Alecto", "apellido": "Carrow", "sexo": "M", "patronus": null, "patronus_url": null, "casa": "Hufflepuff" }
+]
+```
+
+Si no se pasa el parámetro `nombre`, se comporta como `GET /alumnos` (lista completa).
 
 ### GET /alumnos/{dni}
 
@@ -119,20 +164,70 @@ curl http://127.0.0.1:8000/alumnos
 curl http://127.0.0.1:8000/alumnos/10000000Z
 ```
 
+```json
+{
+  "id": "10000000Z",
+  "nombre": "Abigail",
+  "apellido": "Pugh",
+  "sexo": "M",
+  "patronus": "Lobo",
+  "patronus_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg",
+  "casa": "Slytherin"
+}
+```
+
+El campo `patronus_url` se busca en `PATRONUS_IMG` consultando por el valor de `patronus`
+en cualquiera de los 3 idiomas (`NOM_ESP`, `NOM_ENG` o `NOM_EUS`). Si el patronus no está
+en el catálogo o `patronus` es `null`, el campo se devuelve como `null`.
+
 ### POST /alumnos
+
+El campo `patronus` se valida contra la tabla `PATRONUS_IMG`. El campo `patronus_lang`
+indica en qué idioma se está enviando el nombre del patronus:
+
+| Valor | Columna consultada | Ejemplo |
+|---|---|---|
+| `es` (por defecto) | `NOM_ESP` | `"Lobo"` |
+| `en` | `NOM_ENG` | `"Wolf"` |
+| `eu` | `NOM_EUS` | `"Otso"` |
 
 ```bash
 curl -X POST http://127.0.0.1:8000/alumnos \
   -H "Content-Type: application/json" \
-  -d '{"id":"10009999X","nombre":"Harry","apellido":"Potter","sexo":"H","patronus":"Stag"}'
+  -d '{"id":"10009999X","nombre":"Harry","apellido":"Potter","sexo":"H","patronus":"Lobo","patronus_lang":"es"}'
 ```
 
-- `201` creado · `409` el DNI ya existe en alguna de las 5 fuentes · `422` datos no válidos.
+```json
+{
+  "id": "10009999X",
+  "nombre": "Harry",
+  "apellido": "Potter",
+  "sexo": "H",
+  "patronus": "Lobo",
+  "patronus_url": null,
+  "casa": "Hogwarts"
+}
+```
+
+Ejemplo con euskera:
+
+```bash
+curl -X POST http://127.0.0.1:8000/alumnos \
+  -H "Content-Type: application/json" \
+  -d '{"id":"10009998K","nombre":"Hermione","apellido":"Granger","sexo":"M","patronus":"Otso","patronus_lang":"eu"}'
+```
+
+Respuestas:
+- `201` creado
+- `409` el DNI ya existe en alguna de las 5 fuentes
+- `422` el patronus no existe en `PATRONUS_IMG` para el idioma indicado
+- `422` datos no válidos (nombre vacío, sexo fuera de HMS, etc.)
 
 ### PUT /alumnos/{dni}
 
 Envía **solo los campos que quieras cambiar**; los omitidos no se tocan y los que envíes
 como `null` (o `""`) se guardan como `NULL`. El `ID` se toma de la URL y no es editable.
+No valida el patronus contra `PATRONUS_IMG` (solo el POST lo valida).
 
 ```bash
 # cambiar un solo campo
@@ -159,15 +254,20 @@ curl -X DELETE http://127.0.0.1:8000/alumnos/10009999X
 
 ## Cómo funciona por dentro
 
-1. `config.py` lee `.env` y `factory.py` construye la lista de repositorios según `DB_ENGINES`.
-   Si hay fuentes JDBC, arranca **una única JVM** (`jdbc.iniciar_jvm`) con los `.jar` correspondientes.
-2. `db/base.py` define el **Protocolo `RepositorioAlumnos`** (`listar`, `obtener`, `actualizar`, `eliminar`)
-   y los modelos Pydantic. Todos los motores cumplen ese contrato, así que la capa HTTP
-   no distingue entre Oracle, MariaDB, H2, HSQLDB ni Derby.
+1. `config.py` lee `.env` (ruta absoluta) y `factory.py` construye la lista de repositorios
+   según `DB_ENGINES`. Si hay fuentes JDBC, arranca **una única JVM** (`jdbc.iniciar_jvm`)
+   con los `.jar` correspondientes (también resueltos a ruta absoluta).
+2. `db/base.py` define el **Protocolo `RepositorioAlumnos`** (`listar`, `buscar_por_nombre`,
+   `obtener`, `actualizar`, `eliminar`) y los modelos Pydantic. Todos los motores cumplen
+   ese contrato, así que la capa HTTP no distingue entre Oracle, MariaDB, H2, HSQLDB ni Derby.
 3. `api/alumnos.py` inyecta las fuentes con `Depends(get_repositorios)` y recorre la lista:
    lectura = primera coincidencia; escritura = todas las coincidencias.
 4. Todas las sentencias SQL van **parametrizadas** (`?`, `%s` o `:nombre` según el motor),
    con las columnas blanqueadas por la API, y hacen `commit` explícito.
+5. El **buscador por nombre** (`?nombre=`) usa `WHERE UPPER(NOMBRE) LIKE UPPER(prefijo || '%')`
+   en cada motor, ordenado por nombre. Se ejecuta en las 5 fuentes y se concatenan los resultados.
+6. El **patronus** se valida en el POST consultando `PATRONUS_IMG` en MariaDB (columna según
+   `patronus_lang`). En el GET se busca la URL de imagen consultando las 3 columnas de nombre.
 
 ## Tests
 

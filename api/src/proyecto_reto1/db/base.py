@@ -10,7 +10,15 @@ class Alumno(BaseModel):
     sexo: str | None = None
     patronus: str | None = None
     patronus_url: str | None = None
+    imagen: str | None = None
     casa: str
+
+
+class Patronus(BaseModel):
+    nom_esp: str
+    nom_eng: str
+    nom_eus: str
+    url: str
 
 
 class AlumnoEntrada(BaseModel):
@@ -20,6 +28,7 @@ class AlumnoEntrada(BaseModel):
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
     patronus: str | None = Field(default=None, max_length=100)
     patronus_lang: str = Field(default="es", pattern="^(es|en|eu)$")
+    imagen: str | None = Field(default=None, max_length=500)
 
 
 class Conflicto(Exception):
@@ -31,6 +40,7 @@ COLUMNAS_ALUMNO = {
     "apellido": "APELLIDO",
     "sexo": "SEXO",
     "patronus": "PATRONUS",
+    "imagen": "IMAGEN",
 }
 
 
@@ -39,6 +49,7 @@ class AlumnoActualizacion(BaseModel):
     apellido: str | None = Field(default=None, max_length=100)
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
     patronus: str | None = Field(default=None, max_length=100)
+    imagen: str | None = Field(default=None, max_length=500)
 
     @field_validator("nombre", mode="before")
     @classmethod
@@ -47,7 +58,7 @@ class AlumnoActualizacion(BaseModel):
             raise ValueError("nombre no puede ser nulo")
         return valor
 
-    @field_validator("apellido", "sexo", "patronus", mode="before")
+    @field_validator("apellido", "sexo", "patronus", "imagen", mode="before")
     @classmethod
     def cadena_vacia_a_nulo(cls, valor):
         return None if valor == "" else valor
@@ -81,6 +92,8 @@ class RepositorioAlumnos(Protocol):
     casa: str
 
     def listar(self) -> list[Alumno]: ...
+
+    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]: ...
 
     def obtener(self, id_alumno: str) -> Alumno | None: ...
 

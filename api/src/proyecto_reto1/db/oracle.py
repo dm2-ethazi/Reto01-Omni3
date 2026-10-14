@@ -19,7 +19,7 @@ class RepositorioOracle:
             tcp_connect_timeout=5,
         ) as conexion:
             with conexion.cursor() as cursor:
-                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS")
+                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS")
                 filas = cursor.fetchall()
         return [
             Alumno(
@@ -28,7 +28,35 @@ class RepositorioOracle:
                 apellido=texto(fila[2]),
                 sexo=texto(fila[3]),
                 patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
                 casa=self.casa
+            )
+            for fila in filas
+        ]
+
+    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+        with oracledb.connect(
+            user=self.usuario,
+            password=self.password,
+            dsn=self.dsn,
+            tcp_connect_timeout=5,
+        ) as conexion:
+            with conexion.cursor() as cursor:
+                cursor.execute(
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS "
+                    "WHERE UPPER(NOMBRE) LIKE UPPER(:prefijo) ORDER BY NOMBRE",
+                    {"prefijo": prefijo + "%"},
+                )
+                filas = cursor.fetchall()
+        return [
+            Alumno(
+                id=texto(fila[0]) or "",
+                nombre=texto(fila[1]) or "",
+                apellido=texto(fila[2]),
+                sexo=texto(fila[3]),
+                patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
+                casa=self.casa,
             )
             for fila in filas
         ]
@@ -42,7 +70,7 @@ class RepositorioOracle:
         ) as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS WHERE ID = :id",
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS WHERE ID = :id",
                     {"id": id_alumno},
                 )
                 fila = cursor.fetchone()
@@ -54,6 +82,7 @@ class RepositorioOracle:
             apellido=texto(fila[2]),
             sexo=texto(fila[3]),
             patronus=texto(fila[4]),
+            imagen=texto(fila[5]),
             casa=self.casa,
         )
 

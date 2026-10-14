@@ -1,6 +1,6 @@
 import pymysql
 
-from .base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, campos_a_actualizar, texto
+from .base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, Patronus, campos_a_actualizar, texto
 
 
 class RepositorioMariaDB:
@@ -58,11 +58,29 @@ class RepositorioMariaDB:
             conexion.close()
         return existe
 
+    def listar_patronus(self) -> list[Patronus]:
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("SELECT NOM_ESP, NOM_ENG, NOM_EUS, URL FROM PATRONUS_IMG")
+                filas = cursor.fetchall()
+        finally:
+            conexion.close()
+        return [
+            Patronus(
+                nom_esp=texto(f[0]) or "",
+                nom_eng=texto(f[1]) or "",
+                nom_eus=texto(f[2]) or "",
+                url=texto(f[3]) or "",
+            )
+            for f in filas
+        ]
+
     def listar(self) -> list[Alumno]:
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
-                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS")
+                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS")
                 filas = cursor.fetchall()
         finally:
             conexion.close()
@@ -73,6 +91,32 @@ class RepositorioMariaDB:
                 apellido=texto(fila[2]),
                 sexo=texto(fila[3]),
                 patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
+                casa=self.casa,
+            )
+            for fila in filas
+        ]
+
+    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+        conexion = self._conectar()
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute(
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS "
+                    "WHERE UPPER(NOMBRE) LIKE UPPER(%s) ORDER BY NOMBRE",
+                    (prefijo + "%",),
+                )
+                filas = cursor.fetchall()
+        finally:
+            conexion.close()
+        return [
+            Alumno(
+                id=texto(fila[0]) or "",
+                nombre=texto(fila[1]) or "",
+                apellido=texto(fila[2]),
+                sexo=texto(fila[3]),
+                patronus=texto(fila[4]),
+                imagen=texto(fila[5]),
                 casa=self.casa,
             )
             for fila in filas
@@ -83,7 +127,7 @@ class RepositorioMariaDB:
         try:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS FROM ALUMNOS WHERE ID = %s",
+                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS WHERE ID = %s",
                     (id_alumno,),
                 )
                 fila = cursor.fetchone()
@@ -97,6 +141,7 @@ class RepositorioMariaDB:
             apellido=texto(fila[2]),
             sexo=texto(fila[3]),
             patronus=texto(fila[4]),
+            imagen=texto(fila[5]),
             casa=self.casa,
         )
 
@@ -105,8 +150,9 @@ class RepositorioMariaDB:
         try:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO ALUMNOS (ID, NOMBRE, APELLIDO, SEXO, PATRONUS) VALUES (%s, %s, %s, %s, %s)",
-                    (datos.id, datos.nombre, datos.apellido, datos.sexo, datos.patronus),
+                    "INSERT INTO ALUMNOS (ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    (datos.id, datos.nombre, datos.apellido, datos.sexo, datos.patronus, datos.imagen),
                 )
             conexion.commit()
         except pymysql.err.IntegrityError as error:
