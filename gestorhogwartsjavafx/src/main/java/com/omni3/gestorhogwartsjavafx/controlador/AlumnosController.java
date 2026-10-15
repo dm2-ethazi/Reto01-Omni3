@@ -401,7 +401,7 @@ public class AlumnosController implements ControladorVista {
                     Idiomas.texto("tooltip.form.cancelar"));
             botonGuardar.addEventFilter(ActionEvent.ACTION, evento -> {
                 evento.consume();
-                formulario.guardar();
+                controlador.guardar();
             });
 
             // Se cierra solo cuando la operación de guardado termina bien:

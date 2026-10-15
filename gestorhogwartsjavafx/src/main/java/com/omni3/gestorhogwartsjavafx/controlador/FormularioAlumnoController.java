@@ -388,12 +388,12 @@ public class FormularioAlumnoController implements ControladorVista {
     /**
      * Envia el formulario a la API.
      *
-     * <p>En edición, si el patronus ha cambiado respecto al original, se
-     * comprueba que exista en el catálogo en el idioma de la interfaz
-     * antes de enviar; si no se muestra el error bajo el campo.</p>
+     * <p>Sincroniza el texto visible del combo de patronus al viewmodel y,
+     * si ha cambiado respecto al original (o es un alta), comprueba que
+     * exista en el catálogo en el idioma de la interfaz antes de enviar;
+     * si no se muestra el error bajo el campo y no se guarda.</p>
      */
-    @FXML
-    private void guardar() {
+    public void guardar() {
         if (formulario == null) {
             return;
         }
