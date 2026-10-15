@@ -1,11 +1,13 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.ErrorDto;
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
@@ -40,7 +42,8 @@ import java.util.stream.Collectors;
  *   <li>{@code GET    /alumnos/{dni}} — ficha;</li>
  *   <li>{@code POST   /alumnos} — alta;</li>
  *   <li>{@code PUT    /alumnos/{dni}} — edición;</li>
- *   <li>{@code DELETE /alumnos/{dni}} — baja.</li>
+ *   <li>{@code DELETE /alumnos/{dni}} — baja;</li>
+ *   <li>{@code GET    /patronus} — catálogo de patronus con imagen.</li>
  * </ul>
  *
  * <p>Los campos del backend son {@code id, nombre, apellido, sexo,
@@ -149,6 +152,10 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
      * Alta de alumno ({@code POST /alumnos}) con el mínimo que exige la
      * API: {@code id} (el DNI), {@code nombre} y {@code patronus}.
      *
+     * <p>El patronus se envía con {@code patronus_lang} fijado al idioma
+     * de la interfaz, para que la API lo valide contra la columna de ese
+     * idioma del catálogo PATRONUS_IMG.</p>
+     *
      * @param alumno datos del alumno; su DNI no puede estar dado de alta
      * @return el alumno dado de alta, con los datos que devuelve la API
      * @throws ExcepcionApi con status 400 si no valida o 409 si el DNI existe
@@ -160,6 +167,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         datos.put("nombre", alumno.nombre());
         if (alumno.patronus() != null && !alumno.patronus().isBlank()) {
             datos.put("patronus", alumno.patronus());
+            datos.put("patronus_lang", Idiomas.codigo());
         }
         return aDto(leer(post("/alumnos", datos, Map.of()), AlumnoApi.class));
     }
@@ -220,6 +228,17 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     }
 
     /**
+     * Catálogo de patronus ({@code GET /patronus}).
+     *
+     * @return lista completa del catálogo, con nombre en 3 idiomas e imagen
+     * @throws ExcepcionApi si la consulta falla
+     */
+    @Override
+    public List<PatronusDto> listarPatronus() {
+        return leerLista(get("/patronus"), PatronusDto.class);
+    }
+
+    /**
      * Traduce un alumno de la API al modelo del dominio.
      *
      * <p>Reglas de tolerancia: si el id o el nombre vienen vacíos se
@@ -238,7 +257,8 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         String tipo = casa == null || casa.isBlank()
                 ? com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno.NUEVO.name()
                 : com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno.HISTORICO.name();
-        return new AlumnoDto(id, nombre, casa, alumno.patronus(), origen.name(), tipo, 0L, "", true);
+        return new AlumnoDto(id, nombre, casa, alumno.patronus(), origen.name(), tipo, 0L, "", true,
+                alumno.patronusUrl(), alumno.imagen());
     }
 
     /** Une nombre y apellidos separando con un espacio. */
@@ -321,7 +341,10 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
                 .uri(uri(ruta))
                 .timeout(config.getTimeout())
                 .header("request-id", requestId)
-                .header("Accept", "application/json");
+                .header("Accept", "application/json")
+                // ngrok-free sirve una página interstitial a los clientes
+                // que no mandan esta cabecera; es inocua contra otras APIs.
+                .header("ngrok-skip-browser-warning", "1");
         cabeceras.forEach(constructor::header);
         if (json != null) {
             constructor.header("Content-Type", "application/json");
@@ -492,16 +515,17 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     /**
      * Forma exacta de un alumno en la API de {@code proyecto_reto1}.
      *
-     * <p>Se ignoran los campos que la API pueda añadir (p. ej.
-     * {@code sexo}) para que una ampliación del modelo no rompa la
-     * lectura.</p>
+     * <p>Se ignoran los campos que la API pueda añadir para que una
+     * ampliación del modelo no rompa la lectura.</p>
      *
-     * @param id       DNI del alumno
-     * @param nombre   nombre
-     * @param apellido apellidos; puede no venir
-     * @param sexo     código de sexo; no se usa en la UI
-     * @param patronus patronus
-     * @param casa     etiqueta de la fuente que responde, p. ej. {@code Hogwarts}
+     * @param id         DNI del alumno
+     * @param nombre     nombre
+     * @param apellido   apellidos; puede no venir
+     * @param sexo       código de sexo; no se usa en la UI
+     * @param patronus   patronus
+     * @param patronusUrl URL de la imagen del patronus
+     * @param imagen     URL o ruta de la imagen del alumno
+     * @param casa       etiqueta de la fuente que responde, p. ej. {@code Hogwarts}
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record AlumnoApi(
@@ -510,6 +534,8 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             String apellido,
             String sexo,
             String patronus,
+            @JsonProperty("patronus_url") String patronusUrl,
+            String imagen,
             String casa) {
     }
 }

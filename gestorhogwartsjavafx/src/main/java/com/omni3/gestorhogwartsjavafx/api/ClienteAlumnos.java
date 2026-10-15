@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 
@@ -85,6 +86,15 @@ public interface ClienteAlumnos {
      * @throws ExcepcionApi con status 404 si no existe
      */
     void bajarAlumno(String dni);
+
+    /**
+     * Catálogo de patronus ({@code GET /patronus}): nombre en los tres
+     * idiomas e imagen de cada patronus del catálogo PATRONUS_IMG.
+     *
+     * @return lista completa del catálogo
+     * @throws ExcepcionApi si la consulta falla
+     */
+    List<PatronusDto> listarPatronus();
 
     /**
      * Fábrica: crea el cliente de acceso a la API.

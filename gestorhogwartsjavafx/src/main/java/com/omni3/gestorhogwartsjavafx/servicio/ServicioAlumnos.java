@@ -3,6 +3,7 @@ package com.omni3.gestorhogwartsjavafx.servicio;
 import com.omni3.gestorhogwartsjavafx.api.ClienteAlumnos;
 import com.omni3.gestorhogwartsjavafx.api.ExcepcionApi;
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
@@ -47,6 +48,9 @@ public class ServicioAlumnos {
 
     /** {@code true} si el servicio creo su propio pool y debe cerrarlo. */
     private final boolean propietarioDelFondo;
+
+    /** Cache del catalogo de patronus; se carga una sola vez por sesion. */
+    private volatile List<PatronusDto> cachePatronus;
 
     /**
      * Crea un servicio con pool de fondo propio y publicacion en el hilo
@@ -185,6 +189,26 @@ public class ServicioAlumnos {
             cliente.bajarAlumno(dni);
             return null;
         }, resultado -> exito.run(), fallo);
+    }
+
+    /**
+     * Catalogo de patronus ({@code GET /patronus}). El resultado se cachea
+     * en la primera carga: el catalogo no cambia durante la sesion.
+     *
+     * @param exito callback de exito
+     * @param fallo callback de fallo
+     */
+    public void listarPatronus(CallbackExito<List<PatronusDto>> exito, CallbackFallo fallo) {
+        List<PatronusDto> cache = cachePatronus;
+        if (cache != null) {
+            publicar(() -> exito.alExito(cache));
+            return;
+        }
+        ejecutarEnFondo(() -> {
+            List<PatronusDto> lista = List.copyOf(cliente.listarPatronus());
+            cachePatronus = lista;
+            return lista;
+        }, exito, fallo);
     }
 
     /**

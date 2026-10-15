@@ -3,13 +3,13 @@
 Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alumnado contra la
 API central de R01 · Omni3.
 
-**La aplicación habla siempre por HTTP con la API real** de FastAPI (`src/proyecto_reto1/`,
-rama `Api`, `http://127.0.0.1:8000`) y consulta las cinco fuentes del `compose.yaml` —MariaDB,
-Derby, H2, HSQLDB y Oracle—, devolviendo a cada alumno su fuente de origen. **La aplicación nunca
-accede directamente a las bases de datos**: todo pasa por la API HTTP (requisito del contrato).
-Consulta, alta, **edición** (`PUT /alumnos/{dni}`) y **baja** (`DELETE /alumnos/{dni}`) están
-conectadas con la API. No existe ningún
-modo alternativo ni datos simulados en el cliente: el único cliente es `ClienteAlumnosHttp`.
+**La aplicación habla siempre por HTTP con la API remota** desplegada en ngrok
+(`https://tu-api-aqui.com`) y consulta las cinco fuentes del backend
+—MariaDB, Derby, H2, HSQLDB y Oracle—, devolviendo a cada alumno su fuente de origen.
+**La aplicación nunca accede directamente a las bases de datos**: todo pasa por la API HTTP
+(requisito del contrato). Consulta, alta, **edición** (`PUT /alumnos/{dni}`) y **baja**
+(`DELETE /alumnos/{dni}`) están conectadas con la API. No existe ningún modo alternativo ni
+datos simulados en el cliente: el único cliente es `ClienteAlumnosHttp`.
 
 > Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
 
@@ -96,32 +96,32 @@ configuración, con esta prioridad (`ConfigApi.desdeEntorno()`):
 
 1. Propiedad de sistema **`-Dgestor.api.url`**;
 2. variable de entorno **`GESTOR_API_URL`**;
-3. valor por defecto **`http://127.0.0.1:8000`** (`ConfigApi.URL_POR_DEFECTO`).
+3. valor por defecto **`https://tu-api-aqui.com`** (`ConfigApi.URL_POR_DEFECTO`).
 
 En todos los casos se normaliza el texto (sin espacios, sin `/` finales y con esquema
 `http://` si falta):
 
 ```bash
 # propiedad de sistema (también sirve con el fat jar)
-java -Dgestor.api.url=http://192.168.1.50:8000 -jar gestor-hogwarts.jar
+java -Dgestor.api.url=https://tu-api-aqui.com -jar gestor-hogwarts.jar
 
 # variable de entorno (Windows)
-set GESTOR_API_URL=http://192.168.1.50:8000 && java -jar gestor-hogwarts.jar
+set GESTOR_API_URL=https://tu-api-aqui.com && java -jar gestor-hogwarts.jar
 
 # variable de entorno (Linux/macOS)
-GESTOR_API_URL=http://192.168.1.50:8000 java -jar gestor-hogwarts.jar
+GESTOR_API_URL=https://tu-api-aqui.com java -jar gestor-hogwarts.jar
 ```
 
 Si prefieres fijarlo en código, inyecta la configuración al crear la fábrica:
 
 ```java
-ConfigApi config = new ConfigApi("http://127.0.0.1:9000", ConfigApi.TIMEOUT_POR_DEFECTO);
+ConfigApi config = new ConfigApi("https://tu-api-aqui.com", ConfigApi.TIMEOUT_POR_DEFECTO);
 FabricaAplicacion fabrica = new FabricaAplicacion(config);
 ```
 
 ### 4.3. Endpoints de la API y cómo los usa el cliente
 
-La API desplegada (rama `Api`, FastAPI de `src/proyecto_reto1/`) publica cinco rutas:
+La API desplegada (ngrok, FastAPI de `proyecto_reto1`) publica cinco rutas:
 
 | Método | Ruta | Uso en la app |
 |---|---|---|
@@ -152,6 +152,8 @@ fuente, el campo `casa` de la ficha es de solo lectura.
 
 - `request-id`: identificador generado por el cliente en cada petición.
 - `Accept` / `Content-Type: application/json`.
+- `ngrok-skip-browser-warning: 1`: necesaria para que ngrok-free no interponga su página de
+  aviso; es inocua si la API no está detrás de ngrok.
 
 **Errores**: se aceptan los dos formatos que puede devolver el backend:
 
@@ -167,11 +169,13 @@ Cualquier respuesta con estado `>= 400` se convierte en `ExcepcionApi` (código,
 ### 4.4. Comprobación rápida de que la API está viva
 
 ```bash
-curl http://127.0.0.1:8000/alumnos
+curl -H "ngrok-skip-browser-warning: 1" https://tu-api-aqui.com/alumnos
 
 # edición y baja (sustituye <dni> por un DNI real o de prueba)
-curl -X PUT    http://127.0.0.1:8000/alumnos/<dni> -H "Content-Type: application/json" -d '{"patronus":"Cervo"}'
-curl -X DELETE http://127.0.0.1:8000/alumnos/<dni>
+curl -X PUT    -H "ngrok-skip-browser-warning: 1" -H "Content-Type: application/json" \
+     https://tu-api-aqui.com/alumnos/<dni> -d '{"patronus":"Cervo"}'
+curl -X DELETE -H "ngrok-skip-browser-warning: 1" \
+     https://tu-api-aqui.com/alumnos/<dni>
 ```
 
 Si contesta con la lista de alumnos, arranca la app y usa la pantalla **Estado del sistema**
@@ -179,22 +183,8 @@ Si contesta con la lista de alumnos, arranca la app y usa la pantalla **Estado d
 
 ### 4.5. Datos cargados en las cinco bases
 
-Las cinco bases del `compose.yaml` están cargadas con el volcado `bbdd.sql` (DDL + INSERT por
-cada fuente):
-
-| Fuente (puerto) | `casa` de la API | Origen en la app | Contenido |
-|---|---|---|---|
-| MariaDB `r01_central` (3306) | Hogwarts | `MARIADB` | Central: semilla inicial **y** todos los alumnos nuevos creados desde la app |
-| Derby (1527) | Gryffindor | `DERBY` | 303 alumnos del volcado |
-| H2 (9092) | Hufflepuff | `H2` | 212 alumnos del volcado |
-| HSQLDB (9001) | Slytherin | `HSQLDB` | 267 alumnos del volcado |
-| Oracle `FREEPDB1` (1521) | Ravenclaw | `ORACLE` | 203 alumnos del volcado |
-
-El volcado aporta **985 alumnos históricos**; con la semilla de MariaDB la API servía 990
-alumnos al escribir estas líneas, y el total **sube y baja con cada alta y cada baja**. El listado
-se pide sin límite (`ConsultaViewModel.LIMITE_POR_DEFECTO = 0`) y el filtro por origen, la búsqueda
-y la paginación se resuelven en el cliente, porque `GET /alumnos` devuelve siempre el listado
-completo.
+El backend remoto consulta las cinco bases (MariaDB central + Derby, H2, HSQLDB y Oracle), con
+la misma asignación de `casa` a fuente que describe el mapeo de campos de §4.3.
 
 ---
 
@@ -265,14 +255,17 @@ equipo que las ejecute.
 
 ## 8. Estado y limitaciones conocidas
 
-- **Verificado contra la API real** (rama `Api`, `uvicorn` + las cinco bases del `compose`):
-  listado con mapeo de campos (los 985 alumnos históricos del volcado repartidos en las cinco
-  fuentes), ficha por DNI, alta (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja
-  (`DELETE /alumnos/{dni}`), búsqueda y filtro por origen, `404` con el `detail` del backend y
-  pantalla de estado.
+- **Verificado contra la API remota** (ngrok): listado con mapeo de campos, ficha por DNI, alta
+  (`POST /alumnos`), edición (`PUT /alumnos/{dni}`), baja (`DELETE /alumnos/{dni}`), búsqueda,
+  `404` con el `detail` del backend y pantalla de estado.
 - **La fuente (`casa`) no es editable**: la API identifica la fuente con la que responde cada
   alumno y no admite cambiarla.
 - La URL base **no es configurable desde la interfaz** (§4.2).
+- El **catálogo de patronus** (`GET /patronus`) se ofrece en el formulario como desplegable
+  editable con autocompletado: se muestran sugerencias solo cuando hay entre 1 y 14
+  coincidencias, en el idioma de la interfaz, con vista previa de la imagen.
+- ngrok-free puede mostrar una pantalla de aviso a clientes HTTP que no mandan la cabecera
+  `ngrok-skip-browser-warning`; el cliente la envía siempre.
 - Existe material de trabajo no versionado en la carpeta local (`tests-pendientes/`), fuera del
   alcance de este repositorio.
 

@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.omni3.gestorhogwartsjavafx.modelo.Alumno;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno;
@@ -25,6 +26,8 @@ import java.time.format.DateTimeParseException;
  * @param version       versión del registro (estado previo para concurrencia)
  * @param actualizadoEn instante ISO-8601 de la última actualización
  * @param activo        {@code false} cuando el alumno está de baja lógica
+ * @param patronusUrl   URL de la imagen del patronus (catálogo PATRONUS_IMG)
+ * @param imagen        URL o ruta de la imagen del propio alumno
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AlumnoDto(
@@ -36,7 +39,28 @@ public record AlumnoDto(
         String tipo,
         long version,
         String actualizadoEn,
-        boolean activo) {
+        boolean activo,
+        @JsonProperty("patronus_url") String patronusUrl,
+        String imagen) {
+
+    /**
+     * Constructor de conveniencia sin las URLs de imagen, para los
+     * casos en los que no aportan nada (altas, pruebas, maquetas).
+     *
+     * @param dni           DNI normalizado
+     * @param nombre        nombre y apellidos
+     * @param casa          casa; nula en alumnos nuevos
+     * @param patronus      patronus; obligatorio en alumnos nuevos
+     * @param origen        nombre del {@link Origen}
+     * @param tipo          nombre del {@link TipoAlumno}
+     * @param version       versión del registro
+     * @param actualizadoEn instante ISO-8601 de la última actualización
+     * @param activo        {@code false} cuando el alumno está de baja lógica
+     */
+    public AlumnoDto(String dni, String nombre, String casa, String patronus, String origen,
+                     String tipo, long version, String actualizadoEn, boolean activo) {
+        this(dni, nombre, casa, patronus, origen, tipo, version, actualizadoEn, activo, null, null);
+    }
 
     /**
      * Convierte un alumno del dominio en su DTO.
@@ -58,7 +82,9 @@ public record AlumnoDto(
                 alumno.tipo().name(),
                 alumno.version(),
                 alumno.actualizadoEn().toString(),
-                alumno.activo());
+                alumno.activo(),
+                null,
+                null);
     }
 
     /**

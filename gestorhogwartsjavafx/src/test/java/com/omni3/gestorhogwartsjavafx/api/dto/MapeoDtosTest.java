@@ -128,4 +128,43 @@ class MapeoDtosTest {
         assertTrue(salud.esR01());
         assertFalse(new SaludDto("OK", "R02", "", "").esR01());
     }
+
+    @Test
+    @DisplayName("AlumnoDto lee patronus_url e imagen que añade la API")
+    void leePatronusUrlEImagen() throws Exception {
+        String json = """
+                {"dni":"12345678A","nombre":"Harry Potter","casa":"Gryffindor","patronus":"Stag",
+                 "origen":"DERBY","tipo":"HISTORICO","version":1,
+                 "actualizadoEn":"2026-01-15T10:00:00Z","activo":true,
+                 "patronus_url":"http://x/stag.jpg","imagen":"http://x/harry.png"}
+                """;
+
+        AlumnoDto leido = mapper.readValue(json, AlumnoDto.class);
+
+        assertEquals("http://x/stag.jpg", leido.patronusUrl());
+        assertEquals("http://x/harry.png", leido.imagen());
+    }
+
+    @Test
+    @DisplayName("AlumnoDto deja patronusUrl e imagen a null si la API no los manda")
+    void patronusUrlEImagenAusentesSonNulos() throws Exception {
+        String json = "{\"dni\":\"12345678A\",\"nombre\":\"Harry Potter\"}";
+
+        AlumnoDto leido = mapper.readValue(json, AlumnoDto.class);
+
+        assertTrue(leido.patronusUrl() == null);
+        assertTrue(leido.imagen() == null);
+    }
+
+    @Test
+    @DisplayName("AlumnoDto.de() rellena patronusUrl e imagen con null para el dominio")
+    void deModeloDejaPatronusUrlENull() {
+        Alumno alumno = new Alumno("12345678A", "Harry Potter", "Gryffindor", "Stag",
+                Origen.DERBY, TipoAlumno.HISTORICO, 1L, Instant.parse("2026-01-15T10:00:00Z"), true);
+
+        AlumnoDto dto = AlumnoDto.de(alumno);
+
+        assertTrue(dto.patronusUrl() == null, "El modelo no arrastra la URL");
+        assertTrue(dto.imagen() == null, "El modelo no arrastra la imagen");
+    }
 }

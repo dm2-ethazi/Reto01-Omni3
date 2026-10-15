@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Alumno;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
@@ -41,6 +42,33 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
 
     /** Alumnos en memoria, indexados por DNI normalizado. */
     private final Map<String, AlumnoDto> alumnos = new LinkedHashMap<>();
+
+    /** Catálogo de patronus simulado (subconjunto del real, en 3 idiomas). */
+    private static final List<PatronusDto> CATALOGO = List.of(
+            new PatronusDto("Ciervo", "Stag", "Orein",
+                    "https://upload.wikimedia.org/wikipedia/commons/4/4b/Cervus_elaphus_Luc_Viatour_6.jpg"),
+            new PatronusDto("Lobo", "Wolf", "Otso",
+                    "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg"),
+            new PatronusDto("Conejo", "Rabbit", "Untxi",
+                    "https://upload.wikimedia.org/wikipedia/commons/1/1f/Oryctolagus_cuniculus_Rcdo.jpg"),
+            new PatronusDto("Nutria", "Otter", "Igaraba",
+                    "https://upload.wikimedia.org/wikipedia/commons/d/d3/Fischotter%2C_Lutra_Lutra.JPG"),
+            new PatronusDto("Lechuza Común", "Barn Owl", "Ontza",
+                    "https://upload.wikimedia.org/wikipedia/commons/9/9e/American_Barn_Owl_%28Tyto_furcata_guatemalae%29%2C_Orange_Walk.jpg"),
+            new PatronusDto("Fénix", "Phoenix", "Fenixe",
+                    "https://upload.wikimedia.org/wikipedia/commons/c/c4/Phoenix_%281583%29.svg"),
+            new PatronusDto("Serpiente de hierba", "Grass Snake", "Belar suge",
+                    "https://upload.wikimedia.org/wikipedia/commons/0/0c/Grass_snake_%28Natrix_natrix%29_Pieniny.jpg"),
+            new PatronusDto("Gato banyano", "Balinese", "Balinese",
+                    "https://upload.wikimedia.org/wikipedia/commons/0/05/Old-Style_Balinese_Cat.png"),
+            new PatronusDto("Basset Hound", "Basset Hound", "Basset Hound",
+                    "https://upload.wikimedia.org/wikipedia/commons/c/cf/BassetHound_profil.jpg"),
+            new PatronusDto("Erumpent", "Erumpent", "Erumpent",
+                    "https://static.wikia.nocookie.net/harrypotter/images/6/61/Erumpent_Concept_Art_FB1.png/revision/latest"),
+            new PatronusDto("Occamy", "Occamy", "Occamy",
+                    "https://static.wikia.nocookie.net/harrypotter/images/2/29/Occamy_FBCases.png/revision/latest"),
+            new PatronusDto("Thestral", "Thestral", "Thestral",
+                    "https://static.wikia.nocookie.net/harrypotter/images/b/bd/Thestral.png/revision/latest"));
 
     /** Latencia simulada por petición. */
     private long latenciaMs;
@@ -194,6 +222,12 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
                 .conVersion(actual.version() + 1L)
                 .conActualizadoEn(Instant.now());
         guardar(deBaja);
+    }
+
+    @Override
+    public synchronized List<PatronusDto> listarPatronus() {
+        dormir();
+        return CATALOGO;
     }
 
     /**

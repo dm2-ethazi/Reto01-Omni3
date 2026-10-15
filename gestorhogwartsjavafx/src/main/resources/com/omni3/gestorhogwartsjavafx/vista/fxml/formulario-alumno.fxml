@@ -4,8 +4,10 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="formulario" styleClass="formulario" spacing="8" xmlns="http://javafx.com/javafx/21"
@@ -41,9 +43,13 @@
     <Label fx:id="errorCasa" text="" styleClass="texto-error"
            GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-    <Label text="Patronus *" styleClass="etiqueta-campo" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-    <TextField fx:id="campoPatronus" promptText="%form.prompt.patronus" styleClass="campo"
-               GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    <Label text="%form.campo.patronus" styleClass="etiqueta-campo" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <HBox spacing="8" alignment="CENTER_LEFT" GridPane.rowIndex="6" GridPane.columnIndex="1">
+      <ComboBox fx:id="comboPatronus" promptText="%form.prompt.patronus" styleClass="campo-combo"
+                editable="true" HBox.hgrow="ALWAYS"/>
+      <ImageView fx:id="imagenPatronus" fitWidth="40" fitHeight="40" preserveRatio="true"
+                 visible="false"/>
+    </HBox>
     <Label fx:id="errorPatronus" text="" styleClass="texto-error"
            GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 

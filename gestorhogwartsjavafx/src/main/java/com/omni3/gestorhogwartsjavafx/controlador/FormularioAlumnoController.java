@@ -1,5 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
+import com.omni3.gestorhogwartsjavafx.modelo.CatalogoPatronus;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
@@ -11,8 +13,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Controlador del formulario de alta y edición de un alumno.
@@ -21,6 +27,13 @@ import java.util.List;
  * en la central MariaDB sin casa y con patronus obligatorio (§2.2), y la
  * edición conserva el origen y la versión previa de la ficha para el
  * control de concurrencia (§2.3).</p>
+ *
+ * <p>El campo de patronus es un desplegable editable con autocompletado
+ * contra el catálogo {@code GET /patronus}: mientras el texto escrito
+ * coincida con menos de 15 entradas se muestran las sugerencias; con 15
+ * o más (o vacío) el desplegable se cierra. El nombre se muestra en el
+ * idioma de la interfaz y, al elegirlo, se carga la imagen del patronus
+ * en la vista previa.</p>
  */
 public class FormularioAlumnoController implements ControladorVista {
 
@@ -33,7 +46,8 @@ public class FormularioAlumnoController implements ControladorVista {
     @FXML private TextField campoDni;
     @FXML private TextField campoNombre;
     @FXML private ComboBox<String> comboCasa;
-    @FXML private TextField campoPatronus;
+    @FXML private ComboBox<String> comboPatronus;
+    @FXML private ImageView imagenPatronus;
     @FXML private Label errorDni;
     @FXML private Label errorNombre;
     @FXML private Label errorCasa;
@@ -46,6 +60,15 @@ public class FormularioAlumnoController implements ControladorVista {
     private FabricaAplicacion fabrica;
     private FormularioAlumno formulario;
     private boolean esAlta;
+
+    /** Catálogo de patronus cargado desde la API; vacío mientras no llega. */
+    private CatalogoPatronus catalogo = CatalogoPatronus.vacio();
+
+    /** {@code true} mientras se aplica un cambio de texto por programa. */
+    private boolean programatico;
+
+    /** Patronus original de la ficha en edición; se usa para validar solo cambios. */
+    private String patronusOriginal;
 
     /**
      * Crea el controlador del formulario de alta y edición de un alumno.
@@ -64,6 +87,25 @@ public class FormularioAlumnoController implements ControladorVista {
         comboCasa.getItems().add("");
         comboCasa.getItems().addAll(CASAS);
         comboCasa.setValue("");
+
+        comboPatronus.setEditable(true);
+        comboPatronus.setValue("");
+        comboPatronus.getEditor().textProperty().addListener((observable, antes, texto) -> {
+            if (programatico) {
+                return;
+            }
+            alEscribirPatronus(texto);
+        });
+        comboPatronus.valueProperty().addListener((observable, antes, valor) -> {
+            if (programatico || valor == null) {
+                return;
+            }
+            comboPatronus.getEditor().setText(valor);
+            sincronizarPatronusVM(valor);
+            cargarImagenPatronus(valor);
+            comboPatronus.hide();
+        });
+        cargarCatalogo();
     }
 
     /**
@@ -81,6 +123,7 @@ public class FormularioAlumnoController implements ControladorVista {
             throw new IllegalStateException("Llame a conectar() antes de preparar()");
         }
         esAlta = dni == null;
+        patronusOriginal = null;
         if (esAlta) {
             prepararAlta();
         } else {
@@ -100,14 +143,32 @@ public class FormularioAlumnoController implements ControladorVista {
         comboCasa.setValue("");
         campoOrigen.setText(Origen.MARIADB.name());
         campoVersion.setText(Idiomas.texto("form.version.nueva"));
+        aplicarTextoPatronus("");
 
         campoDni.textProperty().bindBidirectional(alta.dniProperty());
         campoNombre.textProperty().bindBidirectional(alta.nombreProperty());
-        campoPatronus.textProperty().bindBidirectional(alta.patronusProperty());
+        alta.patronusProperty().addListener((observable, antes, texto) -> {
+            if (programatico) {
+                return;
+            }
+            programatico = true;
+            try {
+                String valor = texto == null ? "" : texto;
+                if (!valor.equals(comboPatronus.getEditor().getText())) {
+                    comboPatronus.getEditor().setText(valor);
+                    comboPatronus.setValue(valor);
+                }
+            } finally {
+                programatico = false;
+            }
+        });
         errorDni.textProperty().bind(alta.errorDniProperty());
         errorNombre.textProperty().bind(alta.errorNombreProperty());
         errorCasa.textProperty().bind(alta.errorCasaProperty());
-        errorPatronus.textProperty().bind(alta.errorPatronusProperty());
+        // Listener en lugar de bind: guardar() pinta aquí el error de
+        // catálogo y un bind impediría setText (propiedad vinculada).
+        alta.errorPatronusProperty().addListener((observable, antes, texto) ->
+                errorPatronus.setText(texto == null ? "" : texto));
         enlazarResultado(alta);
     }
 
@@ -120,7 +181,24 @@ public class FormularioAlumnoController implements ControladorVista {
         campoDni.setDisable(true);
         campoDni.textProperty().bind(edicion.dniProperty());
         campoNombre.textProperty().bindBidirectional(edicion.nombreProperty());
-        campoPatronus.textProperty().bindBidirectional(edicion.patronusProperty());
+        edicion.patronusProperty().addListener((observable, antes, texto) -> {
+            if (programatico) {
+                return;
+            }
+            programatico = true;
+            try {
+                String valor = texto == null ? "" : texto;
+                if (!valor.equals(comboPatronus.getEditor().getText())) {
+                    comboPatronus.getEditor().setText(valor);
+                    comboPatronus.setValue(valor);
+                }
+                if (patronusOriginal == null) {
+                    patronusOriginal = valor;
+                }
+            } finally {
+                programatico = false;
+            }
+        });
         // Casa es de solo lectura en edición: se muestra como dato, no como combo editable
         comboCasa.setDisable(true);
         comboCasa.getStyleClass().remove("campo-combo");
@@ -128,7 +206,10 @@ public class FormularioAlumnoController implements ControladorVista {
         comboCasa.valueProperty().bindBidirectional(edicion.casaProperty());
         errorNombre.textProperty().bind(edicion.errorNombreProperty());
         errorCasa.textProperty().bind(edicion.errorCasaProperty());
-        errorPatronus.textProperty().bind(edicion.errorPatronusProperty());
+        // Listener en lugar de bind: guardar() pinta aquí el error de
+        // catálogo y un bind impediría setText (propiedad vinculada).
+        edicion.errorPatronusProperty().addListener((observable, antes, texto) ->
+                errorPatronus.setText(texto == null ? "" : texto));
         errorDni.setText("");
 
         edicion.origenTextoProperty().addListener((observable, antes, origen) ->
@@ -139,6 +220,94 @@ public class FormularioAlumnoController implements ControladorVista {
         enlazarResultado(edicion);
 
         edicion.cargar(dni);
+    }
+
+    /** Carga el catálogo de patronus desde la API, si aún no está. */
+    private void cargarCatalogo() {
+        fabrica.getServicio().listarPatronus(
+                entradas -> {
+                    catalogo = CatalogoPatronus.de(entradas);
+                    programatico = true;
+                    try {
+                        String actual = comboPatronus.getEditor().getText();
+                        if (actual != null && !actual.isBlank()) {
+                            aplicarTextoPatronus(actual);
+                        }
+                    } finally {
+                        programatico = false;
+                    }
+                },
+                error -> catalogo = CatalogoPatronus.vacio());
+    }
+
+    /** Al escribir en el combo: sincroniza el VM, filtra y precarga imagen. */
+    private void alEscribirPatronus(String texto) {
+        String valor = texto == null ? "" : texto;
+        sincronizarPatronusVM(valor);
+        aplicarTextoPatronus(valor);
+        cargarImagenPatronus(valor);
+    }
+
+    /**
+     * Escribe el texto en el combo y actualiza las sugerencias.
+     *
+     * <p>El desplegable solo se abre cuando hay entre 1 y 14
+     * coincidencias; con 15 o más (o ninguna) se cierra.</p>
+     */
+    private void aplicarTextoPatronus(String texto) {
+        programatico = true;
+        try {
+            if (!texto.equals(comboPatronus.getEditor().getText())) {
+                comboPatronus.getEditor().setText(texto);
+            }
+            List<String> sugerencias = catalogo.sugerencias(texto, Idiomas.codigo());
+            if (!sugerencias.isEmpty()
+                    && sugerencias.size() < CatalogoPatronus.MAXIMO_SUGERENCIAS) {
+                comboPatronus.getItems().setAll(sugerencias);
+                comboPatronus.show();
+            } else {
+                comboPatronus.getItems().clear();
+                comboPatronus.hide();
+            }
+        } finally {
+            programatico = false;
+        }
+    }
+
+    /** Pasa el texto del combo al viewmodel en uso. */
+    private void sincronizarPatronusVM(String texto) {
+        if (formulario instanceof AltaViewModel alta) {
+            alta.patronusProperty().set(texto);
+        } else if (formulario instanceof EdicionViewModel edicion) {
+            edicion.patronusProperty().set(texto);
+        }
+    }
+
+    /** Carga la imagen del patronus si el nombre está en el catálogo. */
+    private void cargarImagenPatronus(String nombre) {
+        Optional<PatronusDto> entrada = catalogo.porNombre(nombre);
+        if (entrada.isEmpty() || entrada.get().url() == null || entrada.get().url().isBlank()) {
+            ocultarImagenPatronus();
+            return;
+        }
+        try {
+            Image imagen = new Image(entrada.get().url(), true);
+            imagen.errorProperty().addListener((observable, antes, fallo) -> {
+                if (Boolean.TRUE.equals(fallo)) {
+                    ocultarImagenPatronus();
+                }
+            });
+            imagenPatronus.setImage(imagen);
+            imagenPatronus.setVisible(true);
+        } catch (IllegalArgumentException excepcion) {
+            ocultarImagenPatronus();
+        }
+    }
+
+    /** Oculta la vista previa de la imagen del patronus. */
+    private void ocultarImagenPatronus() {
+        imagenPatronus.setImage(null);
+        imagenPatronus.setVisible(false);
     }
 
     /** Liga el mensaje del formulario, su color de estado y el request-id. */
@@ -195,11 +364,29 @@ public class FormularioAlumnoController implements ControladorVista {
         return campoDni.getText();
     }
 
-    /** Envia el formulario a la API. */
+    /**
+     * Envia el formulario a la API.
+     *
+     * <p>En edición, si el patronus ha cambiado respecto al original, se
+     * comprueba que exista en el catálogo en el idioma de la interfaz
+     * antes de enviar; si no se muestra el error bajo el campo.</p>
+     */
     @FXML
     private void guardar() {
-        if (formulario != null) {
-            formulario.guardar();
+        if (formulario == null) {
+            return;
         }
+        String patronus = comboPatronus.getEditor().getText();
+        if (patronus != null && !patronus.isBlank()) {
+            boolean enAlta = esAlta;
+            boolean cambioEditable = enAlta || !Objects.equals(patronus.trim(), patronusOriginal);
+            if (cambioEditable
+                    && catalogo.total() > 0
+                    && catalogo.porNombreEn(patronus.trim(), Idiomas.codigo()).isEmpty()) {
+                errorPatronus.setText(Idiomas.texto("valid.patronus.catalogo"));
+                return;
+            }
+        }
+        formulario.guardar();
     }
 }

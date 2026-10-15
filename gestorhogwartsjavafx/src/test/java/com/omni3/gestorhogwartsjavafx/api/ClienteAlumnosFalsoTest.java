@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsjavafx.api;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.AlumnoDto;
+import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,5 +262,32 @@ class ClienteAlumnosFalsoTest {
 
         assertEquals(7, falso.listarAlumnos(null, "", 0, 0).size());
         assertTrue(falso.obtenerAlumno("12345678A").activo());
+    }
+
+    // ----------------------------------------------------------- patronus
+
+    @Test
+    @DisplayName("listarPatronus devuelve el catálogo en 3 idiomas con URLs")
+    void listarPatronusDevuelveElCatalogo() {
+        List<PatronusDto> catalogo = falso.listarPatronus();
+
+        assertFalse(catalogo.isEmpty(), "El catálogo de pruebas no puede estar vacío");
+        assertTrue(catalogo.stream().allMatch(p -> p.nomEsp() != null && !p.nomEsp().isBlank()),
+                "Cada entrada debe tener nombre en español");
+        assertTrue(catalogo.stream().allMatch(p -> p.nomEng() != null && !p.nomEng().isBlank()),
+                "Cada entrada debe tener nombre en inglés");
+        assertTrue(catalogo.stream().allMatch(p -> p.nomEus() != null && !p.nomEus().isBlank()),
+                "Cada entrada debe tener nombre en euskera");
+        assertTrue(catalogo.stream().allMatch(p -> p.url() != null && !p.url().isBlank()),
+                "Cada entrada debe tener URL de imagen");
+        assertTrue(catalogo.stream().anyMatch(p -> "Ciervo".equals(p.nomEsp())));
+        assertTrue(catalogo.stream().anyMatch(p -> "Stag".equals(p.nomEng())));
+        assertTrue(catalogo.stream().anyMatch(p -> "Orein".equals(p.nomEus())));
+    }
+
+    @Test
+    @DisplayName("listarPatronus es estable entre llamadas (misma lista)")
+    void listarPatronusEsEstable() {
+        assertEquals(falso.listarPatronus(), falso.listarPatronus());
     }
 }

@@ -24,8 +24,8 @@ import java.util.Objects;
  */
 public final class ConfigApi {
 
-    /** URL por defecto de la API (§1). */
-    public static final String URL_POR_DEFECTO = "http://127.0.0.1:8000";
+    /** URL por defecto de la API desplegada (§1). */
+    public static final String URL_POR_DEFECTO = "https://tu-api-aqui.com";
 
     /** Propiedad de sistema que fija la URL base de la API. */
     public static final String PROP_SISTEMA_URL = "gestor.api.url";
