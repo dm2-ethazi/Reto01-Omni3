@@ -1,2 +1,10 @@
-# Env
-.env
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Ll]ogs/
+UserSettings/
+*.csproj
+*.slnx
+__pycache__/
+*.py[cod]
