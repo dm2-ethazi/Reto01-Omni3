@@ -10,12 +10,18 @@ import com.omni3.gestorhogwartsjavafx.viewmodel.EdicionViewModel;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EstadoCarga;
 import com.omni3.gestorhogwartsjavafx.viewmodel.FormularioAlumno;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,9 +37,10 @@ import java.util.Optional;
  * <p>El campo de patronus es un desplegable editable con autocompletado
  * contra el catálogo {@code GET /patronus}: mientras el texto escrito
  * coincida con menos de 15 entradas se muestran las sugerencias; con 15
- * o más (o vacío) el desplegable se cierra. El nombre se muestra en el
- * idioma de la interfaz y, al elegirlo, se carga la imagen del patronus
- * en la vista previa.</p>
+ * o más (o vacío) el desplegable se cierra. El campo trabaja siempre en
+ * inglés (sugerencias, nombre visible y validación en {@code en}), con
+ * independencia del idioma de la interfaz; al elegirlo se carga la
+ * imagen del patronus en la vista previa.</p>
  */
 public class FormularioAlumnoController implements ControladorVista {
 
@@ -83,6 +90,8 @@ public class FormularioAlumnoController implements ControladorVista {
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
+        campoDni.setTextFormatter(new TextFormatter<>(cambio ->
+                cambio.getControlNewText().length() > 9 ? null : cambio));
         comboCasa.getItems().clear();
         comboCasa.getItems().add("");
         comboCasa.getItems().addAll(CASAS);
@@ -159,7 +168,7 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                String visible = visibleEnIdiomaDeLaVentana(valor);
+                String visible = visibleEnIngles(valor);
                 if (!visible.equals(comboPatronus.getEditor().getText())) {
                     comboPatronus.getEditor().setText(visible);
                     comboPatronus.setValue(visible);
@@ -194,7 +203,7 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                String visible = visibleEnIdiomaDeLaVentana(valor);
+                String visible = visibleEnIngles(valor);
                 if (!visible.equals(comboPatronus.getEditor().getText())) {
                     comboPatronus.getEditor().setText(visible);
                     comboPatronus.setValue(visible);
@@ -267,10 +276,12 @@ public class FormularioAlumnoController implements ControladorVista {
             if (!texto.equals(comboPatronus.getEditor().getText())) {
                 comboPatronus.getEditor().setText(texto);
             }
-            List<String> sugerencias = catalogo.sugerencias(texto, Idiomas.codigo());
+            List<String> sugerencias = catalogo.sugerencias(texto, Idiomas.INGLES);
             if (!sugerencias.isEmpty()
                     && sugerencias.size() < CatalogoPatronus.MAXIMO_SUGERENCIAS) {
+                restablecerTamanoPopupPatronus();
                 comboPatronus.getItems().setAll(sugerencias);
+                comboPatronus.hide();
                 comboPatronus.show();
             } else {
                 comboPatronus.getItems().clear();
@@ -278,6 +289,50 @@ public class FormularioAlumnoController implements ControladorVista {
             }
         } finally {
             programatico = false;
+        }
+    }
+
+    /**
+     * Restablece el tamaño fijado por la piel del combo al desplegarlo.
+     *
+     * <p>Al mostrarse, {@code ComboBoxPopupControl} congela los tamaños
+     * mínimos y preferidos del popup y de su {@code ListView} al valor de
+     * las sugerencias de ese momento, y solo vuelve a agrandarlos después;
+     * sin este reinicio, el popup se quedaría con el tamaño viejo al
+     * filtrar. Se usa reflexión sobre la piel interna porque no existe API
+     * pública que permita reiniciar esos tamaños (JavaFX 21).</p>
+     */
+    private void restablecerTamanoPopupPatronus() {
+        try {
+            Object piel = comboPatronus.getSkin();
+            if (piel == null) {
+                return;
+            }
+            Class<?> tipo = piel.getClass();
+            while (tipo != null
+                    && !tipo.getName().equals("javafx.scene.control.skin.ComboBoxPopupControl")) {
+                tipo = tipo.getSuperclass();
+            }
+            if (tipo == null) {
+                return;
+            }
+            Field campoPopup = tipo.getDeclaredField("popup");
+            campoPopup.setAccessible(true);
+            Object popup = campoPopup.get(piel);
+            Method obtenerContenido = tipo.getDeclaredMethod("getPopupContent");
+            obtenerContenido.setAccessible(true);
+            Node contenido = (Node) obtenerContenido.invoke(piel);
+            if (contenido instanceof Region region) {
+                region.setMinSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+                region.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+            }
+            if (popup instanceof PopupControl control) {
+                control.setMinWidth(0);
+                control.setMinHeight(0);
+            }
+        } catch (ReflectiveOperationException | RuntimeException ignorada) {
+            // Si la reflexión falla (cambio interno de JavaFX), el popup
+            // conserva su tamaño anterior pero la app sigue funcionando.
         }
     }
 
@@ -291,21 +346,23 @@ public class FormularioAlumnoController implements ControladorVista {
     }
 
     /**
-     * Nombre visible del patronus en el idioma de la ventana.
+     * Nombre visible del patronus en inglés.
      *
-     * <p>Si el texto (venga del catálogo en cualquier idioma) coincide
-     * con una entrada, se muestra el nombre localizado; si no, se
-     * devuelve tal cual para no perder lo que el usuario escribió.</p>
+     * <p>El campo de patronus trabaja siempre en inglés, con
+     * independencia del idioma de la interfaz. Si el texto (venga del
+     * catálogo en cualquier idioma) coincide con una entrada, se muestra
+     * el nombre en {@code en}; si no, se devuelve tal cual para no perder
+     * lo que el usuario escribió.</p>
      *
      * @param valor texto actual del campo; puede ser {@code null}
-     * @return el nombre en el idioma de la interfaz, o el original
+     * @return el nombre en inglés, o el original
      */
-    private String visibleEnIdiomaDeLaVentana(String valor) {
+    private String visibleEnIngles(String valor) {
         if (valor == null || valor.isBlank() || catalogo.total() == 0) {
             return valor == null ? "" : valor;
         }
         return catalogo.porNombre(valor)
-                .map(entrada -> CatalogoPatronus.nombreEn(entrada, Idiomas.codigo()))
+                .map(entrada -> CatalogoPatronus.nombreEn(entrada, Idiomas.INGLES))
                 .orElse(valor);
     }
 
@@ -395,8 +452,8 @@ public class FormularioAlumnoController implements ControladorVista {
      *
      * <p>Sincroniza el texto visible del combo de patronus al viewmodel y,
      * si ha cambiado respecto al original (o es un alta), comprueba que
-     * exista en el catálogo en el idioma de la interfaz antes de enviar;
-     * si no se muestra el error bajo el campo y no se guarda.</p>
+     * exista en el catálogo en inglés antes de enviar; si no se muestra
+     * el error bajo el campo y no se guarda.</p>
      */
     public void guardar() {
         if (formulario == null) {
@@ -411,7 +468,7 @@ public class FormularioAlumnoController implements ControladorVista {
             boolean cambioEditable = enAlta || !Objects.equals(patronus.trim(), patronusOriginal);
             if (cambioEditable
                     && catalogo.total() > 0
-                    && catalogo.porNombreEn(patronus.trim(), Idiomas.codigo()).isEmpty()) {
+                    && catalogo.porNombreEn(patronus.trim(), Idiomas.INGLES).isEmpty()) {
                 errorPatronus.setText(Idiomas.texto("valid.patronus.catalogo"));
                 return;
             }

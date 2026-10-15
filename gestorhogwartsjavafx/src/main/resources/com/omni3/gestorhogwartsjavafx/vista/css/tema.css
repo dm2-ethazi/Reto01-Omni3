@@ -239,6 +239,22 @@
     -fx-padding: 4;
 }
 
+/* Estado enfocado: Modena pinta aquí su interior gris
+   (-fx-control-inner-background); se fuerza el fondo oscuro del tema. */
+.combo-box-popup > .list-view,
+.combo-box-popup > .list-view:focused {
+    -fx-background-color: -surface;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+}
+
+/* Raíz de la escena del popup (clases [root, popup]): si el hueco del
+   popup queda mayor que el contenido, debe verse oscuro, no el gris de
+   Modena (.root). */
+.root.popup {
+    -fx-background-color: -fondo;
+}
+
 .combo-box-popup .list-cell {
     -fx-background-color: transparent;
     -fx-background-radius: 6;
@@ -669,4 +685,10 @@
 .menu-item:focused {
     -fx-background-color: #4A3F2A;
     -fx-text-background-color: -dorado;
+}
+/* Modena pinta focused > .label con texto oscuro; aquí se fuerza dorado
+   para que sea legible sobre el fondo de hover #4A3F2A. */
+.menu-item:hover > .label,
+.menu-item:focused > .label {
+    -fx-text-fill: -dorado;
 }
