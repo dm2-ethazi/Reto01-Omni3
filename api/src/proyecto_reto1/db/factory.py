@@ -1,3 +1,10 @@
+"""Fábrica de repositorios.
+
+Crea la lista de repositorios activos según la variable DB_ENGINES de la
+configuración. Si hay fuentes JDBC (H2, HSQLDB, Derby), arranca una única
+JVM con los drivers correspondientes antes de crear los repositorios.
+"""
+
 from pathlib import Path
 
 from ..config import settings
@@ -8,16 +15,29 @@ from .hsqldb import RepositorioHSQLDB
 from .mariadb import RepositorioMariaDB
 from .oracle import RepositorioOracle
 
+# Drivers JDBC necesarios para cada motor.
 _JARS = {
     "h2": ("h2.jar",),
     "hsqldb": ("hsqldb.jar",),
     "derby": ("derbyclient.jar", "derbyshared.jar"),
 }
 
+# Caché de repositorios (singleton): se crea una sola vez y se reutiliza.
 _repositorios: list[RepositorioAlumnos] | None = None
 
 
 def _crear(nombre: str) -> RepositorioAlumnos:
+    """Crea el repositorio correspondiente al nombre del motor.
+
+    Args:
+        nombre: Nombre del motor ('oracle', 'mariadb', 'h2', 'hsqldb', 'derby').
+
+    Returns:
+        Instancia del repositorio con las credenciales de settings.
+
+    Raises:
+        ValueError: Si el nombre del motor no es reconocido.
+    """
     if nombre == "oracle":
         return RepositorioOracle(
             host=settings.oracle_host,
@@ -44,6 +64,15 @@ def _crear(nombre: str) -> RepositorioAlumnos:
 
 
 def obtener_repositorios() -> list[RepositorioAlumnos]:
+    """Devuelve la lista de repositorios activos (singleton).
+
+    En la primera llamada, parsea DB_ENGINES, arranca la JVM si hay fuentes
+    JDBC, y crea los repositorios. Las llamadas posteriores devuelven la misma
+    lista cacheada.
+
+    Returns:
+        Lista de repositorios activos en el orden indicado en DB_ENGINES.
+    """
     global _repositorios
     if _repositorios is None:
         nombres = [n.strip().lower() for n in settings.db_engines.split(",") if n.strip()]

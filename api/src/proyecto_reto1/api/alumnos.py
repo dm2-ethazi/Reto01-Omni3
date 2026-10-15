@@ -1,3 +1,15 @@
+"""Endpoints REST de la API Alumnos.
+
+Define las rutas HTTP para gestionar alumnos y consultar el catálogo de
+patronus. Las fuentes de datos se inyectan con Depends(get_repositorios)
+y se recorren según la operación:
+
+- Lecturas (GET): recorren las 5 fuentes; la búsqueda por DNI devuelve la
+  primera coincidencia; el listado concatena todas.
+- Escrituras (PUT/DELETE): se aplican en todas las fuentes donde exista.
+- Altas (POST): se realizan siempre en MariaDB.
+"""
+
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -12,14 +24,45 @@ router = APIRouter()
 
 
 def get_repositorios() -> list[RepositorioAlumnos]:
+    """Dependencia de FastAPI que inyecta la lista de repositorios activos.
+
+    Returns:
+        Lista de repositorios creados por la factory (singleton).
+    """
     return obtener_repositorios()
 
 
-@router.get("/alumnos", response_model=list[Alumno])
+# ---------------------------------------------------------------------- #
+#  GET /alumnos  —  Listado y búsqueda por nombre                         #
+# ---------------------------------------------------------------------- #
+
+
+@router.get("/alumnos", response_model=list[Alumno], summary="Listar o buscar alumnos")
 def listar_alumnos(
-    nombre: str | None = Query(default=None, min_length=1, max_length=100),
+    nombre: str | None = Query(
+        default=None,
+        min_length=1,
+        max_length=100,
+        description="Filtra por prefijo de nombre (case-insensitive). Si se omite, lista todos.",
+    ),
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
+    """Lista todos los alumnos de las 5 bases de datos, o filtra por prefijo de nombre.
+
+    Si se proporciona el parámetro `nombre`, busca alumnos cuyo nombre empiece
+    por ese texto (sin distinguir mayúsculas/minúsculas). Si no se proporciona,
+    devuelve la lista completa.
+
+    Args:
+        nombre: Prefijo del nombre a buscar (opcional).
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Lista de alumnos de todas las fuentes.
+
+    Raises:
+        HTTPException 503: Si alguna fuente no responde.
+    """
     alumnos: list[Alumno] = []
     for repositorio in fuentes:
         try:
@@ -36,8 +79,27 @@ def listar_alumnos(
     return alumnos
 
 
-@router.get("/patronus", response_model=list[Patronus])
+# ---------------------------------------------------------------------- #
+#  GET /patronus  —  Catálogo de patronus                                 #
+# ---------------------------------------------------------------------- #
+
+
+@router.get("/patronus", response_model=list[Patronus], summary="Listar todos los patronus")
 def listar_patronus(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
+    """Devuelve todos los patronus del catálogo PATRONUS_IMG con sus 3 nombres e imagen.
+
+    La tabla PATRONUS_IMG solo existe en MariaDB, por lo que este endpoint
+    requiere que el motor 'mariadb' esté activo en DB_ENGINES.
+
+    Args:
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Lista de patronus con nombre en español, inglés, euskera y URL de imagen.
+
+    Raises:
+        HTTPException 503: Si MariaDB no está activa o no responde.
+    """
     repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
     if repositorio is None:
         raise HTTPException(
@@ -54,7 +116,22 @@ def listar_patronus(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios
         ) from error
 
 
+# ---------------------------------------------------------------------- #
+#  Auxiliar: obtener URL de imagen del patronus                           #
+# ---------------------------------------------------------------------- #
+
+
 def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | None) -> str | None:
+    """Busca la URL de la imagen de un patronus en PATRONUS_IMG (MariaDB).
+
+    Args:
+        fuentes: Lista de repositorios activos.
+        patronus: Nombre del patronus (en cualquier idioma).
+
+    Returns:
+        URL de la imagen si se encontró, None si el patronus es None,
+        MariaDB no está activa, o hay algún error de consulta.
+    """
     if not patronus:
         return None
     repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
@@ -67,8 +144,29 @@ def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | Non
         return None
 
 
-@router.get("/alumnos/{dni}", response_model=Alumno)
+# ---------------------------------------------------------------------- #
+#  GET /alumnos/{dni}  —  Búsqueda por DNI                                #
+# ---------------------------------------------------------------------- #
+
+
+@router.get("/alumnos/{dni}", response_model=Alumno, summary="Buscar alumno por DNI")
 def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
+    """Busca un alumno por DNI en las 5 fuentes y devuelve la primera coincidencia.
+
+    Si el alumno tiene patronus, se busca también la URL de su imagen en
+    PATRONUS_IMG y se incluye en el campo `patronus_url`.
+
+    Args:
+        dni: DNI del alumno a buscar.
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Alumno encontrado con su patronus_url.
+
+    Raises:
+        HTTPException 404: Si el DNI no existe en ninguna fuente.
+        HTTPException 503: Si alguna fuente no responde.
+    """
     for repositorio in fuentes:
         try:
             alumno = repositorio.obtener(dni)
@@ -87,11 +185,37 @@ def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_rep
     )
 
 
-@router.post("/alumnos", response_model=Alumno, status_code=201)
+# ---------------------------------------------------------------------- #
+#  POST /alumnos  —  Crear alumno                                        #
+# ---------------------------------------------------------------------- #
+
+
+@router.post("/alumnos", response_model=Alumno, status_code=201, summary="Crear un alumno")
 def crear_alumno(
     datos: AlumnoEntrada,
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
+    """Crea un alumno nuevo en MariaDB.
+
+    Flujo:
+    1. Comprueba que el DNI no exista en ninguna de las 5 fuentes (409 si existe).
+    2. Valida el patronus contra PATRONUS_IMG en el idioma indicado por
+       `patronus_lang` ('es', 'en' o 'eu'). Si no existe, devuelve 422.
+    3. Inserta el alumno en MariaDB.
+
+    Args:
+        datos: Datos del alumno (AlumnoEntrada con patronus_lang e imagen).
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Alumno creado.
+
+    Raises:
+        HTTPException 409: Si el DNI ya existe en alguna fuente.
+        HTTPException 422: Si el patronus no existe en PATRONUS_IMG o los datos no son válidos.
+        HTTPException 503: Si MariaDB no está activa o alguna fuente no responde.
+    """
+    # 1) Comprobar DNI duplicado en las 5 fuentes.
     for repositorio in fuentes:
         try:
             existente = repositorio.obtener(datos.id)
@@ -107,12 +231,15 @@ def crear_alumno(
                 detail=f"El DNI '{datos.id}' ya existe en {repositorio.casa}",
             )
 
+    # 2) Obtener repositorio MariaDB (central).
     repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
     if repositorio is None:
         raise HTTPException(
             status_code=503,
             detail="La fuente 'mariadb' no esta activa (DB_ENGINES)",
         )
+
+    # 3) Validar patronus contra PATRONUS_IMG si se indicó.
     if datos.patronus:
         try:
             patronus_valido = repositorio.validar_patronus(datos.patronus, datos.patronus_lang)
@@ -131,6 +258,8 @@ def crear_alumno(
                     f"para el idioma '{idiomas[datos.patronus_lang]}'"
                 ),
             )
+
+    # 4) Insertar en MariaDB.
     try:
         return repositorio.crear(datos)
     except Conflicto as error:
@@ -143,12 +272,36 @@ def crear_alumno(
         ) from error
 
 
-@router.put("/alumnos/{dni}", response_model=Alumno)
+# ---------------------------------------------------------------------- #
+#  PUT /alumnos/{dni}  —  Actualizar alumno                               #
+# ---------------------------------------------------------------------- #
+
+
+@router.put("/alumnos/{dni}", response_model=Alumno, summary="Actualizar alumno")
 def actualizar_alumno(
     dni: str,
     datos: AlumnoActualizacion,
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
+    """Actualiza los campos enviados de un alumno en todas las fuentes donde exista.
+
+    Solo se modifican los campos presentes en el cuerpo de la petición.
+    Los campos omitidos no se tocan. Los campos enviados como null o ""
+    se guardan como NULL.
+
+    Args:
+        dni: DNI del alumno a actualizar (tomado de la URL).
+        datos: Campos a modificar (actualización parcial).
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Alumno actualizado (la primera coincidencia de las fuentes).
+
+    Raises:
+        HTTPException 404: Si el DNI no existe en ninguna fuente.
+        HTTPException 422: Si el cuerpo está vacío o algún valor no es válido.
+        HTTPException 503: Si alguna fuente no responde.
+    """
     actualizados: list[Alumno] = []
     for repositorio in fuentes:
         try:
@@ -169,11 +322,26 @@ def actualizar_alumno(
     return actualizados[0]
 
 
-@router.delete("/alumnos/{dni}", status_code=204)
+# ---------------------------------------------------------------------- #
+#  DELETE /alumnos/{dni}  —  Eliminar alumno                              #
+# ---------------------------------------------------------------------- #
+
+
+@router.delete("/alumnos/{dni}", status_code=204, summary="Eliminar alumno")
 def eliminar_alumno(
     dni: str,
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
+    """Elimina un alumno de todas las fuentes donde exista.
+
+    Args:
+        dni: DNI del alumno a eliminar (tomado de la URL).
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Raises:
+        HTTPException 404: Si el DNI no existe en ninguna fuente.
+        HTTPException 503: Si alguna fuente no responde.
+    """
     eliminado = False
     for repositorio in fuentes:
         try:

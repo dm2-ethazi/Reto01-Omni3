@@ -1,12 +1,42 @@
+"""Repositorio de alumnos y patronus para MariaDB (Hogwarts).
+
+Usa la librería nativa `pymysql`. Es el repositorio central: las altas de
+alumnos (POST) se realizan siempre aquí, y también gestiona la tabla
+`PATRONUS_IMG` (catálogo de patronus con imagen en 3 idiomas).
+"""
+
 import pymysql
 
 from .base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, Patronus, campos_a_actualizar, texto
 
 
 class RepositorioMariaDB:
+    """Repositorio de alumnos para MariaDB (base r01_central).
+
+    Además de las operaciones CRUD sobre ALUMNOS, incluye métodos para
+    consultar y validar patronus contra la tabla PATRONUS_IMG.
+
+    Atributos:
+        casa: Etiqueta "Hogwarts" asignada a esta fuente.
+        host: Host del servidor MariaDB.
+        puerto: Puerto de conexión.
+        base: Nombre de la base de datos.
+        usuario: Usuario de MariaDB.
+        password: Contraseña del usuario.
+    """
+
     casa = "Hogwarts"
 
     def __init__(self, host: str, puerto: int, base: str, usuario: str, password: str):
+        """Inicializa el repositorio.
+
+        Args:
+            host: Host del servidor MariaDB.
+            puerto: Puerto de conexión (por defecto 3307).
+            base: Nombre de la base de datos (ej. r01_central).
+            usuario: Usuario de MariaDB.
+            password: Contraseña del usuario.
+        """
         self.host = host
         self.puerto = puerto
         self.base = base
@@ -14,6 +44,7 @@ class RepositorioMariaDB:
         self.password = password
 
     def _conectar(self):
+        """Abre y devuelve una conexión pymysql con charset utf8mb4."""
         return pymysql.connect(
             host=self.host,
             port=self.puerto,
@@ -24,8 +55,22 @@ class RepositorioMariaDB:
             connect_timeout=5,
         )
 
+    # ------------------------------------------------------------------ #
+    #                        PATRONUS_IMG                                 #
+    # ------------------------------------------------------------------ #
+
     def buscar_patronus_url(self, patronus: str) -> str | None:
-        """Busca en PATRONUS_IMG el URL de un patronus por nombre (en cualquier idioma)."""
+        """Busca en PATRONUS_IMG el URL de la imagen de un patronus.
+
+        Consulta las 3 columnas de nombre (NOM_ESP, NOM_ENG, NOM_EUS)
+        para encontrar coincidencia en cualquier idioma.
+
+        Args:
+            patronus: Nombre del patronus a buscar.
+
+        Returns:
+            URL de la imagen si se encontró, None si no.
+        """
         if not patronus:
             return None
         conexion = self._conectar()
@@ -42,7 +87,15 @@ class RepositorioMariaDB:
         return texto(fila[0]) if fila else None
 
     def validar_patronus(self, patronus: str, lang: str) -> bool:
-        """Comprueba que un patronus existe en PATRONUS_IMG en el idioma indicado."""
+        """Comprueba que un patronus existe en PATRONUS_IMG en el idioma indicado.
+
+        Args:
+            patronus: Nombre del patronus a validar.
+            lang: Idioma ('es', 'en' o 'eu'). Determina la columna a consultar.
+
+        Returns:
+            True si el patronus existe en la columna del idioma indicado.
+        """
         if not patronus:
             return False
         columna = {"es": "NOM_ESP", "en": "NOM_ENG", "eu": "NOM_EUS"}[lang]
@@ -59,6 +112,11 @@ class RepositorioMariaDB:
         return existe
 
     def listar_patronus(self) -> list[Patronus]:
+        """Devuelve todos los patronus del catálogo PATRONUS_IMG.
+
+        Returns:
+            Lista de objetos Patronus con nombre en 3 idiomas y URL de imagen.
+        """
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
@@ -76,7 +134,12 @@ class RepositorioMariaDB:
             for f in filas
         ]
 
+    # ------------------------------------------------------------------ #
+    #                           ALUMNOS                                   #
+    # ------------------------------------------------------------------ #
+
     def listar(self) -> list[Alumno]:
+        """Devuelve todos los alumnos de la tabla ALUMNOS."""
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
@@ -86,18 +149,23 @@ class RepositorioMariaDB:
             conexion.close()
         return [
             Alumno(
-                id=texto(fila[0]) or "",
-                nombre=texto(fila[1]) or "",
-                apellido=texto(fila[2]),
-                sexo=texto(fila[3]),
-                patronus=texto(fila[4]),
-                imagen=texto(fila[5]),
+                id=texto(f[0]) or "",
+                nombre=texto(f[1]) or "",
+                apellido=texto(f[2]),
+                sexo=texto(f[3]),
+                patronus=texto(f[4]),
+                imagen=texto(f[5]),
                 casa=self.casa,
             )
-            for fila in filas
+            for f in filas
         ]
 
     def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+        """Busca alumnos cuyo nombre empiece por el prefijo (case-insensitive).
+
+        Args:
+            prefijo: Texto inicial del nombre a buscar.
+        """
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
@@ -111,18 +179,26 @@ class RepositorioMariaDB:
             conexion.close()
         return [
             Alumno(
-                id=texto(fila[0]) or "",
-                nombre=texto(fila[1]) or "",
-                apellido=texto(fila[2]),
-                sexo=texto(fila[3]),
-                patronus=texto(fila[4]),
-                imagen=texto(fila[5]),
+                id=texto(f[0]) or "",
+                nombre=texto(f[1]) or "",
+                apellido=texto(f[2]),
+                sexo=texto(f[3]),
+                patronus=texto(f[4]),
+                imagen=texto(f[5]),
                 casa=self.casa,
             )
-            for fila in filas
+            for f in filas
         ]
 
     def obtener(self, id_alumno: str) -> Alumno | None:
+        """Busca un alumno por DNI.
+
+        Args:
+            id_alumno: DNI del alumno a buscar.
+
+        Returns:
+            Alumno si existe, None si no.
+        """
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
@@ -146,6 +222,17 @@ class RepositorioMariaDB:
         )
 
     def crear(self, datos: AlumnoEntrada) -> Alumno:
+        """Inserta un alumno nuevo en la tabla ALUMNOS.
+
+        Args:
+            datos: Datos del alumno a crear (AlumnoEntrada ya validado).
+
+        Returns:
+            Alumno creado.
+
+        Raises:
+            Conflicto: Si ya existe un alumno con ese DNI (error 1062 de MySQL).
+        """
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
@@ -165,6 +252,15 @@ class RepositorioMariaDB:
         return Alumno(**datos.model_dump(exclude={"patronus_lang"}), casa=self.casa)
 
     def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+        """Actualiza los campos enviados de un alumno existente.
+
+        Args:
+            id_alumno: DNI del alumno a actualizar.
+            datos: Campos a modificar (actualización parcial).
+
+        Returns:
+            Alumno actualizado si existía, None si no.
+        """
         columnas = campos_a_actualizar(datos)
         if not columnas:
             return self.obtener(id_alumno)
@@ -188,6 +284,14 @@ class RepositorioMariaDB:
         return self.obtener(id_alumno)
 
     def eliminar(self, id_alumno: str) -> bool:
+        """Elimina un alumno por DNI.
+
+        Args:
+            id_alumno: DNI del alumno a eliminar.
+
+        Returns:
+            True si se eliminó, False si no existía.
+        """
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
