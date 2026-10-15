@@ -154,9 +154,10 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                if (!valor.equals(comboPatronus.getEditor().getText())) {
-                    comboPatronus.getEditor().setText(valor);
-                    comboPatronus.setValue(valor);
+                String visible = visibleEnIdiomaDeLaVentana(valor);
+                if (!visible.equals(comboPatronus.getEditor().getText())) {
+                    comboPatronus.getEditor().setText(visible);
+                    comboPatronus.setValue(visible);
                 }
             } finally {
                 programatico = false;
@@ -188,9 +189,10 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                if (!valor.equals(comboPatronus.getEditor().getText())) {
-                    comboPatronus.getEditor().setText(valor);
-                    comboPatronus.setValue(valor);
+                String visible = visibleEnIdiomaDeLaVentana(valor);
+                if (!visible.equals(comboPatronus.getEditor().getText())) {
+                    comboPatronus.getEditor().setText(visible);
+                    comboPatronus.setValue(visible);
                 }
                 if (patronusOriginal == null) {
                     patronusOriginal = valor;
@@ -281,6 +283,25 @@ public class FormularioAlumnoController implements ControladorVista {
         } else if (formulario instanceof EdicionViewModel edicion) {
             edicion.patronusProperty().set(texto);
         }
+    }
+
+    /**
+     * Nombre visible del patronus en el idioma de la ventana.
+     *
+     * <p>Si el texto (venga del catálogo en cualquier idioma) coincide
+     * con una entrada, se muestra el nombre localizado; si no, se
+     * devuelve tal cual para no perder lo que el usuario escribió.</p>
+     *
+     * @param valor texto actual del campo; puede ser {@code null}
+     * @return el nombre en el idioma de la interfaz, o el original
+     */
+    private String visibleEnIdiomaDeLaVentana(String valor) {
+        if (valor == null || valor.isBlank() || catalogo.total() == 0) {
+            return valor == null ? "" : valor;
+        }
+        return catalogo.porNombre(valor)
+                .map(entrada -> CatalogoPatronus.nombreEn(entrada, Idiomas.codigo()))
+                .orElse(valor);
     }
 
     /** Carga la imagen del patronus si el nombre está en el catálogo. */
@@ -378,6 +399,9 @@ public class FormularioAlumnoController implements ControladorVista {
         }
         String patronus = comboPatronus.getEditor().getText();
         if (patronus != null && !patronus.isBlank()) {
+            // El VM guarda el valor original (puede venir en otro idioma);
+            // al guardar se envía el texto visible, localizado.
+            sincronizarPatronusVM(patronus.trim());
             boolean enAlta = esAlta;
             boolean cambioEditable = enAlta || !Objects.equals(patronus.trim(), patronusOriginal);
             if (cambioEditable
@@ -387,6 +411,7 @@ public class FormularioAlumnoController implements ControladorVista {
                 return;
             }
         }
+        errorPatronus.setText("");
         formulario.guardar();
     }
 }
