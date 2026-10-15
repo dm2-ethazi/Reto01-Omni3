@@ -100,7 +100,12 @@ public class FormularioAlumnoController implements ControladorVista {
             if (programatico || valor == null) {
                 return;
             }
-            comboPatronus.getEditor().setText(valor);
+            programatico = true;
+            try {
+                comboPatronus.getEditor().setText(valor);
+            } finally {
+                programatico = false;
+            }
             sincronizarPatronusVM(valor);
             cargarImagenPatronus(valor);
             comboPatronus.hide();

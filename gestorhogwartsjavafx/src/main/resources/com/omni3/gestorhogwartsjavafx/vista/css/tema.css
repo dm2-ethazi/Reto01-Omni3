@@ -633,11 +633,14 @@
     -fx-text-fill: -texto-sec;
 }
 .boton-idioma:hover {
-    -fx-background-color: -seleccion;
+    -fx-background-color: #4A3F2A;
     -fx-border-color: -dorado;
 }
 .boton-idioma:hover > .label {
     -fx-text-fill: -dorado;
+}
+.boton-idioma:hover > .arrow-button > .arrow {
+    -fx-background-color: -dorado;
 }
 .boton-idioma > .arrow-button {
     -fx-background-color: transparent;
@@ -664,8 +667,6 @@
 }
 .menu-item:hover,
 .menu-item:focused {
-    -fx-background-color: -seleccion;
-}
-.menu-item:focused {
+    -fx-background-color: #4A3F2A;
     -fx-text-background-color: -dorado;
 }
