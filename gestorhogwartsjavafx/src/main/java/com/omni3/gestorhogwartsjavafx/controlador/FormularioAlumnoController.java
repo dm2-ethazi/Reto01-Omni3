@@ -37,8 +37,8 @@ import java.util.Optional;
  * <p>El campo de patronus es un desplegable editable con autocompletado
  * contra el catálogo {@code GET /patronus}: mientras el texto escrito
  * coincida con menos de 15 entradas se muestran las sugerencias; con 15
- * o más (o vacío) el desplegable se cierra. El campo trabaja siempre en
- * inglés (sugerencias, nombre visible y validación en {@code en}), con
+ * o más (o vacío) el desplegable se cierra. El catálogo es monolingüe
+ * (inglés), así que el campo trabaja siempre en ese idioma, con
  * independencia del idioma de la interfaz; al elegirlo se carga la
  * imagen del patronus en la vista previa.</p>
  */
@@ -168,7 +168,7 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                String visible = visibleEnIngles(valor);
+                String visible = nombreVisible(valor);
                 if (!visible.equals(comboPatronus.getEditor().getText())) {
                     comboPatronus.getEditor().setText(visible);
                     comboPatronus.setValue(visible);
@@ -203,7 +203,7 @@ public class FormularioAlumnoController implements ControladorVista {
             programatico = true;
             try {
                 String valor = texto == null ? "" : texto;
-                String visible = visibleEnIngles(valor);
+                String visible = nombreVisible(valor);
                 if (!visible.equals(comboPatronus.getEditor().getText())) {
                     comboPatronus.getEditor().setText(visible);
                     comboPatronus.setValue(visible);
@@ -276,7 +276,7 @@ public class FormularioAlumnoController implements ControladorVista {
             if (!texto.equals(comboPatronus.getEditor().getText())) {
                 comboPatronus.getEditor().setText(texto);
             }
-            List<String> sugerencias = catalogo.sugerencias(texto, Idiomas.INGLES);
+            List<String> sugerencias = catalogo.sugerencias(texto);
             if (!sugerencias.isEmpty()
                     && sugerencias.size() < CatalogoPatronus.MAXIMO_SUGERENCIAS) {
                 restablecerTamanoPopupPatronus();
@@ -346,23 +346,22 @@ public class FormularioAlumnoController implements ControladorVista {
     }
 
     /**
-     * Nombre visible del patronus en inglés.
+     * Nombre visible del patronus.
      *
-     * <p>El campo de patronus trabaja siempre en inglés, con
-     * independencia del idioma de la interfaz. Si el texto (venga del
-     * catálogo en cualquier idioma) coincide con una entrada, se muestra
-     * el nombre en {@code en}; si no, se devuelve tal cual para no perder
+     * <p>El catálogo monolingüe solo publica el nombre en inglés. Si el
+     * texto escrito coincide con una entrada, se muestra el nombre
+     * canónico del catálogo; si no, se devuelve tal cual para no perder
      * lo que el usuario escribió.</p>
      *
      * @param valor texto actual del campo; puede ser {@code null}
-     * @return el nombre en inglés, o el original
+     * @return el nombre canónico del catálogo, o el original
      */
-    private String visibleEnIngles(String valor) {
+    private String nombreVisible(String valor) {
         if (valor == null || valor.isBlank() || catalogo.total() == 0) {
             return valor == null ? "" : valor;
         }
         return catalogo.porNombre(valor)
-                .map(entrada -> CatalogoPatronus.nombreEn(entrada, Idiomas.INGLES))
+                .map(PatronusDto::nomEng)
                 .orElse(valor);
     }
 
@@ -452,8 +451,8 @@ public class FormularioAlumnoController implements ControladorVista {
      *
      * <p>Sincroniza el texto visible del combo de patronus al viewmodel y,
      * si ha cambiado respecto al original (o es un alta), comprueba que
-     * exista en el catálogo en inglés antes de enviar; si no se muestra
-     * el error bajo el campo y no se guarda.</p>
+     * exista en el catálogo antes de enviar; si no se muestra el error
+     * bajo el campo y no se guarda.</p>
      */
     public void guardar() {
         if (formulario == null) {
@@ -461,14 +460,14 @@ public class FormularioAlumnoController implements ControladorVista {
         }
         String patronus = comboPatronus.getEditor().getText();
         if (patronus != null && !patronus.isBlank()) {
-            // El VM guarda el valor original (puede venir en otro idioma);
-            // al guardar se envía el texto visible, localizado.
+            // El VM guarda el valor original; al guardar se envía el
+            // texto visible, normalizado al nombre del catálogo.
             sincronizarPatronusVM(patronus.trim());
             boolean enAlta = esAlta;
             boolean cambioEditable = enAlta || !Objects.equals(patronus.trim(), patronusOriginal);
             if (cambioEditable
                     && catalogo.total() > 0
-                    && catalogo.porNombreEn(patronus.trim(), Idiomas.INGLES).isEmpty()) {
+                    && catalogo.porNombre(patronus.trim()).isEmpty()) {
                 errorPatronus.setText(Idiomas.texto("valid.patronus.catalogo"));
                 return;
             }

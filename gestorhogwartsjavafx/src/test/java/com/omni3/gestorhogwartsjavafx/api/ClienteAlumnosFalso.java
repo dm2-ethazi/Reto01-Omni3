@@ -43,31 +43,31 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
     /** Alumnos en memoria, indexados por DNI normalizado. */
     private final Map<String, AlumnoDto> alumnos = new LinkedHashMap<>();
 
-    /** Catálogo de patronus simulado (subconjunto del real, en 3 idiomas). */
+    /** Catálogo de patronus simulado (subconjunto del real, en inglés). */
     private static final List<PatronusDto> CATALOGO = List.of(
-            new PatronusDto("Ciervo", "Stag", "Orein",
+            new PatronusDto("Stag",
                     "https://upload.wikimedia.org/wikipedia/commons/4/4b/Cervus_elaphus_Luc_Viatour_6.jpg"),
-            new PatronusDto("Lobo", "Wolf", "Otso",
+            new PatronusDto("Wolf",
                     "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg"),
-            new PatronusDto("Conejo", "Rabbit", "Untxi",
+            new PatronusDto("Rabbit",
                     "https://upload.wikimedia.org/wikipedia/commons/1/1f/Oryctolagus_cuniculus_Rcdo.jpg"),
-            new PatronusDto("Nutria", "Otter", "Igaraba",
+            new PatronusDto("Otter",
                     "https://upload.wikimedia.org/wikipedia/commons/d/d3/Fischotter%2C_Lutra_Lutra.JPG"),
-            new PatronusDto("Lechuza Común", "Barn Owl", "Ontza",
+            new PatronusDto("Barn Owl",
                     "https://upload.wikimedia.org/wikipedia/commons/9/9e/American_Barn_Owl_%28Tyto_furcata_guatemalae%29%2C_Orange_Walk.jpg"),
-            new PatronusDto("Fénix", "Phoenix", "Fenixe",
+            new PatronusDto("Phoenix",
                     "https://upload.wikimedia.org/wikipedia/commons/c/c4/Phoenix_%281583%29.svg"),
-            new PatronusDto("Serpiente de hierba", "Grass Snake", "Belar suge",
+            new PatronusDto("Grass Snake",
                     "https://upload.wikimedia.org/wikipedia/commons/0/0c/Grass_snake_%28Natrix_natrix%29_Pieniny.jpg"),
-            new PatronusDto("Gato banyano", "Balinese", "Balinese",
+            new PatronusDto("Balinese",
                     "https://upload.wikimedia.org/wikipedia/commons/0/05/Old-Style_Balinese_Cat.png"),
-            new PatronusDto("Basset Hound", "Basset Hound", "Basset Hound",
+            new PatronusDto("Basset Hound",
                     "https://upload.wikimedia.org/wikipedia/commons/c/cf/BassetHound_profil.jpg"),
-            new PatronusDto("Erumpent", "Erumpent", "Erumpent",
+            new PatronusDto("Erumpent",
                     "https://static.wikia.nocookie.net/harrypotter/images/6/61/Erumpent_Concept_Art_FB1.png/revision/latest"),
-            new PatronusDto("Occamy", "Occamy", "Occamy",
+            new PatronusDto("Occamy",
                     "https://static.wikia.nocookie.net/harrypotter/images/2/29/Occamy_FBCases.png/revision/latest"),
-            new PatronusDto("Thestral", "Thestral", "Thestral",
+            new PatronusDto("Thestral",
                     "https://static.wikia.nocookie.net/harrypotter/images/b/bd/Thestral.png/revision/latest"));
 
     /** Latencia simulada por petición. */
@@ -249,19 +249,19 @@ public class ClienteAlumnosFalso implements ClienteAlumnos {
 
     /** Rellena el alumnado histórico de varias bases y los nuevos de MariaDB. */
     private void sembrar() {
-        guardar(new Alumno("12345678A", "Harry Potter", "Gryffindor", "Ciervo",
+        guardar(new Alumno("12345678A", "Harry Potter", "Gryffindor", "Stag",
                 Origen.DERBY, TipoAlumno.HISTORICO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("23456789B", "Hermione Granger", "Gryffindor", "Otaria",
+        guardar(new Alumno("23456789B", "Hermione Granger", "Gryffindor", "Otter",
                 Origen.HSQLDB, TipoAlumno.HISTORICO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("34567890C", "Draco Malfoy", "Slytherin", "Serpiente",
+        guardar(new Alumno("34567890C", "Draco Malfoy", "Slytherin", "Grass Snake",
                 Origen.H2, TipoAlumno.HISTORICO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("45678901D", "Luna Lovegood", "Ravenclaw", "Conejo",
+        guardar(new Alumno("45678901D", "Luna Lovegood", "Ravenclaw", "Rabbit",
                 Origen.ORACLE, TipoAlumno.HISTORICO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("56789012E", "Cedric Diggory", "Hufflepuff", "Fenix",
+        guardar(new Alumno("56789012E", "Cedric Diggory", "Hufflepuff", "Phoenix",
                 Origen.SQLITE, TipoAlumno.HISTORICO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("67890123F", "Maria Rodriguez", null, "Gato",
+        guardar(new Alumno("67890123F", "Maria Rodriguez", null, "Cat",
                 Origen.MARIADB, TipoAlumno.NUEVO, 1L, MOMENTO_SEMILLA, true));
-        guardar(new Alumno("78901234G", "Carlos Ruiz", null, "Lobo",
+        guardar(new Alumno("78901234G", "Carlos Ruiz", null, "Wolf",
                 Origen.MARIADB, TipoAlumno.NUEVO, 1L, MOMENTO_SEMILLA, true));
     }
 

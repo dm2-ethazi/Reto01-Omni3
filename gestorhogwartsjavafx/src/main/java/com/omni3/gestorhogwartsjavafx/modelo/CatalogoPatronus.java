@@ -1,21 +1,20 @@
 package com.omni3.gestorhogwartsjavafx.modelo;
 
 import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
-import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Catálogo de patronus en memoria, cargado desde {@code GET /patronus}.
  *
- * <p>Permite buscar por nombre en cualquier idioma, devolver el nombre
- * localizado al idioma de la interfaz y filtrar sugerencias para el
- * autocompletado del formulario. La comparación de textos ignora
+ * <p>El catálogo es monolingüe: la API publica el nombre de cada
+ * patronus solo en inglés, que es el idioma en el que trabajan el
+ * autocompletado y la validación del formulario. Permite buscar por
+ * nombre exacto y filtrar sugerencias. La comparación de textos ignora
  * mayúsculas y acentos.</p>
  */
 public final class CatalogoPatronus {
@@ -65,31 +64,14 @@ public final class CatalogoPatronus {
     }
 
     /**
-     * Nombre localizado de una entrada para el idioma dado.
+     * Nombres de todo el catálogo, en orden y sin vacíos.
      *
-     * @param entrada     entrada del catálogo; no nula
-     * @param codigoIdioma código de idioma ({@code es}, {@code eu} o {@code en})
-     * @return el nombre en ese idioma, o el español si el código no está admitido
+     * @return nombres en inglés, en orden de catálogo
      */
-    public static String nombreEn(PatronusDto entrada, String codigoIdioma) {
-        Objects.requireNonNull(entrada, "La entrada es obligatoria");
-        return switch (codigoIdioma) {
-            case Idiomas.CASTELLANO -> entrada.nomEsp();
-            case Idiomas.EUSKERA -> entrada.nomEus();
-            default -> entrada.nomEng();
-        };
-    }
-
-    /**
-     * Nombres localizados de todo el catálogo para el idioma dado.
-     *
-     * @param codigoIdioma código de idioma ({@code es}, {@code eu} o {@code en})
-     * @return nombres en ese idioma, en orden de catálogo y sin vacíos
-     */
-    public List<String> nombres(String codigoIdioma) {
+    public List<String> nombres() {
         List<String> nombres = new ArrayList<>(entradas.size());
         for (PatronusDto entrada : entradas) {
-            String nombre = nombreEn(entrada, codigoIdioma);
+            String nombre = entrada.nomEng();
             if (nombre != null && !nombre.isBlank()) {
                 nombres.add(nombre);
             }
@@ -98,26 +80,8 @@ public final class CatalogoPatronus {
     }
 
     /**
-     * Busca una entrada por nombre exacto en el idioma dado, ignorando
-     * mayúsculas y acentos.
-     *
-     * @param texto        nombre a buscar; puede ser {@code null}
-     * @param codigoIdioma código de idioma ({@code es}, {@code eu} o {@code en})
-     * @return la entrada encontrada, o vacío si no hay coincidencia
-     */
-    public Optional<PatronusDto> porNombreEn(String texto, String codigoIdioma) {
-        String buscado = normalizar(texto);
-        if (buscado.isEmpty()) {
-            return Optional.empty();
-        }
-        return entradas.stream()
-                .filter(entrada -> buscado.equals(normalizar(nombreEn(entrada, codigoIdioma))))
-                .findFirst();
-    }
-
-    /**
-     * Busca una entrada por nombre exacto en cualquiera de los tres
-     * idiomas, ignorando mayúsculas y acentos.
+     * Busca una entrada por nombre exacto, ignorando mayúsculas y
+     * acentos.
      *
      * @param texto nombre a buscar; puede ser {@code null}
      * @return la entrada encontrada, o vacío si no hay coincidencia
@@ -128,13 +92,12 @@ public final class CatalogoPatronus {
             return Optional.empty();
         }
         return entradas.stream()
-                .filter(entrada -> coincide(entrada, buscado))
+                .filter(entrada -> buscado.equals(normalizar(entrada.nomEng())))
                 .findFirst();
     }
 
     /**
-     * URL de la imagen de un patronus, buscando por nombre en cualquier
-     * idioma.
+     * URL de la imagen de un patronus, buscando por nombre.
      *
      * @param nombre nombre del patronus; puede ser {@code null}
      * @return la URL de la imagen, o vacío si el patronus no está en el catálogo
@@ -144,35 +107,27 @@ public final class CatalogoPatronus {
     }
 
     /**
-     * Sugiere nombres localizados que contienen el texto escrito.
+     * Sugiere nombres que contienen el texto escrito.
      *
      * <p>El texto vacío no produce sugerencias: el desplegable solo se
      * abre cuando hay entre 1 y {@value #MAXIMO_SUGERENCIAS} coincidencias,
      * para no abrumar al usuario con el catálogo completo.</p>
      *
-     * @param texto        texto escrito por el usuario; puede ser {@code null}
-     * @param codigoIdioma código de idioma de las sugerencias
+     * @param texto texto escrito por el usuario; puede ser {@code null}
      * @return nombres que contienen el texto, en orden de catálogo
      */
-    public List<String> sugerencias(String texto, String codigoIdioma) {
+    public List<String> sugerencias(String texto) {
         String buscado = normalizar(texto);
         if (buscado.isEmpty()) {
             return List.of();
         }
         List<String> coincidencias = new ArrayList<>();
-        for (String nombre : nombres(codigoIdioma)) {
+        for (String nombre : nombres()) {
             if (normalizar(nombre).contains(buscado)) {
                 coincidencias.add(nombre);
             }
         }
         return List.copyOf(coincidencias);
-    }
-
-    /** {@code true} si el nombre localizado de la entrada coincide con el texto. */
-    private static boolean coincide(PatronusDto entrada, String buscado) {
-        return buscado.equals(normalizar(entrada.nomEsp()))
-                || buscado.equals(normalizar(entrada.nomEng()))
-                || buscado.equals(normalizar(entrada.nomEus()));
     }
 
     /** Normaliza un texto: sin acentos, sin mayúsculas y sin espacios sobrantes. */

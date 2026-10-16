@@ -267,22 +267,16 @@ class ClienteAlumnosFalsoTest {
     // ----------------------------------------------------------- patronus
 
     @Test
-    @DisplayName("listarPatronus devuelve el catálogo en 3 idiomas con URLs")
+    @DisplayName("listarPatronus devuelve el catálogo en inglés con URLs")
     void listarPatronusDevuelveElCatalogo() {
         List<PatronusDto> catalogo = falso.listarPatronus();
 
         assertFalse(catalogo.isEmpty(), "El catálogo de pruebas no puede estar vacío");
-        assertTrue(catalogo.stream().allMatch(p -> p.nomEsp() != null && !p.nomEsp().isBlank()),
-                "Cada entrada debe tener nombre en español");
         assertTrue(catalogo.stream().allMatch(p -> p.nomEng() != null && !p.nomEng().isBlank()),
                 "Cada entrada debe tener nombre en inglés");
-        assertTrue(catalogo.stream().allMatch(p -> p.nomEus() != null && !p.nomEus().isBlank()),
-                "Cada entrada debe tener nombre en euskera");
         assertTrue(catalogo.stream().allMatch(p -> p.url() != null && !p.url().isBlank()),
                 "Cada entrada debe tener URL de imagen");
-        assertTrue(catalogo.stream().anyMatch(p -> "Ciervo".equals(p.nomEsp())));
         assertTrue(catalogo.stream().anyMatch(p -> "Stag".equals(p.nomEng())));
-        assertTrue(catalogo.stream().anyMatch(p -> "Orein".equals(p.nomEus())));
     }
 
     @Test
