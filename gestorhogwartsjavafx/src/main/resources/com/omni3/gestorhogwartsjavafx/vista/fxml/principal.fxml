@@ -29,7 +29,7 @@
   </HBox>
 
   <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">
-    <VBox fx:id="lateral" prefWidth="230" spacing="6" styleClass="lateral">
+    <VBox fx:id="lateral" prefWidth="230" minWidth="180" spacing="6" styleClass="lateral">
       <padding><Insets top="16" right="12" bottom="16" left="12"/></padding>
       <Label text="%nav.seccion" styleClass="etiqueta-seccion"/>
       <Button fx:id="navEstado" text="%boton.salud" maxWidth="Infinity" styleClass="boton-lateral"

@@ -39,7 +39,7 @@
     <Label fx:id="campoEstado" text="—" styleClass="valor-dato" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
     <Label text="%ficha.mensaje" styleClass="etiqueta-seccion" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-    <Label fx:id="campoMensaje" text="—" styleClass="valor-dato" wrapText="true"
+    <Label fx:id="campoMensaje" text="—" styleClass="valor-dato" wrapText="true" maxWidth="Infinity"
            GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
     <Label text="%ficha.momento" styleClass="etiqueta-seccion" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
@@ -50,7 +50,7 @@
   </GridPane>
 
   <HBox spacing="8" alignment="CENTER_LEFT">
-    <Label fx:id="etiquetaError" text="" styleClass="texto-error" wrapText="true" HBox.hgrow="ALWAYS"/>
+    <Label fx:id="etiquetaError" text="" styleClass="texto-error" wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
   </HBox>
 
   <HBox spacing="8" alignment="CENTER_LEFT">

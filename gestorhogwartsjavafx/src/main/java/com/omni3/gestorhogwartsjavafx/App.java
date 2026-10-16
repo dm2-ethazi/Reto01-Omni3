@@ -86,8 +86,12 @@ public class App extends Application {
 
         escenario.setTitle(Idiomas.texto("app.titulo"));
         escenario.setScene(escena);
-        escenario.setMinWidth(900);
-        escenario.setMinHeight(600);
+        // Tamaño de apertura cómodo, con mínimos bajos para poder
+        // encoger la ventana; el contenido es escalable (FXML flexible).
+        escenario.setWidth(1100);
+        escenario.setHeight(720);
+        escenario.setMinWidth(640);
+        escenario.setMinHeight(480);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
     }

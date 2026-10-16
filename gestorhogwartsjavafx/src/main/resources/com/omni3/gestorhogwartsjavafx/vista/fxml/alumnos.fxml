@@ -9,6 +9,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
@@ -24,22 +25,26 @@
     <TextField fx:id="campoBusqueda" promptText="%campo.buscar" prefWidth="200"
                minWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"
                styleClass="campo" onAction="#buscar"/>
-    <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="150" styleClass="campo-combo"/>
-    <Button fx:id="botonBuscar" text="%boton.buscar" styleClass="boton-secundario" onAction="#buscar">
-      <tooltip><Tooltip text="%tooltip.buscar"/></tooltip>
-    </Button>
-    <Button fx:id="botonLimpiar" text="%boton.limpiar" styleClass="boton-secundario" onAction="#limpiar">
-      <tooltip><Tooltip text="%tooltip.limpiar"/></tooltip>
-    </Button>
-    <Button fx:id="botonNuevo" text="%boton.nuevo" styleClass="boton-primario" onAction="#nuevo">
-      <tooltip><Tooltip text="%tooltip.boton.nuevo"/></tooltip>
-    </Button>
-    <Button fx:id="botonEditar" text="%boton.editar" styleClass="boton-secundario" onAction="#editar">
-      <tooltip><Tooltip text="%tooltip.editar"/></tooltip>
-    </Button>
-    <Button fx:id="botonBaja" text="%boton.baja" styleClass="boton-peligro" onAction="#baja">
-      <tooltip><Tooltip text="%tooltip.baja"/></tooltip>
-    </Button>
+    <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="140" styleClass="campo-combo"/>
+    <!-- Los botones van en un FlowPane: en ventanas estrechas pasan a una
+         segunda línea en lugar de recortarse, y al ampliar ocupan el hueco. -->
+    <FlowPane alignment="CENTER_LEFT" hgap="8" vgap="8" HBox.hgrow="ALWAYS">
+      <Button fx:id="botonBuscar" text="%boton.buscar" styleClass="boton-secundario" onAction="#buscar">
+        <tooltip><Tooltip text="%tooltip.buscar"/></tooltip>
+      </Button>
+      <Button fx:id="botonLimpiar" text="%boton.limpiar" styleClass="boton-secundario" onAction="#limpiar">
+        <tooltip><Tooltip text="%tooltip.limpiar"/></tooltip>
+      </Button>
+      <Button fx:id="botonNuevo" text="%boton.nuevo" styleClass="boton-primario" onAction="#nuevo">
+        <tooltip><Tooltip text="%tooltip.boton.nuevo"/></tooltip>
+      </Button>
+      <Button fx:id="botonEditar" text="%boton.editar" styleClass="boton-secundario" onAction="#editar">
+        <tooltip><Tooltip text="%tooltip.editar"/></tooltip>
+      </Button>
+      <Button fx:id="botonBaja" text="%boton.baja" styleClass="boton-peligro" onAction="#baja">
+        <tooltip><Tooltip text="%tooltip.baja"/></tooltip>
+      </Button>
+    </FlowPane>
   </HBox>
 
   <StackPane fx:id="contenedorTabla" VBox.vgrow="ALWAYS">
