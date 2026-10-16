@@ -388,6 +388,12 @@
     -fx-padding: 12 8 12 8;
 }
 
+/* Botones de la barra: padding menor para que los cinco quepan
+   enteros incluso en la ventana mínima (640px de ancho). */
+.barra-herramientas .button {
+    -fx-padding: 8 12 8 12;
+}
+
 .barra-conteo {
     -fx-background-color: -surface-alt;
     -fx-border-color: -borde transparent transparent transparent;

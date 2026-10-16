@@ -20,14 +20,18 @@
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.AlumnosController"
       stylesheets="@../css/tema.css">
 
+  <!-- Fila de búsqueda: título, filtro de texto y origen. -->
   <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
     <Label text="%pantalla.alumnos" styleClass="titulo-seccion" minWidth="90"/>
     <TextField fx:id="campoBusqueda" promptText="%campo.buscar" prefWidth="200"
                minWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"
                styleClass="campo" onAction="#buscar"/>
     <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="140" styleClass="campo-combo"/>
-    <!-- Los botones van en un FlowPane: en ventanas estrechas pasan a una
-         segunda línea en lugar de recortarse, y al ampliar ocupan el hueco. -->
+  </HBox>
+
+  <!-- Fila de acciones: los botones siempre en una línea propia para
+       que entren enteros; en ventanas muy estrechas pasan a otra línea. -->
+  <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
     <FlowPane alignment="CENTER_LEFT" hgap="8" vgap="8" HBox.hgrow="ALWAYS">
       <Button fx:id="botonBuscar" text="%boton.buscar" styleClass="boton-secundario" onAction="#buscar">
         <tooltip><Tooltip text="%tooltip.buscar"/></tooltip>
