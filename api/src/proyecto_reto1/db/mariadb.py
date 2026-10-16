@@ -2,7 +2,7 @@
 
 Usa la librería nativa `pymysql`. Es el repositorio central: las altas de
 alumnos (POST) se realizan siempre aquí, y también gestiona la tabla
-`PATRONUS_IMG` (catálogo de patronus con imagen en 3 idiomas).
+`PATRONUS_IMG` (catálogo de patronus con nombre en inglés e imagen).
 """
 
 import pymysql
@@ -60,13 +60,10 @@ class RepositorioMariaDB:
     # ------------------------------------------------------------------ #
 
     def buscar_patronus_url(self, patronus: str) -> str | None:
-        """Busca en PATRONUS_IMG el URL de la imagen de un patronus.
-
-        Consulta las 3 columnas de nombre (NOM_ESP, NOM_ENG, NOM_EUS)
-        para encontrar coincidencia en cualquier idioma.
+        """Busca en PATRONUS_IMG el URL de la imagen de un patronus por nombre.
 
         Args:
-            patronus: Nombre del patronus a buscar.
+            patronus: Nombre del patronus a buscar (columna NOM_ENG).
 
         Returns:
             URL de la imagen si se encontró, None si no.
@@ -77,33 +74,30 @@ class RepositorioMariaDB:
         try:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "SELECT URL FROM PATRONUS_IMG "
-                    "WHERE NOM_ESP = %s OR NOM_ENG = %s OR NOM_EUS = %s LIMIT 1",
-                    (patronus, patronus, patronus),
+                    "SELECT URL FROM PATRONUS_IMG WHERE NOM_ENG = %s LIMIT 1",
+                    (patronus,),
                 )
                 fila = cursor.fetchone()
         finally:
             conexion.close()
         return texto(fila[0]) if fila else None
 
-    def validar_patronus(self, patronus: str, lang: str) -> bool:
-        """Comprueba que un patronus existe en PATRONUS_IMG en el idioma indicado.
+    def validar_patronus(self, patronus: str) -> bool:
+        """Comprueba que un patronus existe en PATRONUS_IMG.
 
         Args:
-            patronus: Nombre del patronus a validar.
-            lang: Idioma ('es', 'en' o 'eu'). Determina la columna a consultar.
+            patronus: Nombre del patronus a validar (columna NOM_ENG).
 
         Returns:
-            True si el patronus existe en la columna del idioma indicado.
+            True si el patronus existe en la tabla.
         """
         if not patronus:
             return False
-        columna = {"es": "NOM_ESP", "en": "NOM_ENG", "eu": "NOM_EUS"}[lang]
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    f"SELECT 1 FROM PATRONUS_IMG WHERE {columna} = %s LIMIT 1",
+                    "SELECT 1 FROM PATRONUS_IMG WHERE NOM_ENG = %s LIMIT 1",
                     (patronus,),
                 )
                 existe = cursor.fetchone() is not None
@@ -120,16 +114,14 @@ class RepositorioMariaDB:
         conexion = self._conectar()
         try:
             with conexion.cursor() as cursor:
-                cursor.execute("SELECT NOM_ESP, NOM_ENG, NOM_EUS, URL FROM PATRONUS_IMG")
+                cursor.execute("SELECT NOM_ENG, URL FROM PATRONUS_IMG")
                 filas = cursor.fetchall()
         finally:
             conexion.close()
         return [
             Patronus(
-                nom_esp=texto(f[0]) or "",
-                nom_eng=texto(f[1]) or "",
-                nom_eus=texto(f[2]) or "",
-                url=texto(f[3]) or "",
+                nom_eng=texto(f[0]) or "",
+                url=texto(f[1]) or "",
             )
             for f in filas
         ]
@@ -249,7 +241,7 @@ class RepositorioMariaDB:
             raise
         finally:
             conexion.close()
-        return Alumno(**datos.model_dump(exclude={"patronus_lang"}), casa=self.casa)
+        return Alumno(**datos.model_dump(), casa=self.casa)
 
     def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
         """Actualiza los campos enviados de un alumno existente.

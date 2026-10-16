@@ -37,15 +37,11 @@ class Patronus(BaseModel):
     """Modelo de un patronus del catálogo PATRONUS_IMG.
 
     Atributos:
-        nom_esp: Nombre del patronus en español.
         nom_eng: Nombre del patronus en inglés.
-        nom_eus: Nombre del patronus en euskera.
         url: URL de la imagen del patronus.
     """
 
-    nom_esp: str
     nom_eng: str
-    nom_eus: str
     url: str
 
 
@@ -57,9 +53,7 @@ class AlumnoEntrada(BaseModel):
         nombre: Nombre del alumno (1-100, obligatorio).
         apellido: Apellido(s), opcional.
         sexo: H, M o S, opcional.
-        patronus: Nombre del patronus, opcional. Se valida contra PATRONUS_IMG.
-        patronus_lang: Idioma del patronus: 'es' (español), 'en' (inglés) o 'eu' (euskera).
-            Determina contra qué columna de PATRONUS_IMG se valida.
+        patronus: Nombre del patronus en inglés, opcional. Se valida contra PATRONUS_IMG.
         imagen: URL o ruta de la imagen del alumno, opcional (máx. 500).
     """
 
@@ -68,7 +62,6 @@ class AlumnoEntrada(BaseModel):
     apellido: str | None = Field(default=None, max_length=100)
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
     patronus: str | None = Field(default=None, max_length=100)
-    patronus_lang: str = Field(default="es", pattern="^(es|en|eu)$")
     imagen: str | None = Field(default=None, max_length=500)
 
 

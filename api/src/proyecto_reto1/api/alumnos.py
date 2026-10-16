@@ -199,12 +199,11 @@ def crear_alumno(
 
     Flujo:
     1. Comprueba que el DNI no exista en ninguna de las 5 fuentes (409 si existe).
-    2. Valida el patronus contra PATRONUS_IMG en el idioma indicado por
-       `patronus_lang` ('es', 'en' o 'eu'). Si no existe, devuelve 422.
+    2. Valida el patronus contra PATRONUS_IMG (columna NOM_ENG). Si no existe, devuelve 422.
     3. Inserta el alumno en MariaDB.
 
     Args:
-        datos: Datos del alumno (AlumnoEntrada con patronus_lang e imagen).
+        datos: Datos del alumno (AlumnoEntrada con imagen y patronus en inglés).
         fuentes: Lista de repositorios activos (inyectada por FastAPI).
 
     Returns:
@@ -242,7 +241,7 @@ def crear_alumno(
     # 3) Validar patronus contra PATRONUS_IMG si se indicó.
     if datos.patronus:
         try:
-            patronus_valido = repositorio.validar_patronus(datos.patronus, datos.patronus_lang)
+            patronus_valido = repositorio.validar_patronus(datos.patronus)
         except Exception as error:
             logger.error("Fallo validando patronus en MariaDB: %s", error)
             raise HTTPException(
@@ -250,12 +249,10 @@ def crear_alumno(
                 detail=f"La fuente '{repositorio.casa}' no responde: {error}",
             ) from error
         if not patronus_valido:
-            idiomas = {"es": "español", "en": "inglés", "eu": "euskera"}
             raise HTTPException(
                 status_code=422,
                 detail=(
-                    f"El patronus '{datos.patronus}' no existe en la tabla PATRONUS_IMG "
-                    f"para el idioma '{idiomas[datos.patronus_lang]}'"
+                    f"El patronus '{datos.patronus}' no existe en la tabla PATRONUS_IMG"
                 ),
             )
 
