@@ -41,11 +41,29 @@ public interface ControladorVista {
      * azules saturados del tema por defecto, fuera de la paleta
      * "azul tenue" (§5 del contrato).</p>
      *
+     * <p>También pinta el fondo de la escena del diálogo con el color
+     * oscuro del tema: el panel usa esquinas redondeadas y el relleno
+     * blanco por defecto de la escena asomaba en las esquinas.</p>
+     *
      * @param dialogo diálogo a estilizar; no nulo
      */
     default void estilizarDialogo(Dialog<?> dialogo) {
         dialogo.getDialogPane().getStylesheets().add(
                 getClass().getResource("/com/omni3/gestorhogwartsjavafx/vista/css/tema.css").toExternalForm());
+
+        // El panel del diálogo tiene esquinas redondeadas (-fx-background
+        // -radius) y el relleno por defecto de la escena es blanco: al
+        // crear la escena se pinta de -fondo para que las esquinas
+        // redondeadas no asomen en blanco.
+        javafx.scene.Scene escenaPrevia = dialogo.getDialogPane().getScene();
+        if (escenaPrevia != null) {
+            escenaPrevia.setFill(javafx.scene.paint.Color.web("#1C1914"));
+        }
+        dialogo.getDialogPane().sceneProperty().addListener((observable, antes, escena) -> {
+            if (escena != null) {
+                escena.setFill(javafx.scene.paint.Color.web("#1C1914"));
+            }
+        });
 
         // Asignar owner para heredar el icono de la ventana principal
         javafx.stage.Window owner = null;

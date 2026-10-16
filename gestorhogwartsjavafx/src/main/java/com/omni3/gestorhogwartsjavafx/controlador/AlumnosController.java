@@ -394,6 +394,16 @@ public class AlumnosController implements ControladorVista {
             dialogo.getDialogPane().setContent(raiz);
             estilizarDialogo(dialogo);
             dialogo.setResizable(true);
+            // Mínimo 480x460: el diálogo no debe poder encogerse hasta
+            // desaparecer, pero sigue escalable y maximizable.
+            dialogo.setOnShowing(evento -> {
+                if (dialogo.getDialogPane().getScene() != null
+                        && dialogo.getDialogPane().getScene().getWindow()
+                                instanceof javafx.stage.Stage escenario) {
+                    escenario.setMinWidth(480);
+                    escenario.setMinHeight(460);
+                }
+            });
 
             Node botonGuardar = dialogo.getDialogPane().lookupButton(tipoGuardar);
             ayudar(botonGuardar, Idiomas.texto("tooltip.form.guardar"));
