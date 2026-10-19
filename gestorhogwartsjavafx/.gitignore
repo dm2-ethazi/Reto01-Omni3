@@ -2,11 +2,17 @@
 target/
 dependency-reduced-pom.xml
 
+# Configuración secreta (la URL de la API vive fuera del repositorio)
+config.properties
+
 # Registros de ejecución
 *.log
+logs/
 
 # IDE
 .idea/
 *.iml
 .vscode/
 .settings/
+.classpath
+.project

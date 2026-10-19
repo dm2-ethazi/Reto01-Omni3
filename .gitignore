@@ -1,5 +1,6 @@
 # Env
 .env
+config.properties
 
 # Python-generated files
 __pycache__/
@@ -12,6 +13,18 @@ wheels/
 # Virtual environments
 .venv
 
+# Compilación Java
+target/
+dependency-reduced-pom.xml
+
+# Registros de ejecución
+*.log
+logs/
+
 # IDE
 .idea/
 .vscode/
+*.iml
+.classpath
+.project
+.settings/

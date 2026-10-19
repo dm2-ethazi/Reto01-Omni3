@@ -3,6 +3,7 @@ package com.omni3.gestorhogwartsjavafx;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import com.omni3.gestorhogwartsjavafx.controlador.PrincipalController;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
+import com.omni3.gestorhogwartsjavafx.util.Registro;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -94,6 +95,7 @@ public class App extends Application {
         escenario.setMinHeight(480);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
+        Registro.info("Aplicación iniciada");
     }
 
     /**
@@ -123,7 +125,7 @@ public class App extends Application {
             escena.setRoot(raiz);
             escenario.setTitle(Idiomas.texto("app.titulo"));
         } catch (IOException excepcion) {
-            System.err.println("[aviso] No se pudo recargar la interfaz: " + excepcion.getMessage());
+            Registro.aviso("No se pudo recargar la interfaz: " + excepcion.getMessage());
         }
     }
 
@@ -147,7 +149,7 @@ public class App extends Application {
                 Font.loadFont(url.openStream(), -1);
             }
         } catch (Exception error) {
-            System.err.println("[aviso] No se pudo cargar la fuente " + ruta
+            Registro.aviso("No se pudo cargar la fuente " + ruta
                     + ": " + error.getMessage());
         }
     }
@@ -162,6 +164,7 @@ public class App extends Application {
         if (fabrica != null) {
             fabrica.cerrar();
             fabrica = null;
+            Registro.info("Aplicación detenida");
         }
     }
 
