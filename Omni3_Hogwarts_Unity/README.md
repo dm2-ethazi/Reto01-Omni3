@@ -1,100 +1,128 @@
-# Reto01 — Omni3 Hogwarts
+# Omni3 Hogwarts — Directorio de Patronus
 
-Aplicación de Unity ambientada en Hogwarts que permite buscar estudiantes y consultar su casa y su Patronus. El cliente obtiene los datos de los estudiantes y las imágenes de sus Patronus desde una **API Alumnos** externa. Este repositorio también incluye un entorno de Docker Compose para las bases de datos del proyecto.
+Cliente desarrollado en **Unity 6** para buscar estudiantes y consultar su casa y su Patronus desde una interfaz ambientada en Hogwarts. Combina un fondo de vídeo, un material creado con Shader Graph, destellos dorados al escribir y una animación de aparición de las imágenes.
 
 ## Funcionalidades
 
-- Búsqueda de estudiantes por nombre, con una espera de 250 ms después de escribir.
-- Visualización de hasta ocho coincidencias, con el nombre y la casa de cada estudiante.
-- Selección de un resultado para cargar el nombre completo, la casa, el Patronus y su imagen, si está disponible.
-- Indicadores de carga, búsquedas sin resultados, imágenes no disponibles y errores de conexión.
-- Animación de aparición y ampliación de las imágenes del Patronus y destellos dorados al escribir.
+- Búsqueda por nombre con una espera de **250 ms** para evitar una petición por cada pulsación.
+- Hasta **ocho resultados** visibles, con el nombre y la casa del estudiante.
+- Panel de detalles con el nombre completo, la casa, el Patronus y su imagen disponible.
+- Mensajes de carga, búsquedas sin coincidencias y errores de descarga.
+- Control de respuestas antiguas para que prevalezcan la búsqueda y la selección más recientes.
 
-Las búsquedas vacías no solicitan la lista de estudiantes. Si hay más de ocho coincidencias, escribe un nombre más específico para reducir los resultados.
+El campo vacío no carga la lista completa. Si aparecen más de ocho coincidencias, escribe un nombre más específico.
 
-## Requisitos
+## Abrir y ejecutar
 
-- **Unity Hub** y **Unity Editor 6000.3.25f1**, la versión registrada en el proyecto.
-- Una API Alumnos en ejecución que implemente los endpoints descritos más abajo.
-- **Docker con Docker Compose** para ejecutar el entorno de bases de datos incluido.
+1. Instala **Unity Editor 6000.3.25f1** desde Unity Hub.
+2. Añade la carpeta `Omni3_Hogwarts_Unity` como proyecto.
+3. Espera a que Unity importe los recursos y resuelva los paquetes.
+4. Abre [PatronusDirectory.unity](Assets/Scenes/PatronusDirectory.unity).
+5. Configura **Api Base Url** en el componente `PatronusApiClient` de la escena con una dirección accesible.
+6. Pulsa **Play**, escribe un nombre y selecciona un resultado.
 
-Las dependencias de Unity se declaran en [`Packages/manifest.json`](Omni3_Hogwarts_Unity/Packages/manifest.json), e incluyen Universal Render Pipeline, Unity UI y el Input System.
+La escena utiliza Unity UI sobre Canvas. Las dependencias se encuentran en [Packages/manifest.json](Packages/manifest.json), incluyendo **Universal Render Pipeline 17.3.0**, **Unity UI 2.0.0** e **Input System 1.20.0**.
 
-## Ejecutar la aplicación de Unity
+## Presentación visual
 
-1. En Unity Hub, añade la carpeta **`Omni3_Hogwarts_Unity`** como proyecto y ábrela con la versión correspondiente del editor.
-2. Espera a que Unity importe los recursos y resuelva los paquetes.
-3. Abre `Assets/Scenes/PatronusDirectory.unity`.
-4. Localiza el objeto de la escena que contiene el componente **PatronusApiClient** y configura **Api Base Url** en el Inspector con la dirección de tu API en ejecución.
-5. Activa el modo Play, escribe el nombre de un estudiante y pulsa un resultado para consultar sus detalles.
+### Shader y material del Patronus
 
-El script utiliza `http://127.0.0.1:8000` por defecto, pero la escena actualmente sobrescribe ese valor con `https://curator-caliber-magma.ngrok-free.dev`. Sustituye el valor de la escena si el túnel no está disponible o utilizas otro servidor. Si ejecutas la aplicación en otro dispositivo, usa una dirección de la API accesible desde él; `127.0.0.1` hace referencia al propio dispositivo.
+[BlueShader.shadergraph](Assets/Shaders/BlueShader.shadergraph) es un Shader Graph con destino **Canvas de URP**, utilizado por [PatronusMagicMaterial.mat](Assets/Shaders/PatronusMagicMaterial.mat). El material está asignado al `RawImage` que presenta el Patronus en la escena.
 
-El servidor de la API y sus instrucciones de arranque no están incluidos en este repositorio. Iniciar los contenedores de bases de datos no inicia la API.
+El grafo contiene:
 
-## Contrato de la API
+- Una propiedad **Main Texture** con referencia **`_MainTex`**, marcada como textura principal y como dato por renderer, para recibir la textura de la interfaz.
+- Un nodo **Sample Texture 2D** que muestrea esa textura y envía su salida al bloque **Base Color**.
+- Un bloque **Emission** con un valor cian, aproximadamente `(0, 0.965, 1)`, que aporta el color luminoso del efecto.
+- Un bloque **Alpha** con valor constante `1`. Actualmente, el canal alfa de la textura no está conectado a este bloque.
 
-| Petición | Respuesta esperada | Finalidad |
-| --- | --- | --- |
-| `GET /alumnos?nombre=<nombre>` | Un array JSON de objetos de estudiantes | Buscar por nombre |
-| `GET /alumnos/{dni}` | Un objeto de estudiante | Cargar los detalles del estudiante seleccionado |
+Para modificar su aspecto, abre el grafo desde la ventana Project y ajusta sus bloques y conexiones. La emisión está definida dentro del grafo; no hay una propiedad de color expuesta en el material. La intensidad del brillo visible depende también de la configuración de renderizado de la escena.
 
-El cliente codifica el término de búsqueda para incluirlo en la URL y utiliza el **`id`** del estudiante seleccionado como valor de `{dni}` en la ruta. Se eliminan los espacios al principio y al final del término de búsqueda, que está limitado a 100 caracteres.
+### Fondo animado
 
-Ejemplo de un objeto de estudiante con datos ficticios:
+El objeto **Background** utiliza un `VideoPlayer` para reproducir [patronus_magical_background.mp4](Assets/Textures/patronus_magical_background.mp4) automáticamente y en bucle, sin salida de audio.
 
-```json
-{
-  "id": "student-001",
-  "nombre": "Ejemplo",
-  "apellido": "Estudiante",
-  "sexo": "",
-  "casa": "Gryffindor",
-  "patronus": "Ciervo",
-  "patronus_url": "/images/patronus/stag.png",
-  "imagen": "/images/students/student-001.png"
-}
-```
-
-`patronus_url` puede ser una URL absoluta o una ruta relativa a la URL base de la API. Si falta o la imagen no se puede descargar, la aplicación mantiene visibles los detalles del estudiante y muestra un mensaje en lugar de la imagen. El campo independiente `imagen` representa el retrato del estudiante y no se utiliza como imagen del Patronus.
-
-La interfaz permite buscar y consultar detalles de estudiantes. La creación, modificación y eliminación de estudiantes, así como el listado independiente de Patronus, quedan fuera de su alcance actual.
-
-
-## Estructura del repositorio
+El vídeo se escribe en [PatronusBackground.renderTexture](Assets/Textures/PatronusBackground.renderTexture), de **1536 × 720 píxeles**. Un `RawImage` muestra esa misma Render Texture como fondo de la interfaz. El componente `AspectRatioFitter` está configurado para cubrir su contenedor manteniendo la proporción del fondo.
 
 ```text
-└── Omni3_Hogwarts_Unity/
-    ├── Assets/
-    │   ├── Scenes/
-    │   │   └── PatronusDirectory.unity
-    │   └── Scripts/
-    │       ├── Alumno.cs
-    │       ├── PatronusApiClient.cs
-    │       ├── PatronusDirectoryController.cs
-    │       ├── PatronusDirectoryView.cs
-    │       ├── PatronusResultRow.cs
-    │       └── GoldenTypingLightEffect.cs
-    ├── Packages/
-    └── ProjectSettings/
+VideoPlayer → PatronusBackground.renderTexture → RawImage del fondo
 ```
 
-El cliente de la API gestiona las peticiones HTTP y la lectura del JSON. El controlador coordina las búsquedas con espera y la selección; la vista actualiza el panel de detalles, y cada fila de resultados vincula un estudiante con su botón de selección. `Alumno` define el modelo de respuesta y `GoldenTypingLightEffect` gestiona los destellos del campo de búsqueda.
+Para cambiar el vídeo, sustituye **Video Clip** en el `VideoPlayer`. Mantén la misma Render Texture en **Target Texture** y en **Texture** del `RawImage`; si cambia la proporción del contenido, revisa también el `AspectRatioFitter`.
 
-## Compilación y comprobación
+### Destellos al escribir
 
-Abre **File → Build Profiles** en Unity, elige la plataforma de destino y comprueba que `Assets/Scenes/PatronusDirectory.unity` esté incluida y activada. Ya está activada en la configuración de compilación del repositorio. Configura una URL de la API accesible antes de compilar.
+[GoldenTypingLightEffect.cs](Assets/Scripts/GoldenTypingLightEffect.cs) genera pequeñas imágenes de luz dorada junto al cursor del campo de búsqueda. Los recursos reutilizables se encuentran en `Assets/Effects/GoldenTypingLight/`.
 
-Para realizar una comprobación manual básica con la API en ejecución:
+Cada destello se desplaza, gira y pierde opacidad hasta desaparecer. El efecto limita las partículas activas a **32** y permite ajustar desde el Inspector la cantidad por cambio de texto, la duración, el tamaño y la velocidad de ascenso. Se actualiza con tiempo independiente de `Time.timeScale`.
 
-1. Busca un estudiante conocido y selecciona un resultado; comprueba que aparecen el nombre, la casa y el Patronus.
-2. Prueba con un estudiante que tenga una imagen válida del Patronus y con otro que no tenga imagen.
-3. Busca un nombre sin coincidencias y después vacía el campo de búsqueda.
-4. Escribe rápidamente o cambia de selección mientras se cargan las peticiones; comprueba que se muestran los resultados y los detalles de la selección más reciente.
+### Aparición de la imagen
+
+[PatronusDirectoryView.cs](Assets/Scripts/PatronusDirectoryView.cs) anima la imagen cuando termina su descarga. Su configuración por defecto combina una transición de opacidad y una ampliación desde el **85 %** de su escala hasta el tamaño original durante **0,4 segundos**, con interpolación suave.
+
+Los campos **Animation Duration** e **Initial Scale** permiten ajustar la animación desde el Inspector. Al seleccionar otro estudiante se detiene la animación anterior y se muestra el estado de carga.
+
+## Organización del proyecto
+
+```text
+Assets/
+├── Effects/GoldenTypingLight/     # Prefabs y textura de los destellos
+├── Scenes/
+│   └── PatronusDirectory.unity    # Escena principal
+├── Scripts/                      # Búsqueda, peticiones, interfaz y animaciones
+├── Settings/                     # Configuración de URP y perfiles de compilación
+├── Shaders/
+│   ├── BlueShader.shadergraph
+│   └── PatronusMagicMaterial.mat
+└── Textures/
+    ├── patronus_magical_background.mp4
+    └── PatronusBackground.renderTexture
+```
+
+| Script | Responsabilidad |
+| --- | --- |
+| `Alumno.cs` | Modelo de estudiante y contenedor de la lista para `JsonUtility`. |
+| `PatronusApiClient.cs` | Peticiones HTTP, lectura de JSON y descarga de imágenes. |
+| `PatronusDirectoryController.cs` | Espera de búsqueda, generación de resultados, selección y gestión de la textura descargada. |
+| `PatronusDirectoryView.cs` | Textos, estados, imagen del Patronus y animación de aparición. |
+| `PatronusResultRow.cs` | Nombre, inicial, casa y botón de cada resultado. |
+| `GoldenTypingLightEffect.cs` | Creación, movimiento y eliminación de los destellos de escritura. |
+
+Conserva los archivos `.meta` junto a sus recursos: Unity utiliza sus identificadores para mantener las referencias entre la escena, los materiales, los shaders y las texturas.
+
+## Conexión del cliente
+
+`PatronusApiClient` utiliza `UnityWebRequest` y corrutinas. La URL base se configura en el Inspector; el valor del script es `http://127.0.0.1:8000`, aunque la escena guardada lo sobrescribe con `https://curator-caliber-magma.ngrok-free.dev`.
+
+El cliente realiza estas peticiones:
+
+| Petición | Uso dentro de Unity |
+| --- | --- |
+| `GET /alumnos?nombre=...` | Obtener un array JSON de coincidencias por nombre. |
+| `GET /alumnos/{dni}` | Cargar los detalles utilizando el `id` del resultado seleccionado. |
+
+La búsqueda elimina los espacios iniciales y finales, codifica el nombre para la URL y admite hasta **100 caracteres**. El panel utiliza `nombre`, `apellido`, `casa`, `patronus` y `patronus_url`. Este último admite direcciones absolutas o rutas relativas a la URL base. El campo `imagen` corresponde al retrato del estudiante y no se utiliza para el Patronus.
+
+Si falta la imagen o falla su descarga, los detalles permanecen visibles con un mensaje en su lugar. Al cambiar de selección, el controlador libera la textura anterior y descarta las respuestas de selecciones antiguas.
+
+Si ejecutas el cliente en otro dispositivo, utiliza una dirección accesible desde ese dispositivo: `127.0.0.1` apunta al propio equipo donde se ejecuta la aplicación. La configuración actual bloquea HTTP sin cifrar; usa HTTPS o revisa **Allow downloads over HTTP** en Player Settings para tu entorno de desarrollo.
+
+## Compilación y comprobación en Unity
+
+Abre **File → Build Profiles**, selecciona la plataforma de destino y comprueba que `Assets/Scenes/PatronusDirectory.unity` esté incluida y activada. Ya figura habilitada en la configuración guardada. Antes de compilar, revisa la URL del cliente y las referencias de los componentes de la escena.
+
+Comprobaciones recomendadas en modo Play:
+
+1. Confirma que el fondo se reproduce en bucle y cubre la ventana al cambiar su tamaño.
+2. Escribe en el buscador y comprueba la posición y desaparición de los destellos.
+3. Selecciona un estudiante con imagen y revisa el material del Patronus y su animación de aparición.
+4. Prueba búsquedas sin coincidencias y estudiantes sin imagen.
+5. Cambia rápidamente de búsqueda o selección y comprueba que aparece la información más reciente.
 
 ## Solución de problemas
 
-- **Falla la búsqueda de estudiantes:** verifica la URL base de la API en la escena, comprueba que el servidor esté en ejecución y revisa las advertencias de las peticiones en la consola de Unity.
-- **Formato de respuesta inesperado:** la búsqueda debe devolver un array JSON en el nivel principal; el endpoint de detalles debe devolver un objeto con un `id` no vacío.
-- **La imagen del Patronus no está disponible:** comprueba `patronus_url` y que la dirección resultante permita descargar una imagen.
-- **Las peticiones HTTP están bloqueadas:** el proyecto actualmente no permite HTTP sin cifrar. Utiliza preferentemente una API con HTTPS o configura **Allow downloads over HTTP** en Player Settings para la plataforma de desarrollo que utilices.
+- **Material rosa o shader con errores:** revisa la consola, la importación de `BlueShader.shadergraph` y la configuración de URP. Comprueba que `PatronusMagicMaterial` siga asignado al `RawImage` del Patronus.
+- **Fondo negro o estático:** revisa el clip del `VideoPlayer`, sus opciones de reproducción y que comparta la misma Render Texture con el `RawImage` del fondo.
+- **Destellos ausentes:** comprueba las referencias **Search Input**, **Golden Light Particle Prefab** y **Effect Layer** del componente.
+- **Búsqueda o imagen no disponible:** revisa **Api Base Url**, la conectividad y los avisos de `UnityWebRequest` en la consola.
+- **Imagen sin transparencia:** el grafo actual utiliza `Alpha = 1`; revisa la conexión del alfa de la textura si necesitas respetar su transparencia.
