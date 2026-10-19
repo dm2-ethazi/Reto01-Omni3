@@ -347,7 +347,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
                     tipoTexto.set(ficha.tipo());
                     versionPrevia.set(ficha.version());
                     validar();
-                    marcarOk(Idiomas.texto("edicion.cargada", String.valueOf(ficha.version())));
+                    marcarOk(Idiomas.texto("edicion.cargada"));
                 },
                 this::marcarFallo);
     }
@@ -413,7 +413,7 @@ public class EdicionViewModel extends ViewModelBase implements FormularioAlumno 
                 actualizado -> {
                     guardado.set(actualizado);
                     versionPrevia.set(actualizado.version());
-                    marcarOk(Idiomas.texto("edicion.guardada", String.valueOf(actualizado.version())));
+                    marcarOk(Idiomas.texto("edicion.guardada"));
                 },
                 this::marcarFallo);
     }
