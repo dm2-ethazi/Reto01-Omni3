@@ -20,7 +20,7 @@
   <HBox alignment="CENTER_LEFT" spacing="16" styleClass="cabecera">
     <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
     <ImageView fx:id="iconoCabecera" fitWidth="28" fitHeight="28" preserveRatio="true"/>
-    <Label text="Gestor Hogwarts" styleClass="titulo-cabecera"/>
+    <Label text="%cabecera.titulo" styleClass="titulo-cabecera"/>
     <Label text="%cabecera.subtitulo" styleClass="subtitulo-cabecera"/>
     <Region HBox.hgrow="ALWAYS"/>
     <Button fx:id="botonSalud" text="%boton.salud" styleClass="boton-secundario" onAction="#comprobarSalud">
@@ -70,6 +70,6 @@
       </items>
     </MenuButton>
     <Region HBox.hgrow="ALWAYS"/>
-    <Label fx:id="estadoDerecha" text="JDK 17+ · JavaFX 21" styleClass="texto-secundario"/>
+    <Label fx:id="estadoDerecha" text="%pie.tecnologia" styleClass="texto-secundario"/>
   </HBox>
 </VBox>

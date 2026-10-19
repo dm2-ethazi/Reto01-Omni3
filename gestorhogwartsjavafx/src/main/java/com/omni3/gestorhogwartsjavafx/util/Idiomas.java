@@ -15,8 +15,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * contrario. La propiedad de sistema {@code gestor.idioma} fija el
  * idioma inicial a mano (la usan las pruebas para ser deterministas).</p>
  *
- * <p>Los textos viven en los bundles {@code i18n/mensajes*.properties}:
- * la base (inglés) es la red de seguridad ante claves ausentes. Los FXML
+ * <p>Los textos viven en los bundles {@code i18n/messages*.properties}:
+ * la base (inglés) es la red de seguridad ante claves ausentes, y
+ * {@code messages_en} es la variante explícita en inglés. Los FXML
  * los referencian con {@code %clave} a través de
  * {@link #bundle()} y el código Java con {@link #texto(String)}.</p>
  *
@@ -41,7 +42,7 @@ public final class Idiomas {
     public static final String PROP_SISTEMA = "gestor.idioma";
 
     /** Base de los bundles de mensajes (sin empaquetar). */
-    private static final String BASE = "i18n.mensajes";
+    private static final String BASE = "i18n.messages";
 
     /**
      * Control de carga sin reserva al locale del sistema: sin él,

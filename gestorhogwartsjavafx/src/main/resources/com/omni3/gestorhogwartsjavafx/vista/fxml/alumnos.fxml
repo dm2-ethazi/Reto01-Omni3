@@ -54,10 +54,10 @@
   <StackPane fx:id="contenedorTabla" VBox.vgrow="ALWAYS">
     <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS">
       <columns>
-        <TableColumn fx:id="colDni" text="DNI" prefWidth="110"/>
+        <TableColumn fx:id="colDni" text="%col.dni" prefWidth="110"/>
         <TableColumn fx:id="colNombre" text="%col.nombre" prefWidth="280"/>
         <TableColumn fx:id="colCasa" text="%col.casa" prefWidth="130"/>
-        <TableColumn fx:id="colPatronus" text="Patronus" prefWidth="140"/>
+        <TableColumn fx:id="colPatronus" text="%col.patronus" prefWidth="140"/>
         <TableColumn fx:id="colOrigen" text="%col.origen" prefWidth="120"/>
       </columns>
       <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
