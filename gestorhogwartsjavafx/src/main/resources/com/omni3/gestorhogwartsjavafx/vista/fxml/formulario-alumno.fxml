@@ -60,10 +60,6 @@
     <Label text="%form.campo.origen" styleClass="etiqueta-campo" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
     <Label fx:id="campoOrigen" text="—" styleClass="valor-dato"
            GridPane.rowIndex="8" GridPane.columnIndex="1"/>
-
-    <Label text="%form.campo.version" styleClass="etiqueta-campo" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-    <Label fx:id="campoVersion" text="—" styleClass="valor-dato"
-           GridPane.rowIndex="9" GridPane.columnIndex="1"/>
   </GridPane>
 
   <Label fx:id="etiquetaResultado" text="" wrapText="true" maxWidth="Infinity" styleClass="texto-secundario"/>

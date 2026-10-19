@@ -60,7 +60,6 @@ public class FormularioAlumnoController implements ControladorVista {
     @FXML private Label errorCasa;
     @FXML private Label errorPatronus;
     @FXML private Label campoOrigen;
-    @FXML private Label campoVersion;
     @FXML private Label etiquetaResultado;
     @FXML private Label etiquetaRequestId;
 
@@ -156,7 +155,6 @@ public class FormularioAlumnoController implements ControladorVista {
         comboCasa.setDisable(true);
         comboCasa.setValue("");
         campoOrigen.setText(Origen.MARIADB.name());
-        campoVersion.setText(Idiomas.texto("form.version.nueva"));
         aplicarTextoPatronus("");
 
         campoDni.textProperty().bindBidirectional(alta.dniProperty());
@@ -230,9 +228,6 @@ public class FormularioAlumnoController implements ControladorVista {
 
         edicion.origenTextoProperty().addListener((observable, antes, origen) ->
                 campoOrigen.setText(origen == null ? "—" : origen));
-        // En edición la casa nunca es editable, independientemente del tipo
-        edicion.versionPreviaProperty().addListener((observable, antes, version) ->
-                campoVersion.setText(String.valueOf(version)));
         enlazarResultado(edicion);
 
         edicion.cargar(dni);
