@@ -1,4 +1,6 @@
 target/
 dependency-reduced-pom.xml
 *.log
+logs/
+config.properties
 .git

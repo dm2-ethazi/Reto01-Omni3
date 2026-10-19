@@ -17,11 +17,12 @@ import java.time.Instant;
  * para que también sea visible en la consola de lanzamiento. Los
  * ficheros de registro se ignoran en git ({@code *.log}).</p>
  *
- * <p>El registro <strong>nunca</strong> debe recibir URLs de la API ni
- * credenciales: los mensajes solo describen el origen del problema, no
- * los valores de configuración. Si el fichero no puede escribirse
- * (por ejemplo, directorio de solo lectura), el fallo se anota en
- * {@code System.err} y la aplicación continúa sin interrumpirse.</p>
+ * <p>Los mensajes que redacta la aplicación describen el problema sin
+ * incluir la URL de configuración ni credenciales; las trazas de las
+ * excepciones se copian tal cual para conservar su valor de
+ * diagnóstico. Si el fichero no puede escribirse (por ejemplo,
+ * directorio de solo lectura), el fallo se anota en {@code System.err}
+ * y la aplicación continúa sin interrumpirse.</p>
  *
  * @author jairoben
  */

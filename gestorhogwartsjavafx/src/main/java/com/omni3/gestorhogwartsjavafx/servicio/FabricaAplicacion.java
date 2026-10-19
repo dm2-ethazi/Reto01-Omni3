@@ -33,9 +33,14 @@ public class FabricaAplicacion {
     private final ServicioAlumnos servicio;
 
     /**
-     * Crea la fabrica por defecto con la URL del entorno (propiedad
-     * {@code gestor.api.url}, variable {@code GESTOR_API_URL} o valor por
-     * defecto) y monta el cliente HTTP y el servicio de fondo.
+     * Crea la fabrica por defecto con la URL del entorno, que resuelve
+     * {@link com.omni3.gestorhogwartsjavafx.util.ConfigLoader} así:
+     * propiedad {@code gestor.api.url}, variable {@code GESTOR_API_URL},
+     * fichero {@code config.properties} (directorio de trabajo o junto
+     * al JAR) o classpath.
+     *
+     * @throws com.omni3.gestorhogwartsjavafx.util.ExcepcionConfiguracion
+     *         si ninguna fuente aporta la URL
      */
     public FabricaAplicacion() {
         this(ConfigApi.desdeEntorno());

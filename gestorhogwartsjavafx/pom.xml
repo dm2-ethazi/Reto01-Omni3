@@ -130,6 +130,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
+        <configuration>
+          <excludes>
+            <!-- config.properties (URL de la API) queda fuera de target,
+                 del JAR fino y del fat JAR: la configuración secreta
+                 solo existe junto al JAR, en el equipo que la despliega. -->
+            <exclude>config.properties</exclude>
+          </excludes>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -184,6 +192,7 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
+                    <exclude>config.properties</exclude>
                   </excludes>
                 </filter>
               </filters>

@@ -11,6 +11,7 @@ import com.omni3.gestorhogwartsjavafx.api.dto.PatronusDto;
 import com.omni3.gestorhogwartsjavafx.api.dto.SaludDto;
 import com.omni3.gestorhogwartsjavafx.modelo.Origen;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
+import com.omni3.gestorhogwartsjavafx.util.Registro;
 
 import java.io.IOException;
 import java.net.URI;
@@ -362,9 +363,11 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         } catch (ExcepcionApi excepcion) {
             throw excepcion;
         } catch (IOException excepcion) {
-            // Causa real en el log de consola siempre (§ UX): el usuario
-            // ve un mensaje breve; el desarrollador ve la traza completa.
-            excepcion.printStackTrace(System.err);
+            // Causa real en el registro siempre (§ UX): el usuario ve un
+            // mensaje breve en la pantalla; el desarrollador ve la traza
+            // completa en consola y en gestor-hogwarts.log.
+            Registro.error("Fallo de red al consultar la API (petición "
+                    + requestId + ")", excepcion);
             String detalle;
             if (excepcion instanceof HttpTimeoutException) {
                 detalle = Idiomas.texto("red.timeout",

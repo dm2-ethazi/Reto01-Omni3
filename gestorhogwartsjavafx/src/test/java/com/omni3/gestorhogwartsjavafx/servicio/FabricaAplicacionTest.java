@@ -32,17 +32,25 @@ class FabricaAplicacionTest {
     private final ClienteAlumnosFalso falso = new ClienteAlumnosFalso(0);
 
     @Test
-    @DisplayName("La fábrica por defecto crea el cliente HTTP con la URL de la API")
+    @DisplayName("La fábrica resuelve la URL de la propiedad de sistema del entorno")
     void porDefectoCreaElClienteHttp() {
-        FabricaAplicacion fabrica = new FabricaAplicacion();
+        // La URL real ya no está en el código: ConfigLoader la resuelve
+        // del entorno y esta propiedad tiene la máxima prioridad, así la
+        // prueba no depende de si existe config.properties en la raíz.
+        System.setProperty(ConfigApi.PROP_SISTEMA_URL, ConfigApi.URL_POR_DEFECTO);
         try {
-            assertEquals(ConfigApi.URL_POR_DEFECTO, fabrica.getConfig().getBaseUrl());
-            assertEquals(ConfigApi.TIMEOUT_POR_DEFECTO, fabrica.getConfig().getTimeout());
-            assertTrue(fabrica.getCliente() instanceof ClienteAlumnosHttp,
-                    "La aplicación solo puede crear ClienteAlumnosHttp");
-            assertNotNull(fabrica.getServicio());
+            FabricaAplicacion fabrica = new FabricaAplicacion();
+            try {
+                assertEquals(ConfigApi.URL_POR_DEFECTO, fabrica.getConfig().getBaseUrl());
+                assertEquals(ConfigApi.TIMEOUT_POR_DEFECTO, fabrica.getConfig().getTimeout());
+                assertTrue(fabrica.getCliente() instanceof ClienteAlumnosHttp,
+                        "La aplicación solo puede crear ClienteAlumnosHttp");
+                assertNotNull(fabrica.getServicio());
+            } finally {
+                fabrica.cerrar();
+            }
         } finally {
-            fabrica.cerrar();
+            System.clearProperty(ConfigApi.PROP_SISTEMA_URL);
         }
     }
 

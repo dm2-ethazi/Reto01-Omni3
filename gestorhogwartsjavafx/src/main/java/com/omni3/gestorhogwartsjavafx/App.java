@@ -1,14 +1,22 @@
 package com.omni3.gestorhogwartsjavafx;
 
+import com.omni3.gestorhogwartsjavafx.api.ConfigApi;
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
 import com.omni3.gestorhogwartsjavafx.controlador.PrincipalController;
+import com.omni3.gestorhogwartsjavafx.util.ExcepcionConfiguracion;
 import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.util.Registro;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -27,6 +35,10 @@ import java.util.List;
  * en {@link Idiomas} que reconstruye la raíz de la escena con los
  * recursos del nuevo idioma, conservando la pantalla visible.</p>
  *
+ * <p>Si la URL de la API no puede resolverse del entorno
+ * ({@link ExcepcionConfiguracion}), la aplicación no se cierra: muestra
+ * un aviso traducido y continúa con la API local.</p>
+ *
  * @author jairoben
  */
 public class App extends Application {
@@ -43,6 +55,9 @@ public class App extends Application {
     /** Controlador de la raíz vigente; aporta la pantalla actual. */
     private PrincipalController controlador;
 
+    /** Aviso de configuración pendiente de mostrar tras abrir la ventana. */
+    private Alert avisoConfiguracion;
+
     /**
      * Crea la aplicación de escritorio.
      *
@@ -56,7 +71,18 @@ public class App extends Application {
     @Override
     public void start(Stage escenario) throws Exception {
         cargarFuentes();
-        fabrica = new FabricaAplicacion();
+        try {
+            fabrica = new FabricaAplicacion();
+        } catch (ExcepcionConfiguracion | IllegalArgumentException excepcion) {
+            // Sin configuración válida la aplicación no se cierra: se
+            // avisa con un diálogo traducido y se continúa con la API
+            // local para que las pantallas sigan abriéndose.
+            fabrica = new FabricaAplicacion(ConfigApi.porDefecto());
+            avisoConfiguracion = crearAvisoConfiguracion(excepcion);
+            Registro.error("Configuración de la API ausente o inválida ("
+                    + excepcion.getClass().getSimpleName()
+                    + "); se continúa con la API local", null);
+        }
         this.escenario = escenario;
         Idiomas.observar(this::recargarIdioma);
 
@@ -95,7 +121,49 @@ public class App extends Application {
         escenario.setMinHeight(480);
         escenario.setOnCloseRequest(evento -> detener());
         escenario.show();
+        if (avisoConfiguracion != null) {
+            avisoConfiguracion.initOwner(escenario);
+            avisoConfiguracion.show();
+            avisoConfiguracion = null;
+        }
         Registro.info("Aplicación iniciada");
+    }
+
+    /**
+     * Construye el aviso no modal de configuración ausente o inválida.
+     *
+     * <p>Usa el bundle del idioma vigente, la hoja de estilos del tema y
+     * un botón con tooltip, igual que el resto de diálogos de la
+     * aplicación. El diálogo se devuelve sin mostrar para poder
+     * adjuntarlo a la ventana principal.</p>
+     *
+     * @param causa excepción capturada al crear la fábrica; su mensaje
+     *              ya viene traducido del bundle
+     * @return aviso listo para mostrar
+     */
+    private Alert crearAvisoConfiguracion(RuntimeException causa) {
+        ButtonType entendido = new ButtonType(Idiomas.texto("boton.entendido"),
+                ButtonBar.ButtonData.OK_DONE);
+        Alert aviso = new Alert(Alert.AlertType.WARNING, causa.getMessage(), entendido);
+        aviso.setTitle(Idiomas.texto("config.aviso.titulo"));
+        aviso.setHeaderText(Idiomas.texto("config.aviso.cabecera"));
+        aviso.getDialogPane().getStylesheets().add(
+                App.class.getResource("vista/css/tema.css").toExternalForm());
+        // Mismo retoque que ControladorVista.estilizarDialogo: el panel
+        // tiene esquinas redondeadas y el fondo por defecto es blanco.
+        Scene escenaDialogo = aviso.getDialogPane().getScene();
+        if (escenaDialogo != null) {
+            escenaDialogo.setFill(Color.web("#1C1914"));
+        }
+        aviso.getDialogPane().sceneProperty().addListener((observable, antes, nueva) -> {
+            if (nueva != null) {
+                nueva.setFill(Color.web("#1C1914"));
+            }
+        });
+        if (aviso.getDialogPane().lookupButton(entendido) instanceof Button boton) {
+            boton.setTooltip(new Tooltip(Idiomas.texto("tooltip.dialogo.aceptar")));
+        }
+        return aviso;
     }
 
     /**
