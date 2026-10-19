@@ -25,28 +25,32 @@
       <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
     </columnConstraints>
 
-    <Label text="DNI *" styleClass="etiqueta-campo" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="etiquetaDni" text="%form.campo.dni" mnemonicParsing="true"
+           styleClass="etiqueta-campo" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
     <TextField fx:id="campoDni" promptText="12345678A" styleClass="campo"
                maxWidth="Infinity" GridPane.hgrow="ALWAYS"
                GridPane.rowIndex="0" GridPane.columnIndex="1"/>
     <Label fx:id="errorDni" text="" styleClass="texto-error"
            GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <Label text="%form.campo.nombre" styleClass="etiqueta-campo" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label fx:id="etiquetaNombre" text="%form.campo.nombre" mnemonicParsing="true"
+           styleClass="etiqueta-campo" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
     <TextField fx:id="campoNombre" promptText="%form.prompt.nombre" styleClass="campo"
                maxWidth="Infinity" GridPane.hgrow="ALWAYS"
                GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     <Label fx:id="errorNombre" text="" styleClass="texto-error"
            GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-    <Label text="%form.campo.casa" styleClass="etiqueta-campo" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <Label fx:id="etiquetaCasa" text="%form.campo.casa" mnemonicParsing="true"
+           styleClass="etiqueta-campo" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
     <ComboBox fx:id="comboCasa" promptText="%form.prompt.casa" styleClass="campo-combo"
               maxWidth="Infinity" GridPane.hgrow="ALWAYS"
               GridPane.rowIndex="4" GridPane.columnIndex="1"/>
     <Label fx:id="errorCasa" text="" styleClass="texto-error"
            GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-    <Label text="%form.campo.patronus" styleClass="etiqueta-campo" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+    <Label fx:id="etiquetaPatronus" text="%form.campo.patronus" mnemonicParsing="true"
+           styleClass="etiqueta-campo" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
     <HBox spacing="8" alignment="CENTER_LEFT" maxWidth="Infinity" GridPane.hgrow="ALWAYS"
           GridPane.rowIndex="6" GridPane.columnIndex="1">
       <ComboBox fx:id="comboPatronus" promptText="%form.prompt.patronus" styleClass="campo-combo"

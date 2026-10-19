@@ -5,11 +5,15 @@ import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
@@ -27,6 +31,7 @@ import java.io.IOException;
  */
 public class PrincipalController implements ControladorVista {
 
+    @FXML private VBox raiz;
     @FXML private Label estado;
     @FXML private Label estadoDerecha;
     @FXML private ImageView iconoCabecera;
@@ -71,6 +76,7 @@ public class PrincipalController implements ControladorVista {
         iconoCabecera.setImage(new javafx.scene.image.Image(
                 getClass().getResource("/com/omni3/gestorhogwartsjavafx/icons/icon-32.png").toExternalForm()));
         botonIdioma.setText(Idiomas.simbolo());
+        registrarAceleradorAyuda();
         abrir(pantallaInicial);
     }
 
@@ -132,6 +138,43 @@ public class PrincipalController implements ControladorVista {
     @FXML
     private void idiomaIngles() {
         Idiomas.cambiar(Idiomas.INGLES);
+    }
+
+    /**
+     * Muestra el diálogo «Acerca de» con los datos de la aplicación
+     * (versión, Java y autor). También es el destino del atajo F1.
+     */
+    @FXML
+    private void acercaDe() {
+        Alert acerca = new Alert(Alert.AlertType.INFORMATION);
+        acerca.setTitle(Idiomas.texto("dialogo.acerca.titulo"));
+        acerca.setHeaderText(null);
+        acerca.setContentText(Idiomas.texto("dialogo.acerca.cuerpo",
+                System.getProperty("java.version", "")));
+        estilizarDialogo(acerca);
+        acerca.showAndWait();
+    }
+
+    /**
+     * Registra F1 (ayuda / Acerca de) sobre la escena vigente.
+     *
+     * <p>La escena existe al cambiar de idioma mucho después de
+     * {@link #conectar(FabricaAplicacion)}, así que se observa su
+     * propiedad y se registra también en ese momento. Cada raíz nueva
+     * sobrescribe la entrada: el manejador siempre es el controlador
+     * actual.</p>
+     */
+    private void registrarAceleradorAyuda() {
+        KeyCodeCombination f1 = new KeyCodeCombination(KeyCode.F1);
+        Runnable mostrarAcerca = this::acercaDe;
+        if (raiz.getScene() != null) {
+            raiz.getScene().getAccelerators().put(f1, mostrarAcerca);
+        }
+        raiz.sceneProperty().addListener((observable, antes, escena) -> {
+            if (escena != null) {
+                escena.getAccelerators().put(f1, mostrarAcerca);
+            }
+        });
     }
 
     /** Carga la pantalla de estado sin cambiar la navegación activa. */

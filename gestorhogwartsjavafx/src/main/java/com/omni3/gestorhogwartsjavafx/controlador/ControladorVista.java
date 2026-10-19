@@ -1,7 +1,10 @@
 package com.omni3.gestorhogwartsjavafx.controlador;
 
 import com.omni3.gestorhogwartsjavafx.servicio.FabricaAplicacion;
+import com.omni3.gestorhogwartsjavafx.util.Idiomas;
 import com.omni3.gestorhogwartsjavafx.viewmodel.EstadoCarga;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 
 /**
@@ -76,6 +79,43 @@ public interface ControladorVista {
         if (owner != null) {
             dialogo.initOwner(owner);
         }
+
+        // Accesibilidad: todo botón de diálogo que no lleve ayuda
+        // propia recibe un tooltip genérico según su botonería (los
+        // específicos de cada pantalla se fijan antes de mostrar y aquí
+        // se respetan). setOnShown para no pisar el setOnShowing con el
+        // mínimo del formulario de alumno.
+        dialogo.setOnShown(evento -> {
+            for (ButtonType tipo : dialogo.getDialogPane().getButtonTypes()) {
+                if (dialogo.getDialogPane().lookupButton(tipo)
+                        instanceof javafx.scene.control.Button boton
+                        && boton.getTooltip() == null) {
+                    boton.setTooltip(new javafx.scene.control.Tooltip(tooltipGenerico(tipo)));
+                }
+            }
+        });
+    }
+
+    /**
+     * Tooltip genérico de un botón de diálogo según su
+     * {@link ButtonBar.ButtonData} (aceptar, cancelar o continuar).
+     *
+     * @param tipo tipo de botón del diálogo
+     * @return clave de texto traducida para el tooltip
+     */
+    private static String tooltipGenerico(ButtonType tipo) {
+        ButtonBar.ButtonData datos = tipo.getButtonData();
+        if (datos != null
+                && (datos.isDefaultButton()
+                    || datos == ButtonBar.ButtonData.YES
+                    || datos == ButtonBar.ButtonData.APPLY)) {
+            return Idiomas.texto("tooltip.dialogo.aceptar");
+        }
+        if (datos != null
+                && (datos.isCancelButton() || datos == ButtonBar.ButtonData.NO)) {
+            return Idiomas.texto("tooltip.dialogo.cancelar");
+        }
+        return Idiomas.texto("tooltip.dialogo.accion");
     }
 
     /**

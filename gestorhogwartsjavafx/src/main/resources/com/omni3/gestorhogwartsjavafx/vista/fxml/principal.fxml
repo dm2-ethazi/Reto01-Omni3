@@ -26,6 +26,14 @@
     <Button fx:id="botonSalud" text="%boton.salud" styleClass="boton-secundario" onAction="#comprobarSalud">
       <tooltip><Tooltip text="%tooltip.salud"/></tooltip>
     </Button>
+    <!-- Menú de ayuda: única entrada a "Acerca de" (también con F1). -->
+    <MenuButton fx:id="botonAyuda" text="%boton.ayuda" mnemonicParsing="true"
+                styleClass="boton-secundario">
+      <items>
+        <MenuItem text="%menu.ayuda.acerca" onAction="#acercaDe"/>
+      </items>
+      <tooltip><Tooltip text="%tooltip.ayuda"/></tooltip>
+    </MenuButton>
   </HBox>
 
   <HBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="cuerpo">

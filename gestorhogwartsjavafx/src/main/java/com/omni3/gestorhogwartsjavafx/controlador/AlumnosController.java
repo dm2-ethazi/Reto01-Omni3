@@ -50,6 +50,7 @@ public class AlumnosController implements ControladorVista {
     private ButtonType tipoCancelar;
 
     @FXML private TextField campoBusqueda;
+    @FXML private VBox pantalla;
     @FXML private ComboBox<Origen> comboOrigen;
     @FXML private TableView<AlumnoDto> tabla;
     @FXML private TableColumn<AlumnoDto, String> colDni;
@@ -106,7 +107,48 @@ public class AlumnosController implements ControladorVista {
         botonBaja.disableProperty().bind(consulta.ocupadoProperty()
                 .or(consulta.seleccionadoProperty().isNull()));
 
+        registrarAceleradores();
         consulta.buscar();
+    }
+
+    /**
+     * Atajos de la pantalla de alumnado: Ctrl/Cmd+N (nuevo alumno) y
+     * Ctrl/Cmd+F (buscar).
+     *
+     * <p>Se registran sobre la escena, que es común a todas las
+     * pantallas: por eso el manejador comprueba que esta pantalla siga
+     * colgada de la escena antes de actuar (tras navegar a otra
+     * pantalla el nodo queda suelto y los atajos se ignoran). Cada vez
+     * que se vuelve a cargar la pantalla, la entrada se sobrescribe con
+     * el controlador nuevo.</p>
+     */
+    private void registrarAceleradores() {
+        javafx.scene.input.KeyCodeCombination ctrlN =
+                new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.N,
+                        javafx.scene.input.KeyCombination.SHORTCUT_DOWN);
+        javafx.scene.input.KeyCodeCombination ctrlF =
+                new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.F,
+                        javafx.scene.input.KeyCombination.SHORTCUT_DOWN);
+        Runnable atajoNuevo = () -> {
+            if (pantalla.getScene() != null) {
+                nuevo();
+            }
+        };
+        Runnable atajoBuscar = () -> {
+            if (pantalla.getScene() != null) {
+                buscar();
+            }
+        };
+        if (pantalla.getScene() != null) {
+            pantalla.getScene().getAccelerators().put(ctrlN, atajoNuevo);
+            pantalla.getScene().getAccelerators().put(ctrlF, atajoBuscar);
+        }
+        pantalla.sceneProperty().addListener((observable, antes, escena) -> {
+            if (escena != null) {
+                escena.getAccelerators().put(ctrlN, atajoNuevo);
+                escena.getAccelerators().put(ctrlF, atajoBuscar);
+            }
+        });
     }
 
     /** Rellena el combo de orígenes con las fuentes del entorno. */

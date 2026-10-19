@@ -50,6 +50,10 @@ public class FormularioAlumnoController implements ControladorVista {
 
     @FXML private Label tituloFormulario;
     @FXML private Label textoAyuda;
+    @FXML private Label etiquetaDni;
+    @FXML private Label etiquetaNombre;
+    @FXML private Label etiquetaCasa;
+    @FXML private Label etiquetaPatronus;
     @FXML private TextField campoDni;
     @FXML private TextField campoNombre;
     @FXML private ComboBox<String> comboCasa;
@@ -89,6 +93,13 @@ public class FormularioAlumnoController implements ControladorVista {
     @Override
     public void conectar(FabricaAplicacion fabrica) {
         this.fabrica = fabrica;
+        // labelFor habilita los mnemónicos de las etiquetas: Alt con la
+        // letra subrayada salta al campo asociado (FXML no admite esta
+        // referencia, así que se enlaza aquí).
+        etiquetaDni.setLabelFor(campoDni);
+        etiquetaNombre.setLabelFor(campoNombre);
+        etiquetaCasa.setLabelFor(comboCasa);
+        etiquetaPatronus.setLabelFor(comboPatronus);
         campoDni.setTextFormatter(new TextFormatter<>(cambio ->
                 cambio.getControlNewText().length() > 9 ? null : cambio));
         comboCasa.getItems().clear();
