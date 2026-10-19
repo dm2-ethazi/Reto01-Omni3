@@ -1,26 +1,45 @@
 """Repositorio genérico JDBC para H2, HSQLDB y Derby.
 
-Proporciona la clase base `RepositorioJDBC` con la implementación común de
-las operaciones CRUD usando `jaydebeapi` + JPype (JVM). Las subclases
-(H2, HSQLDB, Derby) solo definen `casa` y `driver`.
+Estos tres motores no tienen driver nativo en Python, así que se acceden a
+ellos mediante JDBC: la librería `jaydebeapi` se conecta a través de una JVM
+(Java) que se arranca una sola vez con `jpype`.
 
-También contiene las funciones para localizar y arrancar la JVM.
+Este módulo contiene:
+
+- `_ruta_jvm()` / `iniciar_jvm()`: localizan y arrancan la JVM con los
+  drivers (`.jar`) en el classpath.
+- `RepositorioJDBC`: implementación común del CRUD. Las subclases
+  (H2, HSQLDB y Derby) solo declaran `casa` y `driver`.
+
+Conexiones: cada operación abre y cierra su propia conexión (sin pool).
 """
 
 import os
 import re
 import shutil
 import subprocess
+from contextlib import contextmanager
 from pathlib import Path
 
-import jpype
 import jaydebeapi
+import jpype
 
-from .base import Alumno, AlumnoActualizacion, campos_a_actualizar, texto
+from .base import (
+    COLUMNAS_ALUMNO_SQL,
+    Alumno,
+    AlumnoActualizacion,
+    campos_a_actualizar,
+    fila_a_alumno,
+)
+
+
+# --------------------------------------------------------------------------- #
+#  Arranque de la JVM                                                         #
+# --------------------------------------------------------------------------- #
 
 
 def _ruta_jvm() -> str:
-    """Localiza la ruta al archivo jvm.dll / libjvm.so del sistema.
+    """Localiza la ruta al binario de la JVM (jvm.dll / libjvm.so).
 
     Primero intenta obtener `java.home` ejecutando `java -XshowSettings`.
     Si falla, usa la ruta por defecto de JPype.
@@ -58,8 +77,8 @@ def _ruta_jvm() -> str:
 def iniciar_jvm(rutas_jar: list[str]) -> None:
     """Arranca la JVM con los drivers JDBC en el classpath.
 
-    Solo se ejecuta una vez (singleton); las llamadas posteriores no hacen nada
-    si la JVM ya está iniciada.
+    Solo se ejecuta una vez (singleton); las llamadas posteriores no hacen
+    nada si la JVM ya está iniciada.
 
     Args:
         rutas_jar: Lista de rutas absolutas a archivos .jar de drivers JDBC.
@@ -76,13 +95,17 @@ def iniciar_jvm(rutas_jar: list[str]) -> None:
     )
 
 
+# --------------------------------------------------------------------------- #
+#  Repositorio genérico                                                       #
+# --------------------------------------------------------------------------- #
+
+
 class RepositorioJDBC:
     """Repositorio genérico de alumnos vía JDBC.
 
     Implementa el Protocolo `RepositorioAlumnos` usando `jaydebeapi`.
-    Cada operación abre y cierra una conexión (sin pool).
+    Cada subclase debe definir:
 
-    Subclases deben definir:
         casa: Nombre de la casa (ej. "Hufflepuff").
         driver: Clase completa del driver JDBC (ej. "org.h2.Driver").
     """
@@ -102,69 +125,59 @@ class RepositorioJDBC:
         self.usuario = usuario
         self.password = password
 
+    # --- Conexión ---------------------------------------------------------- #
+
     def _credenciales(self) -> dict:
         """Devuelve el dict de credenciales para jaydebeapi.connect()."""
         if not self.usuario and not self.password:
             return {}
         return {"user": self.usuario, "password": self.password}
 
-    def listar(self) -> list[Alumno]:
-        """Devuelve todos los alumnos de la tabla ALUMNOS."""
+    @contextmanager
+    def _conexion(self):
+        """Abre una conexión JDBC y la cierra siempre al salir del bloque.
+
+        Uso:
+            with self._conexion() as conexion:
+                ...
+        """
         conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
         try:
+            yield conexion
+        finally:
+            conexion.close()
+
+    # --- Operaciones CRUD -------------------------------------------------- #
+
+    def listar(self) -> list[Alumno]:
+        """Devuelve todos los alumnos de la tabla ALUMNOS."""
+        with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
-                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS")
+                cursor.execute(f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS")
                 filas = cursor.fetchall()
             finally:
                 cursor.close()
-        finally:
-            conexion.close()
-        return [
-            Alumno(
-                id=texto(f[0]) or "",
-                nombre=texto(f[1]) or "",
-                apellido=texto(f[2]),
-                sexo=texto(f[3]),
-                patronus=texto(f[4]),
-                imagen=texto(f[5]),
-                casa=self.casa,
-            )
-            for f in filas
-        ]
+        return [fila_a_alumno(f, self.casa) for f in filas]
 
     def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
-        """Busca alumnos cuyo nombre empiece por el prefijo (case-insensitive).
+        """Busca alumnos cuyo nombre empiece por el prefijo (sin distinguir mayúsculas).
 
         Args:
             prefijo: Texto inicial del nombre a buscar.
         """
-        conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
-        try:
+        with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS "
+                    f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS "
                     "WHERE UPPER(NOMBRE) LIKE UPPER(?) ORDER BY NOMBRE",
                     (prefijo + "%",),
                 )
                 filas = cursor.fetchall()
             finally:
                 cursor.close()
-        finally:
-            conexion.close()
-        return [
-            Alumno(
-                id=texto(f[0]) or "",
-                nombre=texto(f[1]) or "",
-                apellido=texto(f[2]),
-                sexo=texto(f[3]),
-                patronus=texto(f[4]),
-                imagen=texto(f[5]),
-                casa=self.casa,
-            )
-            for f in filas
-        ]
+        return [fila_a_alumno(f, self.casa) for f in filas]
 
     def obtener(self, id_alumno: str) -> Alumno | None:
         """Busca un alumno por DNI.
@@ -175,30 +188,19 @@ class RepositorioJDBC:
         Returns:
             Alumno si existe, None si no.
         """
-        conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
-        try:
+        with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS WHERE ID = ?",
+                    f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS WHERE ID = ?",
                     (id_alumno,),
                 )
                 fila = cursor.fetchone()
             finally:
                 cursor.close()
-        finally:
-            conexion.close()
         if fila is None:
             return None
-        return Alumno(
-            id=texto(fila[0]) or "",
-            nombre=texto(fila[1]) or "",
-            apellido=texto(fila[2]),
-            sexo=texto(fila[3]),
-            patronus=texto(fila[4]),
-            imagen=texto(fila[5]),
-            casa=self.casa,
-        )
+        return fila_a_alumno(fila, self.casa)
 
     def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
         """Actualiza los campos enviados de un alumno existente.
@@ -213,8 +215,7 @@ class RepositorioJDBC:
         columnas = campos_a_actualizar(datos)
         if not columnas:
             return self.obtener(id_alumno)
-        conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
-        try:
+        with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = ?", (id_alumno,))
@@ -228,8 +229,6 @@ class RepositorioJDBC:
                 conexion.commit()
             finally:
                 cursor.close()
-        finally:
-            conexion.close()
         return self.obtener(id_alumno)
 
     def eliminar(self, id_alumno: str) -> bool:
@@ -241,8 +240,7 @@ class RepositorioJDBC:
         Returns:
             True si se eliminó, False si no existía.
         """
-        conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
-        try:
+        with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = ?", (id_alumno,))
@@ -252,6 +250,4 @@ class RepositorioJDBC:
                 conexion.commit()
             finally:
                 cursor.close()
-        finally:
-            conexion.close()
         return True

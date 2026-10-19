@@ -1,7 +1,7 @@
 [project]
 name = "proyecto-reto1"
 version = "0.1.0"
-description = "Add your description here"
+description = "API REST que gestiona el alumnado de Hogwarts distribuido en 5 motores de base de datos (Oracle, MariaDB, H2, HSQLDB y Derby)"
 readme = "README.md"
 authors = [
     { name = "henritejada2006", email = "henritejada2006@hotmail.com" }
@@ -14,9 +14,13 @@ dependencies = [
     "pydantic>=2.13.5",
     "pydantic-settings>=2.15.0",
     "pymysql>=1.2.3",
-    "pytest>=9.1.1",
     "python-multipart>=0.0.32",
     "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
 ]
 
 [project.scripts]

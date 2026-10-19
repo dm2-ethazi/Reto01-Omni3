@@ -1,26 +1,42 @@
 """Endpoints REST de la API Alumnos.
 
 Define las rutas HTTP para gestionar alumnos y consultar el catálogo de
-patronus. Las fuentes de datos se inyectan con Depends(get_repositorios)
+patronus. Las fuentes de datos se inyectan con `Depends(get_repositorios)`
 y se recorren según la operación:
 
-- Lecturas (GET): recorren las 5 fuentes; la búsqueda por DNI devuelve la
-  primera coincidencia; el listado concatena todas.
-- Escrituras (PUT/DELETE): se aplican en todas las fuentes donde exista.
-- Altas (POST): se realizan siempre en MariaDB.
+- **Lecturas (GET)**: recorren las 5 fuentes; la búsqueda por DNI devuelve la
+  primera coincidencia y el listado concatena todas.
+- **Escrituras (PUT/DELETE)**: se aplican en todas las fuentes donde exista
+  el registro.
+- **Altas (POST)**: se realizan siempre en MariaDB (la base central).
+
+Si alguna fuente no responde, la API responde 503 en lugar de degradar en
+silencio.
 """
 
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Conflicto, Patronus, RepositorioAlumnos
+from ..db.base import (
+    Alumno,
+    AlumnoActualizacion,
+    AlumnoEntrada,
+    Conflicto,
+    Patronus,
+    RepositorioAlumnos,
+)
 from ..db.factory import obtener_repositorios
 from ..db.mariadb import RepositorioMariaDB
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+# --------------------------------------------------------------------------- #
+#  Dependencias y helpers                                                     #
+# --------------------------------------------------------------------------- #
 
 
 def get_repositorios() -> list[RepositorioAlumnos]:
@@ -32,9 +48,44 @@ def get_repositorios() -> list[RepositorioAlumnos]:
     return obtener_repositorios()
 
 
-# ---------------------------------------------------------------------- #
-#  GET /alumnos  —  Listado y búsqueda por nombre                         #
-# ---------------------------------------------------------------------- #
+def _repositorio_mariadb(fuentes: list[RepositorioAlumnos]) -> RepositorioMariaDB | None:
+    """Devuelve el repositorio de MariaDB si está activo, o None.
+
+    MariaDB es la base central: allí viven las altas de alumnos y la tabla
+    PATRONUS_IMG.
+
+    Args:
+        fuentes: Lista de repositorios activos.
+    """
+    return next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
+
+
+def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | None) -> str | None:
+    """Busca la URL de la imagen de un patronus en PATRONUS_IMG (MariaDB).
+
+    Args:
+        fuentes: Lista de repositorios activos.
+        patronus: Nombre del patronus en inglés (columna NOM_ENG).
+
+    Returns:
+        URL de la imagen si se encontró; None si el patronus es None, si
+        MariaDB no está activa o si hay algún error de consulta.
+    """
+    if not patronus:
+        return None
+    repositorio = _repositorio_mariadb(fuentes)
+    if repositorio is None:
+        return None
+    try:
+        return repositorio.buscar_patronus_url(patronus)
+    except Exception as error:
+        logger.warning("No se pudo obtener patronus_url para '%s': %s", patronus, error)
+        return None
+
+
+# --------------------------------------------------------------------------- #
+#  GET  /alumnos        —  Listado y búsqueda por nombre                      #
+# --------------------------------------------------------------------------- #
 
 
 @router.get("/alumnos", response_model=list[Alumno], summary="Listar o buscar alumnos")
@@ -43,7 +94,7 @@ def listar_alumnos(
         default=None,
         min_length=1,
         max_length=100,
-        description="Filtra por prefijo de nombre (case-insensitive). Si se omite, lista todos.",
+        description="Filtra por prefijo de nombre (sin distinguir mayúsculas). Si se omite, lista todos.",
     ),
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
@@ -79,74 +130,9 @@ def listar_alumnos(
     return alumnos
 
 
-# ---------------------------------------------------------------------- #
-#  GET /patronus  —  Catálogo de patronus                                 #
-# ---------------------------------------------------------------------- #
-
-
-@router.get("/patronus", response_model=list[Patronus], summary="Listar todos los patronus")
-def listar_patronus(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
-    """Devuelve todos los patronus del catálogo PATRONUS_IMG con sus 3 nombres e imagen.
-
-    La tabla PATRONUS_IMG solo existe en MariaDB, por lo que este endpoint
-    requiere que el motor 'mariadb' esté activo en DB_ENGINES.
-
-    Args:
-        fuentes: Lista de repositorios activos (inyectada por FastAPI).
-
-    Returns:
-        Lista de patronus con nombre en español, inglés, euskera y URL de imagen.
-
-    Raises:
-        HTTPException 503: Si MariaDB no está activa o no responde.
-    """
-    repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
-    if repositorio is None:
-        raise HTTPException(
-            status_code=503,
-            detail="La fuente 'mariadb' no esta activa (DB_ENGINES)",
-        )
-    try:
-        return repositorio.listar_patronus()
-    except Exception as error:
-        logger.error("Fallo consultando PATRONUS_IMG: %s", error)
-        raise HTTPException(
-            status_code=503,
-            detail=f"La fuente '{repositorio.casa}' no responde: {error}",
-        ) from error
-
-
-# ---------------------------------------------------------------------- #
-#  Auxiliar: obtener URL de imagen del patronus                           #
-# ---------------------------------------------------------------------- #
-
-
-def _obtener_patronus_url(fuentes: list[RepositorioAlumnos], patronus: str | None) -> str | None:
-    """Busca la URL de la imagen de un patronus en PATRONUS_IMG (MariaDB).
-
-    Args:
-        fuentes: Lista de repositorios activos.
-        patronus: Nombre del patronus (en cualquier idioma).
-
-    Returns:
-        URL de la imagen si se encontró, None si el patronus es None,
-        MariaDB no está activa, o hay algún error de consulta.
-    """
-    if not patronus:
-        return None
-    repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
-    if repositorio is None:
-        return None
-    try:
-        return repositorio.buscar_patronus_url(patronus)
-    except Exception as error:
-        logger.warning("No se pudo obtener patronus_url para '%s': %s", patronus, error)
-        return None
-
-
-# ---------------------------------------------------------------------- #
-#  GET /alumnos/{dni}  —  Búsqueda por DNI                                #
-# ---------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+#  GET  /alumnos/{dni}  —  Búsqueda por DNI                                   #
+# --------------------------------------------------------------------------- #
 
 
 @router.get("/alumnos/{dni}", response_model=Alumno, summary="Buscar alumno por DNI")
@@ -161,7 +147,7 @@ def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_rep
         fuentes: Lista de repositorios activos (inyectada por FastAPI).
 
     Returns:
-        Alumno encontrado con su patronus_url.
+        Alumno encontrado, con `patronus_url` relleno si aplica.
 
     Raises:
         HTTPException 404: Si el DNI no existe en ninguna fuente.
@@ -185,9 +171,46 @@ def obtener_alumno(dni: str, fuentes: list[RepositorioAlumnos] = Depends(get_rep
     )
 
 
-# ---------------------------------------------------------------------- #
-#  POST /alumnos  —  Crear alumno                                        #
-# ---------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+#  GET  /patronus      —  Catálogo de patronus                                #
+# --------------------------------------------------------------------------- #
+
+
+@router.get("/patronus", response_model=list[Patronus], summary="Listar todos los patronus")
+def listar_patronus(fuentes: list[RepositorioAlumnos] = Depends(get_repositorios)):
+    """Devuelve todos los patronus del catálogo PATRONUS_IMG (nombre en inglés e imagen).
+
+    La tabla PATRONUS_IMG solo existe en MariaDB, por lo que este endpoint
+    requiere que el motor 'mariadb' esté activo en DB_ENGINES.
+
+    Args:
+        fuentes: Lista de repositorios activos (inyectada por FastAPI).
+
+    Returns:
+        Lista de patronus con nombre en inglés y URL de imagen.
+
+    Raises:
+        HTTPException 503: Si MariaDB no está activa o no responde.
+    """
+    repositorio = _repositorio_mariadb(fuentes)
+    if repositorio is None:
+        raise HTTPException(
+            status_code=503,
+            detail="La fuente 'mariadb' no esta activa (DB_ENGINES)",
+        )
+    try:
+        return repositorio.listar_patronus()
+    except Exception as error:
+        logger.error("Fallo consultando PATRONUS_IMG: %s", error)
+        raise HTTPException(
+            status_code=503,
+            detail=f"La fuente '{repositorio.casa}' no responde: {error}",
+        ) from error
+
+
+# --------------------------------------------------------------------------- #
+#  POST /alumnos      —  Crear alumno                                         #
+# --------------------------------------------------------------------------- #
 
 
 @router.post("/alumnos", response_model=Alumno, status_code=201, summary="Crear un alumno")
@@ -195,15 +218,15 @@ def crear_alumno(
     datos: AlumnoEntrada,
     fuentes: list[RepositorioAlumnos] = Depends(get_repositorios),
 ):
-    """Crea un alumno nuevo en MariaDB.
+    """Crea un alumno nuevo en MariaDB (la base central).
 
     Flujo:
     1. Comprueba que el DNI no exista en ninguna de las 5 fuentes (409 si existe).
-    2. Valida el patronus contra PATRONUS_IMG (columna NOM_ENG). Si no existe, devuelve 422.
+    2. Valida el patronus contra PATRONUS_IMG (columna NOM_ENG). Si no existe, 422.
     3. Inserta el alumno en MariaDB.
 
     Args:
-        datos: Datos del alumno (AlumnoEntrada con imagen y patronus en inglés).
+        datos: Datos del alumno (AlumnoEntrada; el patronus va en inglés).
         fuentes: Lista de repositorios activos (inyectada por FastAPI).
 
     Returns:
@@ -231,7 +254,7 @@ def crear_alumno(
             )
 
     # 2) Obtener repositorio MariaDB (central).
-    repositorio = next((r for r in fuentes if isinstance(r, RepositorioMariaDB)), None)
+    repositorio = _repositorio_mariadb(fuentes)
     if repositorio is None:
         raise HTTPException(
             status_code=503,
@@ -269,9 +292,9 @@ def crear_alumno(
         ) from error
 
 
-# ---------------------------------------------------------------------- #
-#  PUT /alumnos/{dni}  —  Actualizar alumno                               #
-# ---------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+#  PUT  /alumnos/{dni}  —  Actualizar alumno                                  #
+# --------------------------------------------------------------------------- #
 
 
 @router.put("/alumnos/{dni}", response_model=Alumno, summary="Actualizar alumno")
@@ -284,7 +307,8 @@ def actualizar_alumno(
 
     Solo se modifican los campos presentes en el cuerpo de la petición.
     Los campos omitidos no se tocan. Los campos enviados como null o ""
-    se guardan como NULL.
+    se guardan como NULL. No valida el patronus contra PATRONUS_IMG
+    (solo el POST lo valida).
 
     Args:
         dni: DNI del alumno a actualizar (tomado de la URL).
@@ -292,7 +316,7 @@ def actualizar_alumno(
         fuentes: Lista de repositorios activos (inyectada por FastAPI).
 
     Returns:
-        Alumno actualizado (la primera coincidencia de las fuentes).
+        Alumno actualizado (la primera coincidencia entre las fuentes).
 
     Raises:
         HTTPException 404: Si el DNI no existe en ninguna fuente.
@@ -319,9 +343,9 @@ def actualizar_alumno(
     return actualizados[0]
 
 
-# ---------------------------------------------------------------------- #
-#  DELETE /alumnos/{dni}  —  Eliminar alumno                              #
-# ---------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+#  DELETE /alumnos/{dni}  —  Eliminar alumno                                  #
+# --------------------------------------------------------------------------- #
 
 
 @router.delete("/alumnos/{dni}", status_code=204, summary="Eliminar alumno")

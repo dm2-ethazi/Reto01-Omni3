@@ -1,12 +1,15 @@
 """Repositorio de alumnos para Oracle (Ravenclaw).
 
-Usa la librería nativa `oracledb` (sin Oracle Client). Los parámetros se
-pasan con notación `:nombre`. Cada operación abre y cierra una conexión.
+Usa la librería nativa `oracledb` (funciona sin instalar el Oracle Client).
+Los parámetros se pasan con notación `:nombre`. Cada operación abre y
+cierra una conexión.
 """
+
+from contextlib import contextmanager
 
 import oracledb
 
-from .base import Alumno, AlumnoActualizacion, campos_a_actualizar, texto
+from .base import COLUMNAS_ALUMNO_SQL, Alumno, AlumnoActualizacion, campos_a_actualizar, fila_a_alumno
 
 
 class RepositorioOracle:
@@ -37,35 +40,13 @@ class RepositorioOracle:
         self.usuario = usuario
         self.password = password
 
-    def listar(self) -> list[Alumno]:
-        """Devuelve todos los alumnos de la tabla ALUMNOS."""
-        with oracledb.connect(
-            user=self.usuario,
-            password=self.password,
-            dsn=self.dsn,
-            tcp_connect_timeout=5,
-        ) as conexion:
-            with conexion.cursor() as cursor:
-                cursor.execute("SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS")
-                filas = cursor.fetchall()
-        return [
-            Alumno(
-                id=texto(f[0]) or "",
-                nombre=texto(f[1]) or "",
-                apellido=texto(f[2]),
-                sexo=texto(f[3]),
-                patronus=texto(f[4]),
-                imagen=texto(f[5]),
-                casa=self.casa,
-            )
-            for f in filas
-        ]
+    @contextmanager
+    def _conexion(self):
+        """Abre una conexión Oracle y la cierra siempre al salir del bloque.
 
-    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
-        """Busca alumnos cuyo nombre empiece por el prefijo (case-insensitive).
-
-        Args:
-            prefijo: Texto inicial del nombre a buscar.
+        Uso:
+            with self._conexion() as conexion:
+                ...
         """
         with oracledb.connect(
             user=self.usuario,
@@ -73,25 +54,35 @@ class RepositorioOracle:
             dsn=self.dsn,
             tcp_connect_timeout=5,
         ) as conexion:
+            yield conexion
+
+    # ------------------------------------------------------------------ #
+    #  CRUD de alumnos                                                    #
+    # ------------------------------------------------------------------ #
+
+    def listar(self) -> list[Alumno]:
+        """Devuelve todos los alumnos de la tabla ALUMNOS."""
+        with self._conexion() as conexion:
+            with conexion.cursor() as cursor:
+                cursor.execute(f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS")
+                filas = cursor.fetchall()
+        return [fila_a_alumno(f, self.casa) for f in filas]
+
+    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+        """Busca alumnos cuyo nombre empiece por el prefijo (sin distinguir mayúsculas).
+
+        Args:
+            prefijo: Texto inicial del nombre a buscar.
+        """
+        with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS "
+                    f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS "
                     "WHERE UPPER(NOMBRE) LIKE UPPER(:prefijo) ORDER BY NOMBRE",
                     {"prefijo": prefijo + "%"},
                 )
                 filas = cursor.fetchall()
-        return [
-            Alumno(
-                id=texto(f[0]) or "",
-                nombre=texto(f[1]) or "",
-                apellido=texto(f[2]),
-                sexo=texto(f[3]),
-                patronus=texto(f[4]),
-                imagen=texto(f[5]),
-                casa=self.casa,
-            )
-            for f in filas
-        ]
+        return [fila_a_alumno(f, self.casa) for f in filas]
 
     def obtener(self, id_alumno: str) -> Alumno | None:
         """Busca un alumno por DNI.
@@ -102,29 +93,16 @@ class RepositorioOracle:
         Returns:
             Alumno si existe, None si no.
         """
-        with oracledb.connect(
-            user=self.usuario,
-            password=self.password,
-            dsn=self.dsn,
-            tcp_connect_timeout=5,
-        ) as conexion:
+        with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute(
-                    "SELECT ID, NOMBRE, APELLIDO, SEXO, PATRONUS, IMAGEN FROM ALUMNOS WHERE ID = :id",
+                    f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS WHERE ID = :id",
                     {"id": id_alumno},
                 )
                 fila = cursor.fetchone()
         if fila is None:
             return None
-        return Alumno(
-            id=texto(fila[0]) or "",
-            nombre=texto(fila[1]) or "",
-            apellido=texto(fila[2]),
-            sexo=texto(fila[3]),
-            patronus=texto(fila[4]),
-            imagen=texto(fila[5]),
-            casa=self.casa,
-        )
+        return fila_a_alumno(fila, self.casa)
 
     def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
         """Actualiza los campos enviados de un alumno existente.
@@ -139,12 +117,7 @@ class RepositorioOracle:
         columnas = campos_a_actualizar(datos)
         if not columnas:
             return self.obtener(id_alumno)
-        with oracledb.connect(
-            user=self.usuario,
-            password=self.password,
-            dsn=self.dsn,
-            tcp_connect_timeout=5,
-        ) as conexion:
+        with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
                 if cursor.fetchone() is None:
@@ -165,12 +138,7 @@ class RepositorioOracle:
         Returns:
             True si se eliminó, False si no existía.
         """
-        with oracledb.connect(
-            user=self.usuario,
-            password=self.password,
-            dsn=self.dsn,
-            tcp_connect_timeout=5,
-        ) as conexion:
+        with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
                 if cursor.fetchone() is None:
