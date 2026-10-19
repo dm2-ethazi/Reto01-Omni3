@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════
 # Contenedor del cliente de escritorio Gestor Hogwarts (JavaFX).
 #
-#   Construcción:  docker build -f gestorhogwartsjavafx/Dockerfile gestorhogwartsjavafx
+#   Construcción:  docker build -f gestorhogwartsjavafx/Dockerfile -t gestorhogwarts-javafx gestorhogwartsjavafx
 #   Ejecución:     docker run --rm gestorhogwarts-javafx
 #
 # La ventana se pinta en un X virtual (Xvfb), así el contenedor no
