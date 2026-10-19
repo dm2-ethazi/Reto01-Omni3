@@ -8,3 +8,33 @@ UserSettings/
 *.slnx
 __pycache__/
 *.py[cod]
+
+# Unity: compilaciones, capturas y archivos temporales
+[Bb]uilds/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+.utmp/
+.gradle/
+.cxx/
+*.apk
+*.aab
+*.unitypackage
+
+# Configuracion local de los editores
+.vs/
+.vscode/
+.idea/
+*.sln
+*.suo
+*.user
+*.userprefs
+
+# Credenciales y configuracion local
+.env
+.env.*
+!.env.example
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
