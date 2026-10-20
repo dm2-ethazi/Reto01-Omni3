@@ -3,6 +3,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val apiBaseUrl = providers.gradleProperty("omni3ApiUrl")
+    .orElse(providers.environmentVariable("GESTOR_API_URL"))
+    .getOrElse("http://10.0.2.2:8000")
+    .trimEnd('/')
+
 android {
     namespace = "com.omni3.gestorhogwartsmovil"
     compileSdk {
@@ -17,6 +22,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "API_BASE_URL", "\"${apiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
@@ -28,6 +34,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

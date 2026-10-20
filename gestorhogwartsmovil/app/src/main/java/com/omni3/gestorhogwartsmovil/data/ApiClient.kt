@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsmovil.data
 
 import com.omni3.gestorhogwartsmovil.Student
+import com.omni3.gestorhogwartsmovil.BuildConfig
 
 import org.json.JSONArray
 import org.json.JSONObject
@@ -23,7 +24,7 @@ class ApiHttpException(val statusCode: Int, message: String) : Exception(message
  */
 object ApiClient {
 
-    private const val BASE_URL = "https://curator-caliber-magma.ngrok-free.dev"
+    private val BASE_URL = BuildConfig.API_BASE_URL
     private const val TIMEOUT_MS = 5_000
 
     /**
