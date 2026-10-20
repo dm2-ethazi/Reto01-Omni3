@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ScrollView
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/r01_cabecera"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <Button
+            android:id="@+id/botonIdioma"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:drawableStart="@drawable/baseline_language_24"
+            android:text="@string/idiomaBoton"
+            android:textAllCaps="false"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/campoNombre"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="@string/buscar_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/botonBuscar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/buscar"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progreso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textoEstado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/r01_estado"
+            android:accessibilityLiveRegion="polite"
+            android:padding="10dp"
+            android:text="@string/estado_inicial"
+            android:textColor="@color/r01_primario_oscuro"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    </ScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lista"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/r01_panel"
+        android:clipToPadding="false"
+        android:padding="4dp"
+        android:scrollbars="vertical" />
+</LinearLayout>

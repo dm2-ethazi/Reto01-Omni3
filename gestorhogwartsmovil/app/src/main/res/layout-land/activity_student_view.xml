@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="0.35"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ficha_alumno"
+            android:textColor="@color/r01_primario_oscuro"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <ImageView
+                android:id="@+id/imagenAlumno"
+                style="@style/R01ImagenAlumno"
+                android:contentDescription="@string/imagen_alumno" />
+
+        <Button
+            android:id="@+id/botonVolver"
+            style="@style/R01BotonPrimario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/volver"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.65"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/r01_panel"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView style="@style/R01EtiquetaDetalle" android:text="@string/dni" />
+            <TextView android:id="@+id/valorDni" style="@style/R01ValorDetalle" />
+            <TextView style="@style/R01EtiquetaDetalle" android:text="@string/nombre_completo" />
+            <TextView android:id="@+id/valorNombre" style="@style/R01ValorDetalle" />
+            <TextView style="@style/R01EtiquetaDetalle" android:text="@string/sexo" />
+            <TextView android:id="@+id/valorSexo" style="@style/R01ValorDetalle" />
+            <TextView style="@style/R01EtiquetaDetalle" android:text="@string/patronus" />
+            <TextView android:id="@+id/valorPatronus" style="@style/R01ValorDetalle" />
+            <TextView style="@style/R01EtiquetaDetalle" android:text="@string/casa" />
+            <TextView android:id="@+id/valorCasa" style="@style/R01ValorDetalle" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
