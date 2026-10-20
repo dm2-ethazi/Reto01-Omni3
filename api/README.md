@@ -116,7 +116,7 @@ Se usa para validar el patronus en el POST y para devolver la imagen en el GET.
 Para crear la tabla y cargar los datos:
 
 ```bash
-docker compose up -d mariadb
+docker compose -f ../compose.yaml up -d mariadb  # desde api/
 # En un volumen nuevo, Compose aplica database/mariadb/01_schema.sql.
 ```
 
