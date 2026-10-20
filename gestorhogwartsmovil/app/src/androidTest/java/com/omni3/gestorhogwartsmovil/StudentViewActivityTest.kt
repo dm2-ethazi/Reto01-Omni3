@@ -13,7 +13,12 @@ import com.omni3.gestorhogwartsmovil.databinding.ActivityStudentViewBinding
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/** Comprueba el contrato de navegación y las variantes visuales sin necesitar la API. */
+/**
+ * Comprueba el contrato de navegación y las variantes visuales sin necesitar la API.
+ *
+ * @author koldo
+ * @description Comprueba el contrato de navegación y las variantes visuales sin necesitar la API.
+ */
 class StudentViewActivityTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val student = Student("1", "Harry", "Potter", "male", "Stag", "Gryffindor", null)
@@ -69,7 +74,12 @@ class StudentViewActivityTest {
         }
     }
 
-    /** Valida los campos que comparten los layouts de teléfono y tablet. */
+    /**
+     * Valida los campos que comparten los layouts de teléfono y tablet.
+     *
+     * @author koldo
+     * @description Valida los campos que comparten los layouts de teléfono y tablet.
+     */
     private fun assertStudentDetails(activity: StudentViewActivity) {
         val expected = mapOf(
             R.id.valorDni to student.id,

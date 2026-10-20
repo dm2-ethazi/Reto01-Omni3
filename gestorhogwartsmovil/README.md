@@ -1,112 +1,117 @@
 # Gestor Hogwarts Móvil
 
-Aplicación Android en Kotlin para consultar alumnos, buscar por nombre y abrir
-su ficha. Admite inglés, castellano y euskera, teléfono y tablet, en vertical
-y horizontal.
+Aplicación Android en Kotlin para consultar alumnos por nombre o identificador,
+abrir su ficha y trabajar sin conexión. Idiomas: inglés, castellano y euskera.
+Layouts adaptados a teléfono y tablet, en vertical y horizontal.
 
-## Guía del código
+## Estructura
 
-El código está en `app/src/main/java/com/omni3/gestorhogwartsmovil/`.
-Las clases y los métodos propios incluyen KDoc en castellano (`/** ... */`),
-visible en la documentación rápida de Android Studio.
+Código en `app/src/main/java/com/omni3/gestorhogwartsmovil/`:
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| `Student.kt` | Campos REST, nombre completo y coincidencia de búsqueda. |
-| `ApiClient.kt` | URL del servidor, GET /alumnos, JSON y errores HTTP. |
-| `StudentDatabase.kt` | Entidades, mappers, contrato de caché, DAO y base Room. |
-| `StudentResult.kt` | Datos, origen, fecha de sincronización y estados de error. |
-| `StudentRepository.kt` | Consulta de la API, validación, persistencia y fallback. |
-| `MainActivity.kt` | Lista, búsqueda, estado e idioma. |
-| `StudentAdapter.kt` | Filas con View Binding y ListAdapter. |
-| `StudentViewActivity.kt` | Contrato de navegación, ficha y descarga opcional de su foto. |
+- `data/ApiClient.kt`: GET /alumnos, JSON, HTTP, timeouts y cabeceras de ngrok.
+- `data/StudentDatabase.kt`: SQLite mediante Room, entidades, DAO y transacciones.
+- `data/StudentRepository.kt`: caché primero, verificación, sincronización y errores.
+- `Student.kt` y `StudentResult.kt`: modelo, origen y estado de verificación.
+- `MainActivity.kt`, `StudentAdapter.kt`, `StudentViewActivity.kt`: presentación.
+- `WindowInsets.kt`: protección frente a barras del sistema y recortes de pantalla.
 
-Se mantiene una estructura pequeña, con dependencias en
-`gradle/libs.versions.toml`. El wrapper y los archivos generados por las
-herramientas no se refactorizan como código de aplicación.
+Las responsabilidades están separadas; el acceso a datos se puede probar mediante
+inyección de una función remota, caché y reloj. El código propio incluye KDoc.
 
-## API y persistencia
+## Caché primero y verificación de persistencia
 
-`GET /alumnos` devuelve la colección completa con `id`, `nombre`, `apellido`,
-`sexo`, `patronus`, `casa` e `imagen`. La URL se configura en `ApiClient`.
-No se cambia el contrato ni se presuponen endpoints de búsqueda o de detalle.
+1. El repositorio lee SQLite antes de consultar la red.
+2. Si hay una instantánea, incluso vacía, la muestra inmediatamente mediante un
+   callback suspendido. La pantalla indica «Caché SQLite · Verificando».
+3. Consulta la colección completa del servidor mediante GET /alumnos en IO.
+4. Valida nombres e identificadores obligatorios y rechaza IDs duplicados.
+5. Compara TODOS los campos, cantidad y orden con la instantánea local. Si el
+   servidor ha cambiado, sustituye la colección completa y elimina filas ausentes.
+6. Guarda filas y fecha de forma atómica. Relee SQLite dentro de la transacción:
+   cualquier diferencia provoca rollback. El repositorio vuelve a leer tras
+   guardar y exige igualdad exacta con la respuesta y fecha esperadas.
+7. Solo tras esas comprobaciones muestra «verificado al 100%» y la fecha.
+   Si ya coincidían, mantiene el origen SQLite; si hay cambios, indica Tiempo real.
+8. Sin red o con errores del servidor conserva la caché y explica que no se ha
+   podido verificar. Sin caché muestra un aviso con posibilidad de reintentar.
+9. Si falla la persistencia, permite ver la respuesta remota con una advertencia;
+   nunca anuncia una verificación correcta ni una nueva fecha persistida.
 
-1. La Activity solicita la lista al repositorio.
-2. El repositorio consulta la API en IO y valida campos obligatorios e IDs únicos.
-3. Room realiza upsert, elimina los IDs ausentes con una consulta conjunta y
-   guarda la fecha. Toda la actualización se ejecuta en una transacción.
-4. Ante errores de red, timeout o HTTP 5xx, devuelve la última instantánea de
-   `hogwarts.db`. HTTP 4xx y respuestas inválidas se presentan como errores.
-5. Si falla el guardado, registra el fallo y devuelve los datos remotos. Si no
-   puede leerse la caché, devuelve un error controlado.
+Una lista vacía es válida; la tabla sync_state distingue vacío sincronizado de
+una instalación sin datos. Un Mutex serializa las cargas y escrituras. Las
+cancelaciones se propagan al ciclo de vida; no se convierten en errores.
 
-Una lista vacía es válida y se persiste. La marca de sincronización la distingue
-de una caché nunca inicializada. Un Mutex compartido serializa consulta y
-escritura para evitar respuestas guardadas fuera de orden. Las cancelaciones se
-propagan y no se convierten en estados de error u offline.
+**replaceComplete solo admite colecciones completas y autoritativas.**
+No debe usarse con respuestas filtradas, paginadas o individuales.
 
-**`replaceComplete` solo admite colecciones completas y autoritativas.**
-Las búsquedas filtran la lista cargada sin escribir. Los futuros endpoints
-filtrados, individuales o paginados no deben llamar a ese método. Abrir una
-ficha tampoco realiza otra consulta de alumnos.
+## Uso y feedback
 
-Buscar con texto filtra; buscar con el campo vacío recarga la API. Cada nueva
-carga vuelve a priorizar el servidor. La indicación offline permanece durante
-las búsquedas. Sin conexión ni caché se muestra un mensaje informativo.
+- Buscar filtra por nombre completo o identificador exacto, sin distinguir
+  mayúsculas. Un identificador inexistente muestra un aviso amable.
+- Buscar con el campo vacío vuelve a leer la caché y verificar con la API.
+- Durante la verificación aparece una barra animada; se puede consultar la lista.
+- Origen, verificación y última fecha permanecen visibles durante las búsquedas.
+- Los errores no exponen excepciones, códigos HTTP ni mensajes técnicos.
+- Los mensajes no se recortan a dos líneas y el panel horizontal permite scroll.
+- Se respetan las barras del sistema; los estados se anuncian a accesibilidad.
+- La ficha reutiliza los datos cargados. Si la foto falla, conserva el icono.
+  Las imágenes no se persisten en SQLite.
 
-El esquema sigue en versión 1, exportado en `app/schemas`. Los cambios futuros
-requieren migraciones; no hay recreación destructiva. No se guardan secretos
-ni se sincronizan escrituras offline.
+## Configuración y ejecución
 
-## Pantallas y recursos
+Abrir esta carpeta en Android Studio, sincronizar Gradle y elegir dispositivo.
+Se requiere SDK 37 para compilar; la app admite Android 13/API 33 o superior.
+El proyecto usa el wrapper incluido y el JDK de Android Studio.
 
-- Ambas Activities usan `lifecycleScope`, red en IO y presentación en el hilo
-  principal. No mantienen ejecutores manuales ni callbacks tras su destrucción.
-- `StudentViewActivity.crearIntent` concentra las claves de navegación. La ficha
-  reutiliza `Student.nombreCompleto` y traduce los campos ausentes.
-- La foto conserva las cabeceras del proveedor y timeouts de cinco segundos.
-  No se persisten imágenes: sin URL o si falla la descarga se mantiene el icono.
-- Los layouts de teléfono y tablet se separan cuando cambia la estructura.
-  `dimens.xml` y sus variantes ajustan tamaños sin copiar layouts enteros.
-- `R01ImagenAlumno` centraliza la foto de la ficha. Las columnas de tablet apilan
-  etiqueta y valor verticalmente. Día y noche comparten la paleta existente,
-  ya que ambos archivos tenían exactamente los mismos colores.
+La URL HTTPS del servidor se configura en data/ApiClient.kt. Es válida tanto
+para emulador como para dispositivo con acceso al servidor. La cabecera
+ngrok-skip-browser-warning evita recibir la página intermedia en vez de JSON.
 
-## Comprobación manual
+La base sigue en versión 1 y conserva su identityHash original. El esquema
+exportado se encuentra en app/schemas con el nuevo paquete de StudentDatabase.
+No hay migraciones destructivas ni borrado de la caché al arrancar.
 
-1. Con API disponible, comprueba lista, búsqueda y ficha.
-2. Cierra la app, activa modo avión y vuelve a abrirla: deben aparecer los datos
-   guardados y el aviso offline. Prueba búsquedas y fichas.
-3. Busca «Harry», reinicia sin red y busca otro nombre: la caché debe conservarlo.
-4. Recupera la conexión, modifica datos en el servidor y pulsa Buscar con el
-   campo vacío. Reinicia offline para confirmar la persistencia.
-5. En una instalación limpia sin conexión, comprueba el mensaje sin datos.
-   Una respuesta `[]` debe mostrar cero resultados también offline.
-6. HTTP 401/403 deben mostrar error; 503 debe recuperar la caché.
-7. Comprueba idiomas y ambas orientaciones en teléfono y tablet.
+## Diagnóstico
 
-## Pruebas
+Marca implementada: **R01-PERSISTENCE**, presente en el código de comprobación
+y en Logcat cuando falla SQLite o su verificación. La rúbrica facilitada no
+especifica un literal concreto; si el enunciado completo exige otro, deberá
+sustituirse por el indicado.
 
-Desde la carpeta del proyecto:
+## Validación y demostración de la rúbrica
+
+Desde esta carpeta, con JDK configurado:
 
 ```powershell
 ./gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ./gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-La segunda orden requiere dispositivo o emulador. Las pruebas no necesitan API:
+Pruebas unitarias: orden caché/red, comparación de todos los campos, reconexión,
+colecciones vacías, búsquedas, errores HTTP y de almacenamiento, relectura
+inconsistente, cancelación y concurrencia.
 
-- `StudentTest`: nombres, búsquedas y conservación de campos en los mappers.
-- `StudentRepositoryTest`: sincronización, reconexión, filtros, listas vacías,
-  HTTP, validación, fallos locales, cancelación y concurrencia.
-- `StudentDatabaseTest`: reapertura de SQLite, upsert, borrado conjunto, orden
-  de filas y rollback de datos y fecha.
-- `StudentViewActivityTest`: navegación, recreación, campos ausentes y layouts
-  de teléfono/tablet en vertical y horizontal.
-- `StudentAdapterTest`: actualización y selección de una fila reciclada.
+Pruebas instrumentadas: SQLite real, cierre y reapertura, actualizaciones,
+borrados, orden, rollback y verificación del repositorio al reabrir offline;
+navegación, recreación de ficha y recursos de teléfono/tablet en ambas orientaciones.
 
-Validación de la revisión (16/10/2026): compilación debug correcta, 12 pruebas
-unitarias y 7 instrumentadas aprobadas en Small_Phone (API 37). La prueba de
-recursos carga las cuatro combinaciones teléfono/tablet y vertical/horizontal.
-Lint final: cero errores y 9 advertencias (versiones de dependencias y detalles
-de layouts). El esquema Room mantiene su versión y hash originales.
+Para demostrar los criterios máximos:
+
+1. Abrir con red: observar carga y «Tiempo real · SQLite verificado al 100%».
+2. Reiniciar con red: comprobar caché primero y coincidencia con el servidor.
+3. Cerrar, desconectar y reabrir: comprobar lista, búsqueda y ficha desde SQLite.
+4. Modificar un campo en el servidor, reconectar y buscar con el campo vacío:
+   comprobar actualización, nueva verificación y conservación al reiniciar offline.
+5. Buscar un identificador inexistente y comprobar el aviso, sin cierre.
+6. Probar una instalación sin datos ni red y recuperar la conexión.
+7. Revisar ambos idiomas adicionales, orientaciones, tablet y un dispositivo real.
+
+La nota final depende de la evaluación. La ejecución en dispositivo físico
+debe verificarse con un dispositivo conectado; los emuladores no la sustituyen.
+
+Validación realizada el 20/10/2026: assembleDebug, 17 pruebas unitarias y 8
+instrumentadas en cada AVD (Small_Phone API 37 y Medium_Tablet API 35) correctos.
+Lint: 0 errores, 10 advertencias (versiones y detalles de layouts existentes).
+Prueba real de GET /alumnos: 985 alumnos verificados; cierre y reapertura en
+modo avión conserva los 985 alumnos y muestra el origen Caché SQLite.
+No había un dispositivo físico conectado durante esta validación.

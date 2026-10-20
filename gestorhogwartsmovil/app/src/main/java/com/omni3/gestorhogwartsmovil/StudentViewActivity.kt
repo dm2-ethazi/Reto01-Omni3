@@ -16,7 +16,12 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** Muestra los datos seleccionados sin consultar de nuevo la API; solo la foto requiere red. */
+/**
+ * Muestra los datos seleccionados sin consultar de nuevo la API; solo la foto requiere red.
+ *
+ * @author koldo
+ * @description Muestra los datos seleccionados sin consultar de nuevo la API; solo la foto requiere red.
+ */
 class StudentViewActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStudentViewBinding
@@ -25,6 +30,7 @@ class StudentViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityStudentViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applySystemInsets()
 
         val student = leerAlumno()
         binding.valorDni.text = datoOAlternativa(student.id)
@@ -36,7 +42,12 @@ class StudentViewActivity : AppCompatActivity() {
         cargarImagen(student.imagen)
     }
 
-    /** Reconstruye el alumno recibido; un extra ausente se presenta como dato no disponible. */
+    /**
+     * Reconstruye el alumno recibido; un extra ausente se presenta como dato no disponible.
+     *
+     * @author koldo
+     * @description Reconstruye el alumno recibido; un extra ausente se presenta como dato no disponible.
+     */
     private fun leerAlumno() = Student(
         id = intent.getStringExtra(EXTRA_ID).orEmpty(),
         nombre = intent.getStringExtra(EXTRA_NOMBRE).orEmpty(),
@@ -47,7 +58,12 @@ class StudentViewActivity : AppCompatActivity() {
         imagen = intent.getStringExtra(EXTRA_IMAGEN)
     )
 
-    /** Mantiene el icono alternativo si falta la foto; la coroutine se cancela al destruir la ficha. */
+    /**
+     * Mantiene el icono alternativo si falta la foto; la coroutine se cancela al destruir la ficha.
+     *
+     * @author koldo
+     * @description Mantiene el icono alternativo si falta la foto; la coroutine se cancela al destruir la ficha.
+     */
     private fun cargarImagen(link: String?) {
         binding.imagenAlumno.setImageResource(R.drawable.ic_alumno)
         val imageUrl = link?.trim()?.takeIf { it.isNotEmpty() } ?: return
@@ -61,6 +77,9 @@ class StudentViewActivity : AppCompatActivity() {
     /**
      * Descarga y decodifica en IO, cerrando stream y conexión en todos los casos.
      * Conserva las cabeceras necesarias para el proveedor de imágenes actual.
+     *
+     * @author koldo
+     * @description Descarga y decodifica en IO, cerrando stream y conexión en todos los casos. Conserva las cabeceras necesarias para el proveedor de imágenes actual.
      */
     private suspend fun descargarImagen(link: String): Bitmap? = withContext(Dispatchers.IO) {
         try {
@@ -92,7 +111,12 @@ class StudentViewActivity : AppCompatActivity() {
         }
     }
 
-    /** Sustituye campos ausentes por el texto traducido correspondiente. */
+    /**
+     * Sustituye campos ausentes por el texto traducido correspondiente.
+     *
+     * @author koldo
+     * @description Sustituye campos ausentes por el texto traducido correspondiente.
+     */
     private fun datoOAlternativa(value: String?): String =
         value?.takeIf { it.isNotBlank() } ?: getString(R.string.dato_no_disponible)
 
@@ -106,7 +130,12 @@ class StudentViewActivity : AppCompatActivity() {
         private const val EXTRA_CASA = "alumno_casa"
         private const val EXTRA_IMAGEN = "alumno_imagen"
 
-        /** Prepara la navegación a la ficha sin exponer las claves de sus extras al llamador. */
+        /**
+         * Prepara la navegación a la ficha sin exponer las claves de sus extras al llamador.
+         *
+         * @author koldo
+         * @description Prepara la navegación a la ficha sin exponer las claves de sus extras al llamador.
+         */
         fun crearIntent(context: Context, student: Student): Intent =
             Intent(context, StudentViewActivity::class.java).apply {
                 putExtra(EXTRA_ID, student.id)

@@ -1,14 +1,26 @@
-package com.omni3.gestorhogwartsmovil
+package com.omni3.gestorhogwartsmovil.data
+
+import com.omni3.gestorhogwartsmovil.Student
 
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** Error HTTP que conserva el código para decidir si procede recuperar la caché. */
+/**
+ * Error HTTP que conserva el código para decidir si procede recuperar la caché.
+ *
+ * @author koldo
+ * @description Error HTTP que conserva el código para decidir si procede recuperar la caché.
+ */
 class ApiHttpException(val statusCode: Int, message: String) : Exception(message)
 
-/** Cliente HTTP del contrato REST de alumnos. Sus operaciones son bloqueantes. */
+/**
+ * Cliente HTTP del contrato REST de alumnos. Sus operaciones son bloqueantes.
+ *
+ * @author koldo
+ * @description Cliente HTTP del contrato REST de alumnos. Sus operaciones son bloqueantes.
+ */
 object ApiClient {
 
     private const val BASE_URL = "https://curator-caliber-magma.ngrok-free.dev"
@@ -18,13 +30,21 @@ object ApiClient {
      * Obtiene la colección completa de GET /alumnos, sin filtros ni paginación.
      *
      * Debe invocarse fuera del hilo principal; [StudentRepository] se encarga de ello.
+     *
+     * @author koldo
+     * @description Obtiene la colección completa de GET /alumnos, sin filtros ni paginación.
      * @throws ApiHttpException si el servidor responde con un código distinto de 2xx.
      * @throws java.io.IOException si falla la conexión o se agota el tiempo de espera.
      * @throws org.json.JSONException si la respuesta no tiene el formato esperado.
      */
     fun listarAlumnos(): List<Student> = parsearAlumnos(solicitar("$BASE_URL/alumnos"))
 
-    /** Convierte el array JSON sin confundir una respuesta inválida con una lista vacía. */
+    /**
+     * Convierte el array JSON sin confundir una respuesta inválida con una lista vacía.
+     *
+     * @author koldo
+     * @description Convierte el array JSON sin confundir una respuesta inválida con una lista vacía.
+     */
     private fun parsearAlumnos(json: String): List<Student> {
         val alumnos = JSONArray(json)
         return List(alumnos.length()) { index ->
@@ -32,10 +52,18 @@ object ApiClient {
         }
     }
 
-    /** Ejecuta GET y libera siempre la conexión, incluso ante errores HTTP o de lectura. */
+    /**
+     * Ejecuta GET y libera siempre la conexión, incluso ante errores HTTP o de lectura.
+     *
+     * @author koldo
+     * @description Ejecuta GET y libera siempre la conexión, incluso ante errores HTTP o de lectura.
+     */
     private fun solicitar(url: String): String {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
+        connection.setRequestProperty("Accept", "application/json")
+        // El túnel de desarrollo debe devolver JSON, sin la página de aviso de ngrok.
+        connection.setRequestProperty("ngrok-skip-browser-warning", "true")
         connection.connectTimeout = TIMEOUT_MS
         connection.readTimeout = TIMEOUT_MS
 
@@ -52,7 +80,12 @@ object ApiClient {
         }
     }
 
-    /** Cierra el stream de éxito o de error después de leerlo. */
+    /**
+     * Cierra el stream de éxito o de error después de leerlo.
+     *
+     * @author koldo
+     * @description Cierra el stream de éxito o de error después de leerlo.
+     */
     private fun leerRespuesta(connection: HttpURLConnection, statusCode: Int): String {
         val stream = if (statusCode in 200..299) {
             connection.inputStream
@@ -62,7 +95,12 @@ object ApiClient {
         return stream?.bufferedReader()?.use { it.readText() }.orEmpty()
     }
 
-    /** Usa el detalle enviado por el servidor si existe; el código HTTP siempre se conserva. */
+    /**
+     * Usa el detalle enviado por el servidor si existe; el código HTTP siempre se conserva.
+     *
+     * @author koldo
+     * @description Usa el detalle enviado por el servidor si existe; el código HTTP siempre se conserva.
+     */
     private fun crearErrorApi(body: String, statusCode: Int): ApiHttpException {
         val detail = runCatching { JSONObject(body).optString("detail") }
             .getOrNull()
@@ -70,7 +108,12 @@ object ApiClient {
         return ApiHttpException(statusCode, detail ?: "HTTP $statusCode")
     }
 
-    /** Mapea únicamente los campos del contrato existente; los opcionales pueden faltar. */
+    /**
+     * Mapea únicamente los campos del contrato existente; los opcionales pueden faltar.
+     *
+     * @author koldo
+     * @description Mapea únicamente los campos del contrato existente; los opcionales pueden faltar.
+     */
     private fun JSONObject.toStudent() = Student(
         id = getString("id"),
         nombre = getString("nombre"),
@@ -81,9 +124,13 @@ object ApiClient {
         imagen = optNullableString("imagen")
     )
 
-    /** Unifica valores ausentes, vacíos y null del JSON en un null de Kotlin. */
+    /**
+     * Unifica valores ausentes, vacíos y null del JSON en un null de Kotlin.
+     *
+     * @author koldo
+     * @description Unifica valores ausentes, vacíos y null del JSON en un null de Kotlin.
+     */
     private fun JSONObject.optNullableString(key: String): String? =
         optString(key).takeIf { it.isNotBlank() && it != "null" }
 
 }
-

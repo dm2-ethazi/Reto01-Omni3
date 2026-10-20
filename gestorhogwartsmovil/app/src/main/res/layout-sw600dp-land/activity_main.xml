@@ -5,10 +5,14 @@
     android:orientation="horizontal"
     android:padding="24dp">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="340dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="24dp"
+        android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/r01_cabecera"
         android:orientation="vertical"
         android:padding="24dp">
@@ -29,9 +33,9 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="28dp"
-            android:hint="@string/nombre"
+            android:hint="@string/buscar_hint"
             android:imeOptions="actionSearch"
-            android:inputType="textPersonName"
+            android:inputType="text"
             android:importantForAutofill="no"
             android:singleLine="true"
             android:textSize="16sp" />
@@ -45,6 +49,14 @@
             android:text="@string/buscar"
             android:textAllCaps="false" />
 
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progreso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/textoEstado"
             android:layout_width="match_parent"
@@ -57,6 +69,7 @@
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
+    </ScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lista"

@@ -3,12 +3,10 @@
     <string name="app_name">Gestor Hogwarts Móvil</string>
     <string name="buscar">Buscar</string>
     <string name="estado_inicial">Estado inicial</string>
-    <string name="nombre">Nombre</string>
     <string name="dni">DNI</string>
     <string name="idiomaBoton">Idioma</string>
     <string name="idioma_sistema">Idioma del dispositivo</string>
     <string name="cargando_alumnos">Cargando alumnos…</string>
-    <string name="error_api">Error de API: %1$s</string>
     <string name="alumnos_cargados">Alumnos cargados: %1$d</string>
     <string name="resultados_busqueda">Resultados de búsqueda: %1$d</string>
     <string name="ficha_alumno">Ficha del alumno</string>
@@ -19,6 +17,20 @@
     <string name="dato_no_disponible">No disponible</string>
     <string name="volver">Volver</string>
     <string name="imagen_alumno">Imagen del alumno</string>
-    <string name="datos_offline">%1$s · Sin conexión: datos guardados</string>
     <string name="offline_sin_cache">Sin conexión y sin datos guardados. Reintenta cuando haya conexión.</string>
+    <string name="buscar_hint">Nombre o identificador</string>
+    <string name="verificando">Verificando con el servidor…</string>
+    <string name="verificado" formatted="false">Coincidencia 100% con servidor y SQLite</string>
+    <string name="actualizado" formatted="false">Actualizado · SQLite verificado al 100%</string>
+    <string name="sin_red_cache">Sin conexión · datos guardados</string>
+    <string name="servidor_cache">No se pudo verificar el servidor · datos guardados</string>
+    <string name="error_persistencia">No se pudo verificar el guardado local. Reintenta antes de desconectarte.</string>
+    <string name="origen_sqlite">Caché SQLite</string>
+    <string name="origen_api">Tiempo real</string>
+    <string name="ultima_sincronizacion">Última verificación: %1$s</string>
+    <string name="sin_resultados">No hay alumnos con ese nombre o identificador. Revisa la búsqueda.</string>
+    <string name="error_acceso">No se permite el acceso. Consulta con el responsable del servicio.</string>
+    <string name="error_servicio">El servicio de alumnos no está disponible. Inténtalo más tarde.</string>
+    <string name="error_amable">No se pudieron cargar los alumnos. Vuelve a intentarlo.</string>
+    <string name="estado_datos">%1$s\n%2$s · %3$s\n%4$s</string>
 </resources>

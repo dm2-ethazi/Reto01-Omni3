@@ -1,11 +1,18 @@
 package com.omni3.gestorhogwartsmovil
 
+import com.omni3.gestorhogwartsmovil.data.*
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Comprueba nombres, búsquedas y mapeo sin red ni base de datos. */
+/**
+ * Comprueba nombres, búsquedas y mapeo sin red ni base de datos.
+ *
+ * @author koldo
+ * @description Comprueba nombres, búsquedas y mapeo sin red ni base de datos.
+ */
 class StudentTest {
     private val student = Student("1", "Harry", "Potter", "male", "Stag", "Gryffindor", "https://example.com/harry.jpg")
 
@@ -21,6 +28,8 @@ class StudentTest {
         assertTrue(student.coincideConNombre("harry p"))
         assertTrue(student.coincideConNombre(" "))
         assertFalse(student.coincideConNombre("Ron"))
+        assertTrue(student.coincideConNombre(" 1 "))
+        assertFalse(student.copy(id = "1234").coincideConNombre("123"))
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.omni3.gestorhogwartsmovil
 
+import com.omni3.gestorhogwartsmovil.data.*
+
 import android.content.Context
 import androidx.room.Room
 import androidx.room.withTransaction
@@ -12,7 +14,12 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 
-/** Verifica SQLite real: persistencia tras reabrir, sustitución autoritativa y rollback. */
+/**
+ * Verifica SQLite real: persistencia tras reabrir, sustitución autoritativa y rollback.
+ *
+ * @author koldo
+ * @description Verifica SQLite real: persistencia tras reabrir, sustitución autoritativa y rollback.
+ */
 class StudentDatabaseTest {
     private lateinit var context: Context
     private lateinit var database: StudentDatabase
@@ -77,5 +84,28 @@ class StudentDatabaseTest {
             // La escritura y el borrado anteriores deben haberse revertido juntos.
         }
         assertEquals(previous, database.students().read())
+    }
+
+    @Test
+    fun repositoryVerifiesRealSqliteAndReopensOffline() = runBlocking {
+        database.students().replaceComplete(listOf(harry), 1)
+        val updated = listOf(harry.copy(casa = "Gryffindor"), ron)
+        var cacheShown = false
+        val repository = StudentRepository(remote = {
+            check(cacheShown) { "SQLite must be shown before accessing the server" }
+            updated
+        }, cache = database.students(), clock = { 2L })
+        val result = repository.listarAlumnos {
+            assertEquals(listOf(harry), it.students)
+            cacheShown = true
+        } as StudentResult.Data
+        assertEquals(Verification.UPDATED, result.verification)
+        database.close()
+        database = Room.databaseBuilder(context, StudentDatabase::class.java, databaseName).build()
+        val offline = StudentRepository({ throw java.io.IOException() }, database.students())
+            .listarAlumnos() as StudentResult.Data
+        assertEquals(updated, offline.students)
+        assertEquals(2L, offline.syncedAt)
+        assertEquals(Verification.OFFLINE, offline.verification)
     }
 }

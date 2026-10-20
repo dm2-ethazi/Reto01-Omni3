@@ -10,7 +10,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Verifica que una fila reciclada muestra y selecciona al alumno actual tras actualizar la lista. */
+/**
+ * Verifica que una fila reciclada muestra y selecciona al alumno actual tras actualizar la lista.
+ *
+ * @author koldo
+ * @description Verifica que una fila reciclada muestra y selecciona al alumno actual tras actualizar la lista.
+ */
 class StudentAdapterTest {
     @Test
     fun replacingResultsUpdatesContentAndSelection() {
