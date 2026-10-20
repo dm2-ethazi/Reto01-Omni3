@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="640" viewBox="0 0 360 640" font-family="Segoe UI, Roboto, sans-serif">
+  <defs>
+    <linearGradient id="cabecera" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="360" height="640" fill="#F1F5F9"/>
+
+  <!-- Cabecera -->
+  <rect x="0" y="0" width="360" height="86" fill="url(#cabecera)"/>
+  <rect x="0" y="70" width="360" height="16" rx="8" fill="url(#cabecera)"/>
+  <text x="20" y="40" fill="#FFFFFF" font-size="22" font-weight="bold">R01 Central</text>
+  <text x="20" y="62" fill="#C7D2FE" font-size="13">Integración de orígenes JDBC · Reto R01</text>
+
+  <!-- Tarjeta conexión -->
+  <rect x="16" y="104" width="328" height="252" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="32" y="130" fill="#64748B" font-size="11" font-weight="bold">URL DE LA API</text>
+  <rect x="32" y="140" width="296" height="46" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="46" y="168" fill="#64748B" font-size="14">http://10.0.2.2:8000</text>
+
+  <rect x="32" y="196" width="143" height="46" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="46" y="224" fill="#64748B" font-size="14">Nombre</text>
+  <rect x="185" y="196" width="143" height="46" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="199" y="224" fill="#64748B" font-size="14">DNI</text>
+
+  <!-- Fila de botones 1 -->
+  <rect x="32" y="254" width="94" height="44" rx="12" fill="#1E3A8A"/>
+  <text x="79" y="281" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">Conectar</text>
+  <rect x="133" y="254" width="94" height="44" rx="12" fill="#FFFFFF" stroke="#1E3A8A"/>
+  <text x="180" y="281" fill="#1E3A8A" font-size="13" font-weight="bold" text-anchor="middle">Buscar</text>
+  <rect x="234" y="254" width="94" height="44" rx="12" fill="#FFFFFF" stroke="#1E3A8A"/>
+  <text x="281" y="281" fill="#1E3A8A" font-size="13" font-weight="bold" text-anchor="middle">DNI</text>
+
+  <!-- Fila de botones 2 -->
+  <rect x="32" y="306" width="143" height="44" rx="12" fill="#FFFFFF" stroke="#1E3A8A"/>
+  <text x="103" y="333" fill="#1E3A8A" font-size="13" font-weight="bold" text-anchor="middle">Salud</text>
+  <rect x="185" y="306" width="143" height="44" rx="12" fill="#1E3A8A"/>
+  <text x="256" y="333" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">Sincronizar</text>
+
+  <!-- Chip estado -->
+  <rect x="16" y="370" width="328" height="34" rx="17" fill="#E0E7FF" stroke="#1E3A8A"/>
+  <text x="180" y="392" fill="#172554" font-size="13" font-weight="bold" text-anchor="middle">Central: 40 filas · backend=ok</text>
+
+  <!-- Lista de resultados -->
+  <rect x="16" y="418" width="328" height="206" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+
+  <rect x="20" y="422" width="320" height="64" rx="12" fill="#FFFFFF"/>
+  <text x="34" y="450" fill="#0F172A" font-size="15" font-weight="bold">Hermione Granger</text>
+  <text x="34" y="472" fill="#64748B" font-size="12">12345678A · Gryffindor · Otter</text>
+  <line x1="20" y1="486" x2="340" y2="486" stroke="#E2E8F0"/>
+
+  <rect x="20" y="490" width="320" height="64" rx="12" fill="#F8FAFC"/>
+  <text x="34" y="518" fill="#0F172A" font-size="15" font-weight="bold">Harry Potter</text>
+  <text x="34" y="540" fill="#64748B" font-size="12">87654321B · Gryffindor · Stag</text>
+  <line x1="20" y1="554" x2="340" y2="554" stroke="#E2E8F0"/>
+
+  <rect x="20" y="558" width="320" height="64" rx="12" fill="#FFFFFF"/>
+  <text x="34" y="586" fill="#0F172A" font-size="15" font-weight="bold">Draco Malfoy</text>
+  <text x="34" y="608" fill="#64748B" font-size="12">45678912C · Slytherin · Non-corporeal</text>
+</svg>
