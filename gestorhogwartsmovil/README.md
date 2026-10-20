@@ -8,7 +8,7 @@ Layouts adaptados a teléfono y tablet, en vertical y horizontal.
 
 Código en `app/src/main/java/com/omni3/gestorhogwartsmovil/`:
 
-- `data/ApiClient.kt`: GET /alumnos, JSON, HTTP, timeouts y cabeceras de ngrok.
+- `data/ApiClient.kt`: GET /alumnos, JSON, HTTP y timeouts.
 - `data/StudentDatabase.kt`: SQLite mediante Room, entidades, DAO y transacciones.
 - `data/StudentRepository.kt`: caché primero, verificación, sincronización y errores.
 - `Student.kt` y `StudentResult.kt`: modelo, origen y estado de verificación.
@@ -60,18 +60,31 @@ No debe usarse con respuestas filtradas, paginadas o individuales.
 ## Configuración y ejecución
 
 Abrir esta carpeta en Android Studio, sincronizar Gradle y elegir dispositivo.
-Se requiere SDK 37 para compilar; la app admite Android 13/API 33 o superior.
+Se requiere SDK 37 para compilar; la app admite Android 7.0/API 24 o superior.
 El proyecto usa el wrapper incluido y el JDK de Android Studio.
 
-La URL del servidor se configura al compilar con `-Pomni3ApiUrl=https://servidor`
-o la variable `GESTOR_API_URL`. El valor por defecto es `http://10.0.2.2:8000`,
-que llega al host desde el emulador Android; un dispositivo físico necesita
-una URL accesible desde su propia red. La cabecera `ngrok-skip-browser-warning`
-se envía por compatibilidad con túneles ngrok cuando se utilicen.
+La URL de la API se define al compilar. El valor predeterminado
+`http://10.0.2.2:8000` sirve para el emulador Android con la API en el equipo
+anfitrión. Para Redmi Note 11, Redmi Pad SE u otro dispositivo físico, utiliza
+una URL accesible desde la misma red, por ejemplo:
+
+```powershell
+./gradlew.bat :app:assembleDebug -Pomni3ApiUrl=http://192.168.1.20:8000
+```
+
+También se admite la variable de entorno `GESTOR_API_URL`. Arranca la API
+escuchando en una interfaz de red alcanzable por el dispositivo y comprueba
+que el cortafuegos permite el puerto 8000. El APK construido incorpora la URL
+elegida; vuelve a compilar si cambia. La cabecera `ngrok-skip-browser-warning`
+se conserva para las pruebas que utilicen un túnel HTTPS.
 
 La base sigue en versión 1 y conserva su identityHash original. El esquema
 exportado se encuentra en app/schemas con el nuevo paquete de StudentDatabase.
 No hay migraciones destructivas ni borrado de la caché al arrancar.
+
+Los iconos adaptativos están limitados a API 26 y posteriores; Android 7.0 y
+7.1 usan los iconos `.webp` de densidad. El tema aplica el atributo de barra de
+navegación introducido en API 27 solo en esa versión y posteriores.
 
 ## Diagnóstico
 
@@ -113,7 +126,14 @@ debe verificarse con un dispositivo conectado; los emuladores no la sustituyen.
 
 Validación realizada el 20/10/2026: assembleDebug, 17 pruebas unitarias y 8
 instrumentadas en cada AVD (Small_Phone API 37 y Medium_Tablet API 35) correctos.
-Lint: 0 errores, 10 advertencias (versiones y detalles de layouts existentes).
+La compilación con `minSdk=24` generó un APK que declara API 24 como mínimo;
+`assembleDebug`, las 17 pruebas unitarias y `lintDebug` terminaron correctamente.
+Lint: 0 errores, 11 advertencias (compatibilidad de atributos, versiones y
+detalles de layouts existentes). No se ha ejecutado esta revisión en un equipo
+con Android 7.0/API 24.
+En esta revisión también finalizaron las 8 pruebas instrumentadas en el AVD
+Medium_Phone con Android API 37, sin fallos. La validación física en Redmi
+Note 11 y Redmi Pad SE sigue pendiente hasta disponer de esos dispositivos.
 Prueba real de GET /alumnos: 985 alumnos verificados; cierre y reapertura en
 modo avión conserva los 985 alumnos y muestra el origen Caché SQLite.
 No había un dispositivo físico conectado durante esta validación.

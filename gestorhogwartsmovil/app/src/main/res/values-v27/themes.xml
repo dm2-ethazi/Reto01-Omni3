@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.GestorHogwartsMovil" parent="Base.Theme.GestorHogwartsMovil">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
