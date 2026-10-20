@@ -1,6 +1,7 @@
 package com.omni3.gestorhogwartsmovil
 
 import com.omni3.gestorhogwartsmovil.data.ApiHttpException
+import com.omni3.gestorhogwartsmovil.data.ApiUrlSettings
 import com.omni3.gestorhogwartsmovil.data.StudentRepository
 
 import android.os.Bundle
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         binding.root.applySystemInsets()
 
         configurarLista()
+        configurarUrl()
         configurarBusqueda()
         binding.botonIdioma.setOnClickListener { mostrarMenuIdiomas() }
         cargarAlumnos()
@@ -62,6 +64,38 @@ class MainActivity : AppCompatActivity() {
         studentAdapter = StudentAdapter(::mostrarAlumno)
         binding.lista.layoutManager = LinearLayoutManager(this)
         binding.lista.adapter = studentAdapter
+    }
+
+    /** Muestra la URL activa y permite aplicarla durante el uso de la app. */
+    private fun configurarUrl() {
+        binding.campoApiUrl.setText(ApiUrlSettings.get(this))
+        binding.botonAplicarUrl.setOnClickListener { aplicarUrl() }
+        binding.campoApiUrl.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId != EditorInfo.IME_ACTION_DONE) return@setOnEditorActionListener false
+            aplicarUrl()
+            true
+        }
+    }
+
+    private fun aplicarUrl() {
+        if (loading) {
+            binding.campoApiUrl.error = getString(R.string.api_url_loading)
+            return
+        }
+
+        val previous = ApiUrlSettings.get(this)
+        if (!ApiUrlSettings.save(this, binding.campoApiUrl.text.toString())) {
+            binding.campoApiUrl.error = getString(R.string.api_url_invalid)
+            return
+        }
+
+        val current = ApiUrlSettings.get(this)
+        binding.campoApiUrl.setText(current)
+        if (current != previous) {
+            currentData = null
+            studentAdapter.mostrarEstudiantes(emptyList())
+            cargarAlumnos()
+        }
     }
 
     /**
@@ -91,6 +125,7 @@ class MainActivity : AppCompatActivity() {
     private fun cargarAlumnos() {
         if (loading) return
         loading = true
+        binding.botonAplicarUrl.isEnabled = false
         binding.progreso.visibility = View.VISIBLE
         mostrarEstado(R.string.cargando_alumnos)
         lifecycleScope.launch {
@@ -117,6 +152,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } finally {
                 loading = false
+                binding.botonAplicarUrl.isEnabled = true
                 binding.progreso.visibility = View.GONE
             }
         }

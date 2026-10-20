@@ -143,7 +143,10 @@ class StudentRepository(
          * @description Comparte repositorio, base de datos y bloqueo entre las Activities del proceso.
          */
         fun get(context: Context): StudentRepository = instance ?: synchronized(this) {
-            instance ?: StudentRepository(ApiClient::listarAlumnos, StudentDatabase.create(context).students())
+            instance ?: StudentRepository(
+                { ApiClient.listarAlumnos(context.applicationContext) },
+                UrlScopedStudentCache(context.applicationContext, StudentDatabase.create(context).students())
+            )
                 .also { instance = it }
         }
     }

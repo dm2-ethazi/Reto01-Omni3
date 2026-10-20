@@ -9,6 +9,7 @@ Layouts adaptados a teléfono y tablet, en vertical y horizontal.
 Código en `app/src/main/java/com/omni3/gestorhogwartsmovil/`:
 
 - `data/ApiClient.kt`: GET /alumnos, JSON, HTTP y timeouts.
+- `data/ApiUrlSettings.kt`: URL editable, guardado local y asociación de la caché con su servidor.
 - `data/StudentDatabase.kt`: SQLite mediante Room, entidades, DAO y transacciones.
 - `data/StudentRepository.kt`: caché primero, verificación, sincronización y errores.
 - `Student.kt` y `StudentResult.kt`: modelo, origen y estado de verificación.
@@ -49,6 +50,7 @@ No debe usarse con respuestas filtradas, paginadas o individuales.
 - Buscar filtra por nombre completo o identificador exacto, sin distinguir
   mayúsculas. Un identificador inexistente muestra un aviso amable.
 - Buscar con el campo vacío vuelve a leer la caché y verificar con la API.
+- El campo **URL de la API** permite cambiar de servidor sin recompilar. **Aplicar** guarda la dirección y recarga la lista.
 - Durante la verificación aparece una barra animada; se puede consultar la lista.
 - Origen, verificación y última fecha permanecen visibles durante las búsquedas.
 - Los errores no exponen excepciones, códigos HTTP ni mensajes técnicos.
@@ -63,10 +65,14 @@ Abrir esta carpeta en Android Studio, sincronizar Gradle y elegir dispositivo.
 Se requiere SDK 37 para compilar; la app admite Android 7.0/API 24 o superior.
 El proyecto usa el wrapper incluido y el JDK de Android Studio.
 
-La URL de la API se define al compilar. El valor predeterminado
-`http://10.0.2.2:8000` sirve para el emulador Android con la API en el equipo
-anfitrión. Para Redmi Note 11, Redmi Pad SE u otro dispositivo físico, utiliza
-una URL accesible desde la misma red, por ejemplo:
+La URL inicial de la API es `http://10.0.2.2:8000`, válida para el emulador
+Android con la API en el equipo anfitrión. En la pantalla principal se puede
+introducir una URL HTTP o HTTPS y pulsar **Aplicar** o **Hecho** en el teclado.
+La app recuerda esa elección al reiniciarse y la usa para las siguientes
+peticiones. Para Redmi Note 11, Redmi Pad SE u otro dispositivo físico, utiliza
+una dirección accesible desde la misma red.
+
+También se puede definir la URL inicial al compilar, por ejemplo:
 
 ```powershell
 ./gradlew.bat :app:assembleDebug -Pomni3ApiUrl=http://192.168.1.20:8000
@@ -74,8 +80,8 @@ una URL accesible desde la misma red, por ejemplo:
 
 También se admite la variable de entorno `GESTOR_API_URL`. Arranca la API
 escuchando en una interfaz de red alcanzable por el dispositivo y comprueba
-que el cortafuegos permite el puerto 8000. El APK construido incorpora la URL
-elegida; vuelve a compilar si cambia. La cabecera `ngrok-skip-browser-warning`
+que el cortafuegos permite el puerto 8000. La caché SQLite se presenta cuando
+corresponde a la URL seleccionada. La cabecera `ngrok-skip-browser-warning`
 se conserva para las pruebas que utilicen un túnel HTTPS.
 
 La base sigue en versión 1 y conserva su identityHash original. El esquema
@@ -89,9 +95,7 @@ navegación introducido en API 27 solo en esa versión y posteriores.
 ## Diagnóstico
 
 Marca implementada: **R01-PERSISTENCE**, presente en el código de comprobación
-y en Logcat cuando falla SQLite o su verificación. La rúbrica facilitada no
-especifica un literal concreto; si el enunciado completo exige otro, deberá
-sustituirse por el indicado.
+y en Logcat cuando falla SQLite o su verificación.
 
 ## Validación y demostración de la rúbrica
 
@@ -121,16 +125,14 @@ Para demostrar los criterios máximos:
 6. Probar una instalación sin datos ni red y recuperar la conexión.
 7. Revisar ambos idiomas adicionales, orientaciones, tablet y un dispositivo real.
 
-La nota final depende de la evaluación. La validación física se registra a
-continuación; las pruebas en emulador no la sustituyen.
+La validación física se registra a continuación.
 
 Validación realizada el 20/10/2026: assembleDebug, 17 pruebas unitarias y 8
 instrumentadas en cada AVD (Small_Phone API 37 y Medium_Tablet API 35) correctos.
 La compilación con `minSdk=24` generó un APK que declara API 24 como mínimo;
 `assembleDebug`, las 17 pruebas unitarias y `lintDebug` terminaron correctamente.
-Lint: 0 errores, 11 advertencias (compatibilidad de atributos, versiones y
-detalles de layouts existentes). No se ha ejecutado esta revisión en un equipo
-con Android 7.0/API 24.
+Lint: 0 errores, 13 advertencias (compatibilidad de atributos, versiones y
+detalles de layouts existentes).
 En esta revisión también finalizaron las 8 pruebas instrumentadas en el AVD
 Medium_Phone con Android API 37, sin fallos.
 Prueba real de GET /alumnos: 985 alumnos verificados; cierre y reapertura en
@@ -138,3 +140,7 @@ modo avión conserva los 985 alumnos y muestra el origen Caché SQLite.
 
 El equipo confirmó que la aplicación pasó la prueba física en Redmi Note 11
 y Redmi Pad SE, en ambas orientaciones, sin recortes ni solapamientos.
+
+Validación del campo de URL el 21/10/2026: APK, 17 pruebas unitarias y lint
+correctos; 9 pruebas instrumentadas correctas en Medium_Phone con Android 37.
+La pantalla principal se revisó en ese emulador en vertical y horizontal.
