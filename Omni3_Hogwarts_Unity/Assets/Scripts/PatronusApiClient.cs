@@ -8,6 +8,12 @@ public sealed class PatronusApiClient : MonoBehaviour
 {
     [SerializeField] private string apiBaseUrl = "http://127.0.0.1:8000";
 
+    public string ApiBaseUrl
+    {
+        get { return apiBaseUrl; }
+        set { apiBaseUrl = value; }
+    }
+
     public IEnumerator SearchAlumnos(string searchText, Action<Alumno[]> onSuccess,
         Action<string> onFailure)
     {

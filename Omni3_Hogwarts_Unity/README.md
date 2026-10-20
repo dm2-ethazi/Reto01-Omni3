@@ -9,6 +9,7 @@ Cliente desarrollado en **Unity 6** para buscar estudiantes y consultar su casa 
 - Panel de detalles con el nombre completo, la casa, el Patronus y su imagen disponible.
 - Mensajes de carga, búsquedas sin coincidencias y errores de descarga.
 - Control de respuestas antiguas para que prevalezcan la búsqueda y la selección más recientes.
+- Campo de URL de la API editable durante Play; se aplica al pulsar Enter o al salir del campo.
 
 El campo vacío no carga la lista completa. Si aparecen más de ocho coincidencias, escribe un nombre más específico.
 
@@ -18,8 +19,8 @@ El campo vacío no carga la lista completa. Si aparecen más de ocho coincidenci
 2. Añade la carpeta `Omni3_Hogwarts_Unity` como proyecto.
 3. Espera a que Unity importe los recursos y resuelva los paquetes.
 4. Abre [PatronusDirectory.unity](Assets/Scenes/PatronusDirectory.unity).
-5. Configura **Api Base Url** en el componente `PatronusApiClient` de la escena con una dirección accesible.
-6. Pulsa **Play**, escribe un nombre y selecciona un resultado.
+5. Pulsa **Play** e introduce una dirección HTTP o HTTPS accesible en **API URL**.
+6. Pulsa Enter o sal del campo para aplicarla; después escribe un nombre y selecciona un resultado.
 
 La escena utiliza Unity UI sobre Canvas. Las dependencias se encuentran en [Packages/manifest.json](Packages/manifest.json), incluyendo **Universal Render Pipeline 17.3.0**, **Unity UI 2.0.0** e **Input System 1.20.0**.
 
@@ -34,7 +35,7 @@ El grafo contiene:
 - Una propiedad **Main Texture** con referencia **`_MainTex`**, marcada como textura principal y como dato por renderer, para recibir la textura de la interfaz.
 - Un nodo **Sample Texture 2D** que muestrea esa textura y envía su salida al bloque **Base Color**.
 - Un bloque **Emission** con un valor cian, aproximadamente `(0, 0.965, 1)`, que aporta el color luminoso del efecto.
-- Un bloque **Alpha** con valor constante `1`. Actualmente, el canal alfa de la textura no está conectado a este bloque.
+- Un bloque **Alpha** con valor constante `1`.
 
 Para modificar su aspecto, abre el grafo desde la ventana Project y ajusta sus bloques y conexiones. La emisión está definida dentro del grafo; no hay una propiedad de color expuesta en el material. La intensidad del brillo visible depende también de la configuración de renderizado de la escena.
 
@@ -83,6 +84,7 @@ Assets/
 | --- | --- |
 | `Alumno.cs` | Modelo de estudiante y contenedor de la lista para `JsonUtility`. |
 | `PatronusApiClient.cs` | Peticiones HTTP, lectura de JSON y descarga de imágenes. |
+| `ApiUrlField.cs` | Edición y validación de la dirección de la API durante Play. |
 | `PatronusDirectoryController.cs` | Espera de búsqueda, generación de resultados, selección y gestión de la textura descargada. |
 | `PatronusDirectoryView.cs` | Textos, estados, imagen del Patronus y animación de aparición. |
 | `PatronusResultRow.cs` | Nombre, inicial, casa y botón de cada resultado. |
@@ -92,7 +94,7 @@ Conserva los archivos `.meta` junto a sus recursos: Unity utiliza sus identifica
 
 ## Conexión del cliente
 
-`PatronusApiClient` utiliza `UnityWebRequest` y corrutinas. La URL base se configura en el Inspector; el valor del script es `http://127.0.0.1:8000`, aunque la escena guardada lo sobrescribe con `https://curator-caliber-magma.ngrok-free.dev`.
+`PatronusApiClient` utiliza `UnityWebRequest` y corrutinas. La escena inicia con `http://127.0.0.1:8000`. Durante Play, el campo **API URL** muestra la dirección activa y permite cambiarla sin editar el Inspector. La dirección nueva se usa en las siguientes peticiones.
 
 El cliente realiza estas peticiones:
 
@@ -105,19 +107,20 @@ La búsqueda elimina los espacios iniciales y finales, codifica el nombre para l
 
 Si falta la imagen o falla su descarga, los detalles permanecen visibles con un mensaje en su lugar. Al cambiar de selección, el controlador libera la textura anterior y descarta las respuestas de selecciones antiguas.
 
-Si ejecutas el cliente en otro dispositivo, utiliza una dirección accesible desde ese dispositivo: `127.0.0.1` apunta al propio equipo donde se ejecuta la aplicación. La configuración actual bloquea HTTP sin cifrar; usa HTTPS o revisa **Allow downloads over HTTP** en Player Settings para tu entorno de desarrollo.
+Si ejecutas el cliente en otro dispositivo, introduce una dirección accesible desde ese dispositivo: `127.0.0.1` apunta al propio equipo donde se ejecuta la aplicación. Para conexiones HTTP en un entorno de desarrollo, configura **Allow downloads over HTTP** en Player Settings.
 
 ## Compilación y comprobación en Unity
 
-Abre **File → Build Profiles**, selecciona la plataforma de destino y comprueba que `Assets/Scenes/PatronusDirectory.unity` esté incluida y activada. Ya figura habilitada en la configuración guardada. Antes de compilar, revisa la URL del cliente y las referencias de los componentes de la escena.
+Abre **File → Build Profiles** y selecciona la plataforma de destino. `Assets/Scenes/PatronusDirectory.unity` figura habilitada en la configuración guardada.
 
 Comprobaciones recomendadas en modo Play:
 
 1. Confirma que el fondo se reproduce en bucle y cubre la ventana al cambiar su tamaño.
-2. Escribe en el buscador y comprueba la posición y desaparición de los destellos.
-3. Selecciona un estudiante con imagen y revisa el material del Patronus y su animación de aparición.
-4. Prueba búsquedas sin coincidencias y estudiantes sin imagen.
-5. Cambia rápidamente de búsqueda o selección y comprueba que aparece la información más reciente.
+2. Cambia **API URL** durante Play y comprueba que la búsqueda usa la nueva dirección.
+3. Escribe en el buscador y comprueba la posición y desaparición de los destellos.
+4. Selecciona un estudiante con imagen y revisa el material del Patronus y su animación de aparición.
+5. Prueba búsquedas sin coincidencias y estudiantes sin imagen.
+6. Cambia rápidamente de búsqueda o selección y comprueba que aparece la información más reciente.
 
 ## Solución de problemas
 
@@ -125,4 +128,3 @@ Comprobaciones recomendadas en modo Play:
 - **Fondo negro o estático:** revisa el clip del `VideoPlayer`, sus opciones de reproducción y que comparta la misma Render Texture con el `RawImage` del fondo.
 - **Destellos ausentes:** comprueba las referencias **Search Input**, **Golden Light Particle Prefab** y **Effect Layer** del componente.
 - **Búsqueda o imagen no disponible:** revisa **Api Base Url**, la conectividad y los avisos de `UnityWebRequest` en la consola.
-- **Imagen sin transparencia:** el grafo actual utiliza `Alpha = 1`; revisa la conexión del alfa de la textura si necesitas respetar su transparencia.
