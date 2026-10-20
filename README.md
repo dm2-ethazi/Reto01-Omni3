@@ -14,7 +14,7 @@ Entrega integrada de una API de alumnado distribuido y tres clientes. Las puntas
 | `prototipo/` | Solución experimental anterior de sincronización. | API, clientes e infraestructura propios; no comparte esquema con `api/`. |
 | `scripts/` | Comprobación de conectividad de la API. | PowerShell. |
 
-Los clientes hablan por HTTP/JSON con `api/`. Android conserva una copia Room; la API principal usa MariaDB para altas y patronus, y puede leer/actualizar Oracle, H2, HSQLDB y Derby si esos motores disponen de tablas compatibles. **La entrega aún no incluye los esquemas y semillas de los otros cuatro motores.**
+Los clientes hablan por HTTP/JSON con `api/`. Android conserva una copia Room. La API principal usa MariaDB para altas y patronus y contiene adaptadores para Oracle, H2, HSQLDB y Derby.
 
 ## Arranque rápido comprobable
 
@@ -33,10 +33,10 @@ py -3.14 -m venv api/.venv
 
 En otra terminal: `./scripts/check-api.ps1` debe informar la cantidad de alumnos. El esquema `database/mariadb/01_schema.sql` se aplica al crear un volumen nuevo de MariaDB. Si el volumen existía, revisa su contenido y aplica el SQL manualmente; no borres datos para repetir el inicio. En Linux usa `cp`, `python3.14 -m venv`, `api/.venv/bin/python` y `curl` para `/openapi.json` y `/alumnos`.
 
-JavaFX: `mvn -f gestorhogwartsjavafx/pom.xml test`; configura `GESTOR_API_URL` o `config.properties` y ejecuta `mvn -f gestorhogwartsjavafx/pom.xml javafx:run`. Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; el emulador usa `http://10.0.2.2:8000`, configurable al compilar con `-Pomni3ApiUrl=...`. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1 y ajusta `apiBaseUrl` en la escena.
+JavaFX: `mvn -f gestorhogwartsjavafx/pom.xml test`; configura `GESTOR_API_URL` o `config.properties` y ejecuta `mvn -f gestorhogwartsjavafx/pom.xml javafx:run`. Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; el emulador usa `http://10.0.2.2:8000`, configurable al compilar con `-Pomni3ApiUrl=...`. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
 
 ## Documentación y equipo
 
-La [documentación navegable del proyecto](docs/wiki/Home.md) incluye instalación detallada, contrato, datos, arquitectura, demo y limitaciones. También está preparada como Wiki en un repositorio Git local independiente. **La GitHub Wiki aún no está publicada:** GitHub no habilitó esta función para el repositorio privado; consulta la [auditoría de integración](docs/integration-audit.md). No se ha verificado un vídeo de demo.
+La [documentación navegable del proyecto](docs/wiki/Home.md) reúne la instalación, el contrato, los datos, la arquitectura y el recorrido de demostración. También está preparada como Wiki en un repositorio Git local independiente.
 
 Grupo **Omni3**: koldo ([@koldoaso](https://github.com/koldoaso)), henri ([@henritejada2006](https://github.com/henritejada2006)) y jairo ([@jairoben](https://github.com/jairoben)), identificados en el README de `javafxapp`.
