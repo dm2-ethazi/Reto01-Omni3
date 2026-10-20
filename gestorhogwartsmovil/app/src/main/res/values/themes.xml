@@ -18,7 +18,6 @@
         <item name="android:statusBarColor">@color/r01_cabecera</item>
         <item name="android:navigationBarColor">@color/r01_superficie</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:textColorPrimary">@color/r01_texto_principal</item>
         <item name="android:textColorSecondary">@color/r01_texto_secundario</item>
     </style>
