@@ -112,8 +112,8 @@ public class AlumnosController implements ControladorVista {
     }
 
     /**
-     * Atajos de la pantalla de alumnado: Ctrl/Cmd+N (nuevo alumno) y
-     * Ctrl/Cmd+F (buscar).
+     * Atajos de la pantalla de alumnado: Ctrl/Cmd+N (nuevo alumno),
+     * Ctrl/Cmd+F (enfocar la búsqueda) y Ctrl/Cmd+Supr (dar de baja).
      *
      * <p>Se registran sobre la escena, que es común a todas las
      * pantallas: por eso el manejador comprueba que esta pantalla siga
@@ -129,6 +129,9 @@ public class AlumnosController implements ControladorVista {
         javafx.scene.input.KeyCodeCombination ctrlF =
                 new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.F,
                         javafx.scene.input.KeyCombination.SHORTCUT_DOWN);
+        javafx.scene.input.KeyCodeCombination ctrlSupr =
+                new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.DELETE,
+                        javafx.scene.input.KeyCombination.SHORTCUT_DOWN);
         Runnable atajoNuevo = () -> {
             if (pantalla.getScene() != null) {
                 nuevo();
@@ -136,17 +139,25 @@ public class AlumnosController implements ControladorVista {
         };
         Runnable atajoBuscar = () -> {
             if (pantalla.getScene() != null) {
-                buscar();
+                campoBusqueda.requestFocus();
+                campoBusqueda.selectAll();
+            }
+        };
+        Runnable atajoBaja = () -> {
+            if (pantalla.getScene() != null && !botonBaja.isDisable()) {
+                baja();
             }
         };
         if (pantalla.getScene() != null) {
             pantalla.getScene().getAccelerators().put(ctrlN, atajoNuevo);
             pantalla.getScene().getAccelerators().put(ctrlF, atajoBuscar);
+            pantalla.getScene().getAccelerators().put(ctrlSupr, atajoBaja);
         }
         pantalla.sceneProperty().addListener((observable, antes, escena) -> {
             if (escena != null) {
                 escena.getAccelerators().put(ctrlN, atajoNuevo);
                 escena.getAccelerators().put(ctrlF, atajoBuscar);
+                escena.getAccelerators().put(ctrlSupr, atajoBaja);
             }
         });
     }

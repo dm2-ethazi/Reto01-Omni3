@@ -698,3 +698,12 @@
 .menu-item:focused > .label {
     -fx-text-fill: -dorado;
 }
+
+/* Etiquetas de los comandos del menú de ayuda y del selector de idioma */
+.comando-menu {
+    -fx-text-fill: -texto;
+}
+.menu-item:hover .comando-menu,
+.menu-item:focused .comando-menu {
+    -fx-text-fill: -dorado;
+}

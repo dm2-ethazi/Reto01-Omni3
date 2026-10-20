@@ -2,9 +2,9 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.ImageView?>
@@ -26,11 +26,38 @@
     <Button fx:id="botonSalud" text="%boton.salud" styleClass="boton-secundario" onAction="#comprobarSalud">
       <tooltip><Tooltip text="%tooltip.salud"/></tooltip>
     </Button>
-    <!-- Menú de ayuda: única entrada a "Acerca de" (también con F1). -->
+    <!-- Menú de comandos: acciones rápidas de la aplicación (también con F1). -->
     <MenuButton fx:id="botonAyuda" text="%boton.ayuda" mnemonicParsing="true"
                 styleClass="boton-secundario">
       <items>
-        <MenuItem text="%menu.ayuda.acerca" onAction="#acercaDe"/>
+        <CustomMenuItem text="%menu.ayuda.estado" onAction="#navegarEstado">
+          <content>
+            <Label text="%menu.ayuda.estado" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.menu.ayuda.estado"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
+        <CustomMenuItem text="%menu.ayuda.alumnos" onAction="#navegarAlumnos">
+          <content>
+            <Label text="%menu.ayuda.alumnos" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.menu.ayuda.alumnos"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
+        <CustomMenuItem text="%menu.ayuda.comprobar" onAction="#comprobarSalud">
+          <content>
+            <Label text="%menu.ayuda.comprobar" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.menu.ayuda.comprobar"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
+        <CustomMenuItem text="%menu.ayuda.acerca" onAction="#acercaDe">
+          <content>
+            <Label text="%menu.ayuda.acerca" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.menu.ayuda.acerca"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
       </items>
       <tooltip><Tooltip text="%tooltip.ayuda"/></tooltip>
     </MenuButton>
@@ -64,10 +91,29 @@
     <Label fx:id="estado" text="%barra.listo" styleClass="texto-secundario"/>
     <MenuButton fx:id="botonIdioma" text="ES" styleClass="boton-idioma">
       <items>
-        <MenuItem text="Castellano" onAction="#idiomaCastellano"/>
-        <MenuItem text="Euskara" onAction="#idiomaEuskara"/>
-        <MenuItem text="English" onAction="#idiomaIngles"/>
+        <CustomMenuItem text="%menu.idioma.castellano" onAction="#idiomaCastellano">
+          <content>
+            <Label text="%menu.idioma.castellano" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.idioma.castellano"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
+        <CustomMenuItem text="%menu.idioma.euskara" onAction="#idiomaEuskara">
+          <content>
+            <Label text="%menu.idioma.euskara" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.idioma.euskara"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
+        <CustomMenuItem text="%menu.idioma.ingles" onAction="#idiomaIngles">
+          <content>
+            <Label text="%menu.idioma.ingles" styleClass="comando-menu">
+              <tooltip><Tooltip text="%tooltip.idioma.ingles"/></tooltip>
+            </Label>
+          </content>
+        </CustomMenuItem>
       </items>
+      <tooltip><Tooltip text="%tooltip.idioma"/></tooltip>
     </MenuButton>
     <Region HBox.hgrow="ALWAYS"/>
     <Label fx:id="estadoDerecha" text="%pie.tecnologia" styleClass="texto-secundario"/>

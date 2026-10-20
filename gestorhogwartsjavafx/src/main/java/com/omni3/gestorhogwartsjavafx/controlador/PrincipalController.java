@@ -12,10 +12,13 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Controlador de la vista principal: cabecera, navegación lateral y barra
@@ -39,6 +42,7 @@ public class PrincipalController implements ControladorVista {
     @FXML private Button navEstado;
     @FXML private Button navAlumnos;
     @FXML private MenuButton botonIdioma;
+    @FXML private MenuButton botonAyuda;
 
     private FabricaAplicacion fabrica;
     private Button navegacionActiva;
@@ -76,7 +80,7 @@ public class PrincipalController implements ControladorVista {
         iconoCabecera.setImage(new javafx.scene.image.Image(
                 getClass().getResource("/com/omni3/gestorhogwartsjavafx/icons/icon-32.png").toExternalForm()));
         botonIdioma.setText(Idiomas.simbolo());
-        registrarAceleradorAyuda();
+        registrarAceleradores();
         abrir(pantallaInicial);
     }
 
@@ -150,13 +154,16 @@ public class PrincipalController implements ControladorVista {
         acerca.setTitle(Idiomas.texto("dialogo.acerca.titulo"));
         acerca.setHeaderText(null);
         acerca.setContentText(Idiomas.texto("dialogo.acerca.cuerpo",
-                System.getProperty("java.version", "")));
+                System.getProperty("java.version", ""))
+                + "\n\n" + Idiomas.texto("dialogo.acerca.atajos"));
+        acerca.getDialogPane().setPrefWidth(460);
         estilizarDialogo(acerca);
         acerca.showAndWait();
     }
 
     /**
-     * Registra F1 (ayuda / Acerca de) sobre la escena vigente.
+     * Registra F1 (menú de comandos) y Ctrl/Cmd+1, Ctrl/Cmd+2
+     * (cambio de pantalla) sobre la escena vigente.
      *
      * <p>La escena existe al cambiar de idioma mucho después de
      * {@link #conectar(FabricaAplicacion)}, así que se observa su
@@ -164,15 +171,19 @@ public class PrincipalController implements ControladorVista {
      * sobrescribe la entrada: el manejador siempre es el controlador
      * actual.</p>
      */
-    private void registrarAceleradorAyuda() {
-        KeyCodeCombination f1 = new KeyCodeCombination(KeyCode.F1);
-        Runnable mostrarAcerca = this::acercaDe;
+    private void registrarAceleradores() {
+        Map<KeyCombination, Runnable> atajos = new LinkedHashMap<>();
+        atajos.put(new KeyCodeCombination(KeyCode.F1), botonAyuda::show);
+        atajos.put(new KeyCodeCombination(KeyCode.DIGIT1, KeyCombination.SHORTCUT_DOWN),
+                this::navegarEstado);
+        atajos.put(new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHORTCUT_DOWN),
+                this::navegarAlumnos);
         if (raiz.getScene() != null) {
-            raiz.getScene().getAccelerators().put(f1, mostrarAcerca);
+            atajos.forEach((atajo, accion) -> raiz.getScene().getAccelerators().put(atajo, accion));
         }
         raiz.sceneProperty().addListener((observable, antes, escena) -> {
             if (escena != null) {
-                escena.getAccelerators().put(f1, mostrarAcerca);
+                atajos.forEach((atajo, accion) -> escena.getAccelerators().put(atajo, accion));
             }
         });
     }
