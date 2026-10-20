@@ -116,9 +116,16 @@ Se usa para validar el patronus en el POST y para devolver la imagen en el GET.
 Para crear la tabla y cargar los datos:
 
 ```bash
-mysql -u r01 -p r01_central < createPatronusImg.sql
-mysql -u r01 -p r01_central < inserts_patronus_img.sql
+docker compose up -d mariadb
+# En un volumen nuevo, Compose aplica database/mariadb/01_schema.sql.
 ```
+
+Si el volumen ya existía, el SQL de inicio no se reaplica. Inspecciona las
+tablas y aplica `database/mariadb/01_schema.sql` manualmente sin borrar datos.
+Para la demostración local con solo MariaDB, copia `api/.env.local.example`
+a `api/.env` y ajusta usuario y contraseña para que coincidan con el `.env`
+de la raíz. Los otros cuatro motores requieren esquemas `ALUMNOS` que no se
+incluyen en esta rama integrada; el SQL de `prototipo/` usa otro modelo.
 
 ---
 

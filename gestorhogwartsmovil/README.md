@@ -63,9 +63,11 @@ Abrir esta carpeta en Android Studio, sincronizar Gradle y elegir dispositivo.
 Se requiere SDK 37 para compilar; la app admite Android 13/API 33 o superior.
 El proyecto usa el wrapper incluido y el JDK de Android Studio.
 
-La URL HTTPS del servidor se configura en data/ApiClient.kt. Es válida tanto
-para emulador como para dispositivo con acceso al servidor. La cabecera
-ngrok-skip-browser-warning evita recibir la página intermedia en vez de JSON.
+La URL del servidor se configura al compilar con `-Pomni3ApiUrl=https://servidor`
+o la variable `GESTOR_API_URL`. El valor por defecto es `http://10.0.2.2:8000`,
+que llega al host desde el emulador Android; un dispositivo físico necesita
+una URL accesible desde su propia red. La cabecera `ngrok-skip-browser-warning`
+se envía por compatibilidad con túneles ngrok cuando se utilicen.
 
 La base sigue en versión 1 y conserva su identityHash original. El esquema
 exportado se encuentra en app/schemas con el nuevo paquete de StudentDatabase.
