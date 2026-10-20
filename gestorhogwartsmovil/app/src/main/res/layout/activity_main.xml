@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Pantalla principal R01 (MVVM): sólo declara la interfaz; la lógica vive en
-  EstudianteViewModel. Los ids (campoUrl, campoNombre, campoDni, textoEstado,
-  lista, botonConectar, botonBuscar, botonSalud, botonSincronizar, botonDni)
-  son contrato con MainActivity.kt y NO deben cambiarse.
-
-  El bloque de acciones se parte en dos filas con layout_weight para que
-  ningún botón se recorte en pantallas de 360dp (antes "Sincronizar"
-  quedaba aplastado en el borde derecho).
--->
+<!-- Pantalla principal: idioma, búsqueda y listado de alumnos. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,20 +12,20 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="14dp"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/r01_panel"
-        android:weightSum="1">
+        android:padding="@dimen/main_header_padding"
+        android:background="@drawable/r01_cabecera"
+        android:weightSum="1"
+        android:baselineAligned="false">
         <Button
             android:drawableStart="@drawable/baseline_language_24"
             android:id="@+id/botonIdioma"
-            style="@style/R01.BotonPrimario"
+            style="@style/R01BotonPrimario"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/idiomaBoton"
             android:textAllCaps="false"
-            android:textSize="20sp" >
-        </Button>
+            android:textSize="@dimen/main_language_text_size" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,38 +48,19 @@
             <EditText
                 android:id="@+id/campoNombre"
                 android:hint="@string/nombre"
-                style="@style/R01.Campo"
+                style="@style/R01Campo"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="5dp"
                 android:layout_weight="1"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"
                 android:textSize="14sp" />
-
-            <EditText
-                android:id="@+id/campoDni"
-                android:hint="@string/dni"
-                style="@style/R01.Campo"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:importantForAutofill="no"
-                android:inputType="textCapCharacters"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:weightSum="1">
-
             <Button
                 android:id="@+id/botonBuscar"
-                style="@style/R01.BotonSecundario"
+                style="@style/R01BotonSecundario"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="6dp"
@@ -104,47 +76,6 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <Button
-                android:id="@+id/botonSalud"
-                style="@style/R01.BotonSecundario"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:minHeight="0dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:text="@string/salud"
-                android:textColor="@color/r01_primario"
-                android:textAllCaps="false"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/botonSincronizar"
-                style="@style/R01.BotonPrimario"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:minHeight="0dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:text="@string/sincronizar"
-                android:textColor="@color/r01_texto_sobre_primario"
-                android:textAllCaps="false"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- Chip de estado -->
         <TextView
             android:id="@+id/textoEstado"
             android:background="@drawable/r01_estado"
@@ -163,10 +94,8 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Resultados -->
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lista"
-        android:background="@drawable/r01_panel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -174,8 +103,8 @@
         android:layout_marginTop="14dp"
         android:layout_marginBottom="14dp"
         android:layout_weight="1"
+        android:background="@drawable/r01_panel"
         android:clipToPadding="false"
-        android:divider="@color/r01_borde"
-        android:dividerHeight="1dp"
-        android:padding="4dp" />
+        android:padding="4dp"
+        android:scrollbars="vertical" />
 </LinearLayout>

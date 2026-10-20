@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="340dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/r01_cabecera"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <Button
+            android:id="@+id/botonIdioma"
+            style="@style/R01BotonPrimario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/baseline_language_24"
+            android:text="@string/idiomaBoton"
+            android:textAllCaps="false"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/campoNombre"
+            style="@style/R01Campo"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:hint="@string/nombre"
+            android:imeOptions="actionSearch"
+            android:inputType="textPersonName"
+            android:importantForAutofill="no"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/botonBuscar"
+            style="@style/R01BotonSecundario"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/buscar"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/textoEstado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/r01_estado"
+            android:padding="14dp"
+            android:text="@string/estado_inicial"
+            android:textColor="@color/r01_primario_oscuro"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lista"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/r01_panel"
+        android:clipToPadding="false"
+        android:padding="12dp"
+        android:scrollbars="vertical" />
+</LinearLayout>

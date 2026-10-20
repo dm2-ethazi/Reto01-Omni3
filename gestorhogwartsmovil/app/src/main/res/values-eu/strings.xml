@@ -2,11 +2,23 @@
 <resources>
     <string name="app_name">Hogwarts Kudeatzaile Mugikorra</string>
     <string name="buscar">Bilatu</string>
-    <string name="sincronizar">Sinkronizatu</string>
     <string name="estado_inicial">Hasierako egoera</string>
-    <string name="salud">Osasuna</string>
     <string name="nombre">Izena</string>
     <string name="dni">NAN</string>
     <string name="idiomaBoton">Hizkuntza</string>
     <string name="idioma_sistema">Gailuaren hizkuntza</string>
+    <string name="cargando_alumnos">Ikasleak kargatzen…</string>
+    <string name="error_api">APIaren errorea: %1$s</string>
+    <string name="alumnos_cargados">Kargatutako ikasleak: %1$d</string>
+    <string name="resultados_busqueda">Bilaketaren emaitzak: %1$d</string>
+    <string name="ficha_alumno">Ikaslearen fitxa</string>
+    <string name="nombre_completo">Izen-abizenak</string>
+    <string name="sexo">Sexua</string>
+    <string name="patronus">Patronusa</string>
+    <string name="casa">Etxea</string>
+    <string name="dato_no_disponible">Ez dago erabilgarri</string>
+    <string name="volver">Itzuli</string>
+    <string name="imagen_alumno">Ikaslearen irudia</string>
+    <string name="datos_offline">%1$s · Konexiorik gabe: gordetako datuak</string>
+    <string name="offline_sin_cache">Konexiorik eta gordetako daturik ez. Saiatu berriro konexioa dagoenean.</string>
 </resources>

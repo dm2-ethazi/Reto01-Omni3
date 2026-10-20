@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">Hogwarts Mobile Manager</string>
     <string name="buscar">Search</string>
-    <string name="sincronizar">Sync</string>
     <string name="estado_inicial">Initial status</string>
-    <string name="salud">Health check</string>
     <string name="nombre">Name</string>
     <string name="dni">National ID (DNI)</string>
     <string name="idiomaBoton">Language</string>
@@ -11,4 +9,18 @@
     <string name="idioma_ingles" translatable="false">English</string>
     <string name="idioma_espanol" translatable="false">Español</string>
     <string name="idioma_euskera" translatable="false">Euskara</string>
+    <string name="cargando_alumnos">Loading students…</string>
+    <string name="error_api">API error: %1$s</string>
+    <string name="alumnos_cargados">Students loaded: %1$d</string>
+    <string name="resultados_busqueda">Search results: %1$d</string>
+    <string name="ficha_alumno">Student details</string>
+    <string name="nombre_completo">Full name</string>
+    <string name="sexo">Sex</string>
+    <string name="patronus">Patronus</string>
+    <string name="casa">House</string>
+    <string name="dato_no_disponible">Not available</string>
+    <string name="volver">Back</string>
+    <string name="imagen_alumno">Student image</string>
+    <string name="datos_offline">%1$s · Offline: saved data</string>
+    <string name="offline_sin_cache">No connection and no saved data. Try again when connected.</string>
 </resources>
