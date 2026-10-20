@@ -121,8 +121,8 @@ Para demostrar los criterios máximos:
 6. Probar una instalación sin datos ni red y recuperar la conexión.
 7. Revisar ambos idiomas adicionales, orientaciones, tablet y un dispositivo real.
 
-La nota final depende de la evaluación. La ejecución en dispositivo físico
-debe verificarse con un dispositivo conectado; los emuladores no la sustituyen.
+La nota final depende de la evaluación. La validación física se registra a
+continuación; las pruebas en emulador no la sustituyen.
 
 Validación realizada el 20/10/2026: assembleDebug, 17 pruebas unitarias y 8
 instrumentadas en cada AVD (Small_Phone API 37 y Medium_Tablet API 35) correctos.
@@ -132,8 +132,9 @@ Lint: 0 errores, 11 advertencias (compatibilidad de atributos, versiones y
 detalles de layouts existentes). No se ha ejecutado esta revisión en un equipo
 con Android 7.0/API 24.
 En esta revisión también finalizaron las 8 pruebas instrumentadas en el AVD
-Medium_Phone con Android API 37, sin fallos. La validación física en Redmi
-Note 11 y Redmi Pad SE sigue pendiente hasta disponer de esos dispositivos.
+Medium_Phone con Android API 37, sin fallos.
 Prueba real de GET /alumnos: 985 alumnos verificados; cierre y reapertura en
 modo avión conserva los 985 alumnos y muestra el origen Caché SQLite.
-No había un dispositivo físico conectado durante esta validación.
+
+El equipo confirmó que la aplicación pasó la prueba física en Redmi Note 11
+y Redmi Pad SE, en ambas orientaciones, sin recortes ni solapamientos.
