@@ -37,6 +37,6 @@ JavaFX: `mvn -f gestorhogwartsjavafx/pom.xml test`; configura `GESTOR_API_URL` o
 
 ## Documentación y equipo
 
-La [Wiki del proyecto](https://github.com/koldoaso/Reto01-Omni3/wiki) está preparada en un repositorio Git local independiente, con instalación detallada, contrato, datos, arquitectura, demo y limitaciones. **Aún no está publicada:** GitHub no habilitó la Wiki para este repositorio privado; consulta [auditoría de integración](docs/integration-audit.md). No se ha verificado un vídeo de demo.
+La [documentación navegable del proyecto](docs/wiki/Home.md) incluye instalación detallada, contrato, datos, arquitectura, demo y limitaciones. También está preparada como Wiki en un repositorio Git local independiente. **La GitHub Wiki aún no está publicada:** GitHub no habilitó esta función para el repositorio privado; consulta la [auditoría de integración](docs/integration-audit.md). No se ha verificado un vídeo de demo.
 
 Grupo **Omni3**: koldo ([@koldoaso](https://github.com/koldoaso)), henri ([@henritejada2006](https://github.com/henritejada2006)) y jairo ([@jairoben](https://github.com/jairoben)), identificados en el README de `javafxapp`.
