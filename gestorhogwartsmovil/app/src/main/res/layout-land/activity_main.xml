@@ -27,6 +27,27 @@
             android:textSize="16sp" />
 
         <EditText
+            android:id="@+id/campoApiUrl"
+            style="@style/R01Campo"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="@string/api_url_hint"
+            android:inputType="textUri"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/botonAplicarUrl"
+            style="@style/R01BotonSecundario"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/api_url_apply"
+            android:textAllCaps="false" />
+
+        <EditText
             android:id="@+id/campoNombre"
             android:layout_width="match_parent"
             android:layout_height="48dp"
