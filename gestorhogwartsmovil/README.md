@@ -21,6 +21,27 @@ inyección de una función remota, caché y reloj. El código propio incluye KDo
 
 ## Caché primero y verificación de persistencia
 
+```mermaid
+sequenceDiagram
+    participant Pantalla as Pantalla Android
+    participant Ajustes as URL de la API
+    participant Repositorio as StudentRepository
+    participant Cache as Room y SQLite
+    participant API as API de alumnos
+    Pantalla->>Ajustes: Aplicar URL
+    Ajustes-->>Pantalla: Guardar dirección
+    Pantalla->>Repositorio: Cargar alumnado
+    Repositorio->>Cache: Leer instantánea
+    opt La caché pertenece a la URL seleccionada
+        Cache-->>Repositorio: Alumnos y fecha
+        Repositorio-->>Pantalla: Mostrar caché
+    end
+    Repositorio->>API: GET /alumnos
+    API-->>Repositorio: Colección completa
+    Repositorio->>Cache: Sustituir y verificar datos
+    Repositorio-->>Pantalla: Mostrar datos y estado
+```
+
 1. El repositorio lee SQLite antes de consultar la red.
 2. Si hay una instantánea, incluso vacía, la muestra inmediatamente mediante un
    callback suspendido. La pantalla indica «Caché SQLite · Verificando».

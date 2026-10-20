@@ -285,6 +285,18 @@ curl -X DELETE http://127.0.0.1:8000/alumnos/10009999X
 
 ## Cómo funciona por dentro
 
+```mermaid
+flowchart LR
+    rutas["Rutas FastAPI"] --> fabrica["Fábrica según DB_ENGINES"]
+    fabrica --> repos["Repositorios activos"]
+    repos --> maria["MariaDB"]
+    repos -.-> oracle["Oracle"]
+    repos -.-> jdbc["JDBC: H2, HSQLDB y Derby"]
+    maria --> catalogo["Catálogo PATRONUS_IMG"]
+```
+
+La fábrica crea únicamente los repositorios indicados en `DB_ENGINES`.
+
 1. `config.py` lee `.env` (ruta absoluta) y `factory.py` construye la lista de repositorios
    según `DB_ENGINES`. Si hay fuentes JDBC, arranca **una única JVM** (`jdbc.iniciar_jvm`)
    con los `.jar` correspondientes (también resueltos a ruta absoluta).

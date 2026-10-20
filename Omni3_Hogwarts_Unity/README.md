@@ -13,6 +13,18 @@ Cliente desarrollado en **Unity 6** para buscar estudiantes y consultar su casa 
 
 El campo vacío no carga la lista completa. Si aparecen más de ocho coincidencias, escribe un nombre más específico.
 
+```mermaid
+flowchart LR
+    url["Campo API URL"] --> ajuste["ApiUrlField"]
+    ajuste -->|Actualiza la dirección| cliente["PatronusApiClient"]
+    busqueda["Buscador"] --> controlador["PatronusDirectoryController"]
+    controlador --> cliente
+    cliente -->|GET alumnos y detalle| api["API de alumnos"]
+    controlador --> vista["PatronusDirectoryView"]
+    controlador --> filas["Filas de resultados"]
+    vista --> ficha["Ficha del Patronus"]
+```
+
 ## Abrir y ejecutar
 
 1. Instala **Unity Editor 6000.3.25f1** desde Unity Hub.

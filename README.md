@@ -16,6 +16,16 @@ Entrega integrada de una API de alumnado distribuido y tres clientes. Las puntas
 
 Los clientes hablan por HTTP/JSON con `api/`. Android conserva una copia Room. La API principal usa MariaDB para altas y patronus y contiene adaptadores para Oracle, H2, HSQLDB y Derby.
 
+```mermaid
+flowchart LR
+    javafx["Cliente JavaFX"] -->|HTTP y JSON| api["API FastAPI"]
+    android["Cliente Android"] -->|HTTP y JSON| api
+    unity["Cliente Unity"] -->|HTTP y JSON| api
+    android <--> room["Caché Room y SQLite"]
+    api --> mariadb["MariaDB: alumnado central y patronus"]
+    api -.-> otros["Adaptadores configurables: Oracle, H2, HSQLDB y Derby"]
+```
+
 ## Arranque rápido comprobable
 
 Requiere Docker Compose, Python 3.14 y una terminal PowerShell. En un clon limpio de `integration`:

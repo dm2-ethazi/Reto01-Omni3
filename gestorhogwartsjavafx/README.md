@@ -317,10 +317,16 @@ gestorhogwartsjavafx/
 
 Flujo de una petición:
 
-```
-controlador → viewmodel → ServicioAlumnos (executor de fondo)
-                       → ClienteAlumnosHttp → API
-                       → callback → Platform.runLater → viewmodel → vista
+```mermaid
+flowchart LR
+    controlador["Controlador JavaFX"] --> vistaModelo["ViewModel"]
+    vistaModelo --> servicio["ServicioAlumnos"]
+    servicio -->|ExecutorService| cliente["ClienteAlumnosHttp"]
+    cliente -->|HTTP y JSON| api["API de alumnos"]
+    api --> cliente
+    cliente -->|Callback| hilo["Platform.runLater"]
+    hilo --> vistaModelo
+    vistaModelo --> vista["Vista FXML"]
 ```
 
 ---
