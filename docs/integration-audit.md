@@ -30,6 +30,7 @@ Los directorios `prototipo/` y `Omni3_Hogwarts_Unity/` se compararon con sus pun
 | API + MariaDB | MariaDB 11.8 aislada con DDL nuevo; TestClient: OpenAPI, listado, catálogo, POST, GET, PUT, DELETE y 404. | Códigos `200, 200, 201, 200, 200, 204, 404` para CRUD; datos creados y editados reales. |
 | JavaFX | Maven 3.9.16 / JDK 21: `mvn test`. | Correcto, 100 pruebas tras corregir el tipo `Rectangle2D`. Interfaz gráfica no abierta. |
 | Android | SDK 37: `assembleDebug`, `testDebugUnitTest`, `lintDebug`. | Correcto, 17 pruebas unitarias. Lint con advertencias de versiones/layout, sin error. |
+| Android instrumentado | `connectedDebugAndroidTest` en AVD Medium_Phone API 37. | Falló: primer intento no instaló APK por reinicio del servicio package; segundo ejecutó 5 casos correctos de 6, luego el proceso de prueba cayó. La repetición aislada del caso también cayó. Logcat muestra `lowmemorykiller` matando procesos, incluido el de la app; no hay aserción que señale un defecto funcional concreto. |
 | Unity | Editor 6000.3.25f1, importación batch `-batchmode -nographics -quit`. | Salida 0; sin errores C# encontrados en el registro. Escena Play no ejecutada manualmente. |
 
 La base MariaDB de `compose.yaml` de este checkout tenía un volumen preexistente con otras credenciales. La prueba de API utilizó otro contenedor y puerto 33306, sin eliminar el volumen previo. El SQL nuevo se confirmó por `SHOW TABLES` y catálogo `Otter`. Para un clon limpio, `compose.yaml` monta el SQL en `/docker-entrypoint-initdb.d/`.
@@ -38,7 +39,7 @@ La base MariaDB de `compose.yaml` de este checkout tenía un volumen preexistent
 
 - No se verificó el sistema con Oracle, H2, HSQLDB y Derby simultáneamente: faltan DDL y semillas `ALUMNOS` para esas fuentes en la rama principal. Los scripts del prototipo no son equivalentes.
 - La API no implementa autenticación, autorización, transacción distribuida ni `/health`.
-- La interfaz JavaFX, la escena Unity y una sesión Android con usuario aún requieren prueba visual de extremo a extremo. La API sí se probó contra MariaDB real.
+- La interfaz JavaFX, la escena Unity y una sesión Android con usuario aún requieren prueba visual de extremo a extremo. La API sí se probó contra MariaDB real. Las pruebas instrumentadas Android no terminaron por falta de memoria del AVD usado.
 - La Wiki se preparó en un repositorio Git hermano `Reto01-Omni3.wiki` con 14 archivos y commit propio. El primer push a `<repo>.wiki.git` devolvió `Repository not found`; el repositorio principal es privado o inaccesible sin la sesión GitHub apropiada desde el navegador. La publicación remota se informa por separado.
 
 La plantilla `template-reto-base` se inspeccionó desde el clon local existente: se tomó su estructura de README, documentación y scripts como referencia, sin copiar su código ni sus ejemplos. La URL web directa no fue accesible sin autenticación desde este entorno.

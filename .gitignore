@@ -6,6 +6,7 @@
 **/__pycache__/
 **/*.pyc
 **/.gradle/
+**/.kotlin/
 **/build/
 **/target/
 **/local.properties
