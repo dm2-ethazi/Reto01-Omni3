@@ -1,0 +1,104 @@
+pragma layout Smetana
+
+' ============================================================
+' R01 - Secuencia de consultas y conmutacion por fallo
+' GET /central/estudiantes y GET /health
+' Render: plantuml -tpng secuencia-consultas.puml
+' ============================================================
+
+@startuml secuencia-consultas
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam backgroundColor #FFFFFF
+skinparam responseMessageBelowArrow true
+
+title **R01 - Secuencia: consultas a la central y salud**\nConmutacion por fallo MariaDB -> SQLite
+
+actor Cliente
+participant "API FastAPI\n(central.py / health.py)" as api
+participant "CentralService" as cserv
+participant "CompositeCentral\nRepository" as composite
+participant "MariaDB\n(principal)" as maria
+participant "SQLite\n(espejo)" as sqlite
+participant "ConnectorRegistry" as registry
+
+== GET /central/estudiantes?nombre=...&limit=... ==
+
+Cliente -> api : GET /central/estudiantes
+activate api
+api -> cserv : buscar(nombre, dni, offset, limit)
+activate cserv
+cserv -> composite : query paginada
+activate composite
+
+alt MariaDB disponible
+    composite -> maria : SELECT ... LIMIT/OFFSET
+    maria --> composite : filas + total
+    composite --> cserv : filas (backend="mariadb")
+else MariaDB NO responde (failover)
+    composite -> maria : SELECT ...
+    maria --x composite : sin respuesta
+    composite -> sqlite : SELECT ... LIMIT/OFFSET
+    sqlite --> composite : filas + total
+    composite --> cserv : filas (backend="sqlite")
+end
+deactivate composite
+
+cserv --> api : PaginaCentral{items, total, backend, filtros}
+deactivate cserv
+api --> Cliente : 200 PaginaCentral
+note right of Cliente
+  Cada fila incluye **origen**
+  (derby/hsqldb/h2/oracle) e
+  id_origen: trazabilidad total.
+end note
+deactivate api
+
+== GET /central/estudiantes/{dni} ==
+
+Cliente -> api : GET /central/estudiantes/12345678Z
+api -> cserv : por_dni(dni)
+cserv -> composite : buscar por DNI (9 caracteres)
+composite --> cserv : fila o None
+alt fila encontrada
+    cserv --> api : EstudianteCentralOut
+    api --> Cliente : 200
+else no existe
+    cserv --> api : NoEncontradoError
+    api --> Cliente : 404 {"error":{"codigo":"C-404"}}
+end
+
+== GET /central/consistencia ==
+
+Cliente -> api : GET /central/consistencia
+api -> cserv : consistencia()
+cserv -> composite : conteos + huellas por backend
+composite -> maria : conteo/hash por origen
+composite -> sqlite : conteo/hash por origen
+composite --> cserv : comparacion
+cserv --> api : {coincide, pendientes_reintento, backends}
+api --> Cliente : 200 (coincide: true/false)
+
+== GET /health ==
+
+Cliente -> api : GET /health
+activate api
+api -> composite : ping() por backend + pendientes()
+composite -> maria : ping
+composite -> sqlite : ping
+composite --> api : estado central
+api -> registry : listar_estados()
+registry -> registry : ping() a cada conector
+registry --> api : {derby, hsqldb, h2, oracle}
+api -> api : status = ok | degraded\n(mariadb sólo cuenta si mariadb_enabled=true)
+api --> Cliente : 200 {status, reto:"R01", central,\nconectores, jvm, caidos}
+deactivate api
+
+note over api
+  Siempre HTTP 200, incluso
+  con dependencias caidas:
+  el detalle va en el cuerpo.
+end note
+
+@enduml

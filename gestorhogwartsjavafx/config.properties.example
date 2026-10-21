@@ -1,0 +1,19 @@
+# Configuracion de la API - Gestor Hogwarts (JavaFX)
+#
+# Como usarlo:
+#   1. Copia este fichero a config.properties (mismo nombre, sin .example)
+#      en la raiz del modulo (junto al pom.xml) o junto al .jar.
+#   2. Sustituye https://tu-api-aqui.com por la URL real de tu despliegue.
+#   3. Guarda el fichero en UTF-8.
+#
+# Seguridad: config.properties esta en .gitignore y se excluye del
+# empaquetado (maven-resources-plugin y maven-shade-plugin), de modo que
+# la URL real nunca se sube al repositorio ni viaja dentro del JAR.
+#
+# Alternativa sin fichero (variable de entorno GESTOR_API_URL):
+#   Windows (PowerShell):  $env:GESTOR_API_URL="https://..."
+#   Windows (CMD):         set GESTOR_API_URL=https://...
+#   Linux/macOS:           export GESTOR_API_URL=https://...
+#
+# Orden de prioridad: -Dgestor.api.url > GESTOR_API_URL > config.properties.
+api.url=https://tu-api-aqui.com

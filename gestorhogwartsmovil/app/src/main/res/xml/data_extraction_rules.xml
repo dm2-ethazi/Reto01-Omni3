@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sin exclusiones adicionales: se conserva la política de copia de seguridad existente. -->
+<data-extraction-rules>
+    <cloud-backup />
+</data-extraction-rules>

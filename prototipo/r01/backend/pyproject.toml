@@ -1,0 +1,29 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "drivers", "logs", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+ignore = [
+    "E501", # el formato largo se revisa a mano
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+"app/api/routers/*" = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# -p no:faulthandler: la JVM provoca accesos ilegales benignos que Windows
+# registra al entrar/salir de JNI; sin esta opción pytest imprime trazas
+# falsas aunque todas las pruebas pasen.
+addopts = "-ra -p no:faulthandler"
+markers = [
+    "integration: pruebas que necesitan servicios Docker (maria/h2/oracle)",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["*/tests/*"]

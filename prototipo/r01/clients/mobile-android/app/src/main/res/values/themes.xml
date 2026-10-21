@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Tema propio de R01 (framework, sin AppCompat): colores de la paleta
+  compartida y barra de estado oscura coherente con la cabecera.
+-->
+<resources>
+    <style name="TemaR01" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/r01_primario</item>
+        <item name="android:colorPrimaryDark">@color/r01_primario_oscuro</item>
+        <item name="android:colorAccent">@color/r01_acento</item>
+        <item name="android:windowBackground">@color/r01_fondo</item>
+        <item name="android:statusBarColor">@color/r01_primario_oscuro</item>
+        <item name="android:navigationBarColor">@color/r01_primario_oscuro</item>
+        <item name="android:textColorPrimary">@color/r01_texto_principal</item>
+        <item name="android:textColorSecondary">@color/r01_texto_secundario</item>
+    </style>
+</resources>

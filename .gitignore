@@ -1,2 +1,25 @@
 # Env
 .env
+
+# Local build and IDE state
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.gradle/
+**/.kotlin/
+**/build/
+**/target/
+**/local.properties
+**/.idea/
+**/*.iml
+**/*.log
+
+# Unity Editor local state
+Omni3_Hogwarts_Unity/Library/
+Omni3_Hogwarts_Unity/Temp/
+Omni3_Hogwarts_Unity/UserSettings/
+Omni3_Hogwarts_Unity/Logs/
+Omni3_Hogwarts_Unity/Obj/
+Omni3_Hogwarts_Unity/.vscode/
+Omni3_Hogwarts_Unity/*.csproj
+Omni3_Hogwarts_Unity/*.slnx

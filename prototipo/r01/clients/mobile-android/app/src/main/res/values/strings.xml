@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">R01 Central</string>
+    <string name="titulo_cabecera">R01 Central</string>
+    <string name="subtitulo_cabecera">Integración de orígenes JDBC · Reto R01</string>
+
+    <string name="etiqueta_url">URL de la API</string>
+    <string name="hint_url">http://10.0.2.2:8000</string>
+    <string name="hint_nombre">Nombre</string>
+    <string name="hint_dni">DNI</string>
+
+    <string name="accion_conectar">Conectar</string>
+    <string name="accion_buscar">Buscar</string>
+    <string name="accion_dni">DNI</string>
+    <string name="accion_salud">Salud</string>
+    <string name="accion_sincronizar">Sincronizar</string>
+
+    <string name="estado_inicial">Sin conectar</string>
+</resources>

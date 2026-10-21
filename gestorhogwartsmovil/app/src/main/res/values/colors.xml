@@ -1,0 +1,16 @@
+<resources>
+    <color name="r01_primario">#C9A227</color>
+    <color name="r01_primario_oscuro">#C9A227</color>
+    <color name="r01_primario_claro">#1F3047</color>
+    <color name="r01_acento_oscuro">#C9A227</color>
+    <color name="r01_fondo">#1E1A15</color>
+    <color name="r01_superficie">#2A221C</color>
+    <color name="r01_cabecera">#15222F</color>
+    <color name="r01_borde">#3A2F26</color>
+    <color name="r01_texto_principal">#F2E8D5</color>
+    <color name="r01_texto_secundario">#A89C85</color>
+    <color name="r01_texto_sobre_primario">#1E1A15</color>
+    <color name="r01_pulsado">#1F3047</color>
+    <color name="r01_exito">#7FB88A</color>
+    <color name="r01_error">#FF9B95</color>
+</resources>

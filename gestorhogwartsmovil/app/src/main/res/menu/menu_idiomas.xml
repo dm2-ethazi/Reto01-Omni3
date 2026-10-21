@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/idiomaSistema" android:title="@string/idioma_sistema"/>
+        <item android:id="@+id/idiomaIngles" android:title="@string/idioma_ingles" />
+        <item android:id="@+id/idiomaEspanol" android:title="@string/idioma_espanol" />
+        <item android:id="@+id/idiomaEuskera" android:title="@string/idioma_euskera" />
+    </group>
+</menu>

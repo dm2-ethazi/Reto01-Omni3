@@ -1,0 +1,84 @@
+<resources>
+    <!-- Tema compartido por todas las pantallas. -->
+    <style name="Base.Theme.GestorHogwartsMovil" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/r01_primario</item>
+        <item name="colorOnPrimary">@color/r01_texto_sobre_primario</item>
+        <item name="colorPrimaryContainer">@color/r01_primario_claro</item>
+        <item name="colorOnPrimaryContainer">@color/r01_primario_oscuro</item>
+        <item name="colorSecondary">@color/r01_acento_oscuro</item>
+        <item name="colorOnSecondary">@color/r01_texto_sobre_primario</item>
+        <item name="colorSurface">@color/r01_superficie</item>
+        <item name="colorOnSurface">@color/r01_texto_principal</item>
+        <item name="colorOnSurfaceVariant">@color/r01_texto_secundario</item>
+        <item name="colorError">@color/r01_error</item>
+        <item name="colorControlHighlight">@color/r01_pulsado</item>
+        <item name="colorOutline">@color/r01_borde</item>
+        <item name="android:colorBackground">@color/r01_fondo</item>
+        <item name="android:windowBackground">@color/r01_fondo</item>
+        <item name="android:statusBarColor">@color/r01_cabecera</item>
+        <item name="android:navigationBarColor">@color/r01_superficie</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">@color/r01_texto_principal</item>
+        <item name="android:textColorSecondary">@color/r01_texto_secundario</item>
+    </style>
+
+    <style name="Theme.GestorHogwartsMovil" parent="Base.Theme.GestorHogwartsMovil" />
+
+    <style name="R01Campo" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/r01_campo</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textColor">@color/r01_texto_principal</item>
+        <item name="android:textColorHint">@color/r01_texto_secundario</item>
+    </style>
+    <style name="R01BotonSecundario" parent="Widget.Material3.Button.TonalButton">
+        <item name="backgroundTint">@color/r01_primario_claro</item>
+        <item name="android:textColor">@color/r01_primario_oscuro</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
+    <style name="R01BotonPrimario" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/r01_primario</item>
+        <item name="android:textColor">@color/r01_texto_sobre_primario</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
+    <style name="R01EtiquetaDetalle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:textColor">@color/r01_texto_secundario</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+    <style name="R01ValorDetalle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">3dp</item>
+        <item name="android:textColor">@color/r01_texto_principal</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="R01FilaDetalle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:baselineAligned">false</item>
+    </style>
+    <style name="R01ColumnaDetalle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!-- Foto y marcador alternativo comunes a las variantes de la ficha. -->
+    <style name="R01ImagenAlumno">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">200dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:background">@drawable/r01_panel</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/ic_alumno</item>
+    </style>
+</resources>

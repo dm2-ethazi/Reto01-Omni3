@@ -1,0 +1,87 @@
+name: prototipo_r01
+
+services:
+  derby:
+    image: adito/derby:latest
+    environment:
+      DBNAME: r01
+      DERBY_USER: r01
+    ports:
+      - "1527:1527"
+    volumes:
+      - derby_data:/dbs
+    restart: unless-stopped
+
+  hsqldb:
+    image: blacklabelops/hsqldb:latest
+    environment:
+      HSQLDB_DATABASE_NAME: r01
+      HSQLDB_DATABASE_ALIAS: r01
+      HSQLDB_USER: r01
+      HSQLDB_PASSWORD: r01
+      HSQLDB_REMOTE: "true"
+    ports:
+      - "9001:9001"
+    volumes:
+      - hsqldb_data:/opt/database
+    restart: unless-stopped
+
+  h2:
+    image: oscarfonts/h2:latest
+    command:
+      - /bin/sh
+      - -lc
+      - java -cp "/opt/h2/bin/h2*.jar" org.h2.tools.Server
+        -tcp -tcpAllowOthers -tcpPort 9092 -ifNotExists
+        -web -webAllowOthers -webPort 8082
+        -baseDir /opt/h2-data
+    ports:
+      - "9092:9092"
+    volumes:
+      - h2_data:/opt/h2-data
+    restart: unless-stopped
+
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-r01pass}
+      APP_USER: r01
+      APP_USER_PASSWORD: ${ORACLE_USER_PASSWORD:-r01pass}
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-r01root}
+      MARIADB_DATABASE: hogwarts
+      MARIADB_USER: r01
+      MARIADB_PASSWORD: r01
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./infra/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -pr01root --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  derby_data:
+  hsqldb_data:
+  h2_data:
+  oracle_data:
+  mariadb_data:

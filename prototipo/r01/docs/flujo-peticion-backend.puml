@@ -1,0 +1,87 @@
+pragma layout Smetana
+
+' ============================================================
+' R01 - Recorrido de una petición de extremo a extremo
+' Cliente -> middleware -> router -> servicio -> repositorio/
+' conector -> respuesta (o envelope de error)
+' Render: plantuml -tpng flujo-peticion-backend.puml
+' ============================================================
+
+@startuml flujo_peticion_backend
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam backgroundColor #FFFFFF
+skinparam responseMessageBelowArrow true
+skinparam sequenceParticipantBorderColor #1E3A8A
+skinparam sequenceLifeLineBorderColor #1E3A8A
+skinparam sequenceGroupBorderColor #06B6D4
+
+actor Cliente as C
+participant "Uvicorn\n+ RequestIdMiddleware" as MW
+participant "Router\napp/api/routers" as RT
+participant "deps.py\nDepends(get_*)" as DP
+participant "Service\napp/services" as SV
+participant "Registro / Composite\nregistry · composite" as RG
+database "Origen JDBC\nDerby · HSQLDB · H2 · Oracle" as ORI
+database "Central doble\nMariaDB + SQLite" as CEN
+
+== 1. Entrada y trazabilidad ==
+C -> MW : HTTP (X-Request-ID opcional)
+activate MW
+MW -> MW : request_id (uuid si no llega)\napp/core/middleware.py:28-30
+
+== 2. Enrutado y validación de entrada ==
+MW -> RT : enrutamiento FastAPI\napp/main.py:97-100
+activate RT
+RT -> RT : validación Pydantic / Query\nsi falla -> C-422 (api/errors.py:63-77)
+RT -> DP : Depends(get_*_service)\napp/api/deps.py:12-24
+activate DP
+DP --> RT : servicio desde app.state
+deactivate DP
+
+== 3. Capa de servicios ==
+RT -> SV : método del servicio\n(normaliza y pagina)
+activate SV
+
+alt Operación sobre un origen (GET/POST /connectors, /sync)
+  SV -> RG : registry.get(id)\ndata_access/registry.py:144-152
+  RG --> SV : DataSource (JdbcConnector)
+  SV -> ORI : SELECT/INSERT con SQL parametrizado\ndata_access/jdbc_connector.py:97-149
+  activate ORI
+  ORI --> SV : etiquetas JDBC + filas crudas
+  deactivate ORI
+  SV -> SV : map_row() -> modelo\n+ transform_row() (services/transform.py:61-86)
+
+else Operación sobre la central (GET /central, /sync)
+  SV -> RG : composite.search / composite.upsert\npersistence/repositories/composite.py:57-136
+  RG -> RG : _read_repo(): ping + failover\nMariaDB primero, SQLite después
+  RG -> CEN : upsert por (origen, id_origen)\nbase.py:88-131 + retry_queue.py:28-64
+  activate CEN
+  CEN --> RG : UpsertStats por backend
+  deactivate CEN
+  RG --> SV : resultados + pendientes de reintento
+end
+
+== 4. Respuesta o envelope de error ==
+alt Éxito
+  SV --> RT : dict de negocio
+  deactivate SV
+  RT --> MW : response_model (Pydantic) -> JSON 200/201
+  deactivate RT
+  MW --> C : cuerpo + cabecera X-Request-ID\nmiddleware.py:47-55
+else Error de aplicación
+  SV -> SV : AppError (core/exceptions.py:13-59)
+  SV --> RT : excepción
+  deactivate SV
+  RT --> MW : propagada hasta el handler global
+  deactivate RT
+  MW --> C : {"error": {codigo, mensaje, detalle}}\napi/errors.py:49-100
+else Error inesperado
+  RT -> RT : excepción no controlada
+  deactivate RT
+  MW --> C : 500 C-500 (sin detalle interno)\napi/errors.py:89-100
+end
+
+deactivate MW
+@enduml

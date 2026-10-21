@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cabecera R01: degradado azul profundo, esquinas inferiores redondeadas. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="0"
+        android:startColor="@color/r01_primario"
+        android:endColor="@color/r01_primario_oscuro" />
+    <corners android:bottomLeftRadius="20dp" android:bottomRightRadius="20dp" />
+</shape>

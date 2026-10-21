@@ -1,0 +1,202 @@
+/*
+ * Hoja de estilos del cliente de escritorio R01.
+ * Misma paleta que Android (res/values/colors.xml) y Unity (TemaR01).
+ *
+ *   primario      #1E3A8A   primario oscuro #172554   acento  #06B6D4
+ *   fondo         #F1F5F9   superficie      #FFFFFF   borde   #E2E8F0
+ *   texto         #0F172A   texto secund.   #64748B   éxito   #10B981
+ *
+ * Tipografía: sans-serif del sistema · Escala 11 / 12 / 14 / 22 px
+ * Radios: tarjeta 16, campo 12, botón 12 · Rejilla de 8 px.
+ */
+
+/* ---------- Raíz y rejilla base ---------- */
+.raiz {
+    -fx-background-color: #F1F5F9;
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.panel-central {
+    -fx-background-color: #F1F5F9;
+}
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+    -fx-background-color: linear-gradient(to right, #1E3A8A, #172554);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.35), 8, 0, 0, 3);
+}
+
+.cabecera-titulo {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.cabecera-subtitulo {
+    -fx-text-fill: #C7D2FE;
+    -fx-font-size: 12px;
+}
+
+/* ---------- Tarjetas ---------- */
+.tarjeta {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 16px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 6, 0, 0, 2);
+}
+
+.etiqueta-seccion {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.etiqueta-campo {
+    -fx-text-fill: #0F172A;
+    -fx-font-size: 13px;
+}
+
+/* ---------- Campos y combo ---------- */
+.campo, .campo-combo {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12px;
+    -fx-border-width: 1px;
+    -fx-padding: 7 10 7 10;
+    -fx-text-fill: #0F172A;
+    -fx-prompt-text-fill: #64748B;
+}
+
+.campo:focused, .campo-combo:focused {
+    -fx-border-color: #06B6D4;
+    -fx-border-width: 2px;
+}
+
+/* ---------- Botones ---------- */
+.boton {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+
+.boton-primario {
+    -fx-background-color: #1E3A8A;
+    -fx-text-fill: #FFFFFF;
+}
+
+.boton-primario:hover {
+    -fx-background-color: #2A4CA8;
+}
+
+.boton-primario:pressed {
+    -fx-background-color: #172554;
+}
+
+.boton-primario:disabled {
+    -fx-background-color: #94A3B8;
+    -fx-text-fill: #F1F5F9;
+}
+
+.boton-secundario {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E3A8A;
+    -fx-border-color: #1E3A8A;
+    -fx-border-width: 1px;
+}
+
+.boton-secundario:hover {
+    -fx-background-color: #E0E7FF;
+}
+
+.boton-secundario:pressed {
+    -fx-background-color: #DBEAFE;
+}
+
+.boton-secundario:disabled {
+    -fx-border-color: #94A3B8;
+    -fx-text-fill: #94A3B8;
+}
+
+/* ---------- Tabla ---------- */
+.tabla {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12px;
+    -fx-border-width: 1px;
+}
+
+.tabla .column-header-background {
+    -fx-background-color: #E0E7FF;
+    -fx-background-radius: 12px;
+}
+
+.tabla .column-header, .tabla .filler {
+    -fx-background-color: transparent;
+    -fx-size: 34px;
+}
+
+.tabla .column-header .label {
+    -fx-text-fill: #172554;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.tabla .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent #E2E8F0 transparent transparent;
+    -fx-cell-size: 30px;
+}
+
+.tabla .table-row-cell:odd {
+    -fx-background-color: #F8FAFC;
+}
+
+.tabla .table-row-cell:selected {
+    -fx-background-color: #DBEAFE;
+    -fx-text-fill: #0F172A;
+}
+
+.tabla .table-cell {
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 13px;
+}
+
+.tabla .placeholder .label {
+    -fx-text-fill: #64748B;
+}
+
+/* ---------- Barra de estado ---------- */
+.barra-estado {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.estado-texto {
+    -fx-text-fill: #172554;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Scrollbars discretas ---------- */
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: #F1F5F9;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #CBD5E1;
+    -fx-background-radius: 8px;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Medidas variables: permiten compartir layouts sin duplicar su estructura. -->
+<resources>
+    <dimen name="main_header_padding">20dp</dimen>
+    <dimen name="main_language_text_size">26sp</dimen>
+</resources>

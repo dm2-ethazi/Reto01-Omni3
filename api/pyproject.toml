@@ -1,0 +1,31 @@
+[project]
+name = "proyecto-reto1"
+version = "0.1.0"
+description = "API REST que gestiona el alumnado de Hogwarts distribuido en 5 motores de base de datos (Oracle, MariaDB, H2, HSQLDB y Derby)"
+readme = "README.md"
+authors = [
+    { name = "henritejada2006", email = "henritejada2006@hotmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.142.2",
+    "jaydebeapi>=1.2.3",
+    "oracledb>=26.0.1",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "pymysql>=1.2.3",
+    "python-multipart>=0.0.32",
+    "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[project.scripts]
+proyecto-reto1 = "proyecto_reto1:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"
