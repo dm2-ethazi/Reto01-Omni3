@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 /// <summary>Reads students and their Patronus data from the Alumnos API.</summary>
 public sealed class PatronusApiClient : MonoBehaviour
 {
-    [SerializeField] private string apiBaseUrl = "http://127.0.0.1:8000";
+    [SerializeField] private string apiBaseUrl = "https://curator-caliber-magma.ngrok-free.dev";
 
     public string ApiBaseUrl
     {

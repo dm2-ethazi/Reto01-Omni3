@@ -11,7 +11,7 @@ Cliente desarrollado en **Unity 6** para buscar estudiantes y consultar su casa 
 - Control de respuestas antiguas para que prevalezcan la búsqueda y la selección más recientes.
 - Campo de URL de la API editable durante Play; se aplica al pulsar Enter o al salir del campo.
 
-El campo vacío no carga la lista completa. Si aparecen más de ocho coincidencias, escribe un nombre más específico.
+El campo de búsqueda vacío no carga la lista completa. Si aparecen más de ocho coincidencias, escribe un nombre más específico.
 
 ## Abrir y ejecutar
 
@@ -19,8 +19,12 @@ El campo vacío no carga la lista completa. Si aparecen más de ocho coincidenci
 2. Añade la carpeta `Omni3_Hogwarts_Unity` como proyecto.
 3. Espera a que Unity importe los recursos y resuelva los paquetes.
 4. Abre [PatronusDirectory.unity](Assets/Scenes/PatronusDirectory.unity).
-5. Pulsa **Play** e introduce una dirección HTTP o HTTPS accesible en **API URL**.
+5. Pulsa **Play**. **API URL** aparece relleno con `https://curator-caliber-magma.ngrok-free.dev`; puedes sustituirlo por otra dirección HTTP o HTTPS accesible.
 6. Pulsa Enter o sal del campo para aplicarla; después escribe un nombre y selecciona un resultado.
+
+Al vaciar **API URL**, el hint muestra `http://127.0.0.1:8000` como referencia
+para una API local. El hint no se aplica como dirección: dejar el campo vacío
+mantiene el servidor activo hasta introducir otra URL válida.
 
 La escena utiliza Unity UI sobre Canvas. Las dependencias se encuentran en [Packages/manifest.json](Packages/manifest.json), incluyendo **Universal Render Pipeline 17.3.0**, **Unity UI 2.0.0** e **Input System 1.20.0**.
 

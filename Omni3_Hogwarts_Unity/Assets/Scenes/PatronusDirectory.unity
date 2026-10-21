@@ -471,7 +471,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: https://curator-caliber-magma.ngrok-free.dev
 --- !u!222 &272308265
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1491,7 +1491,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: API URL
+  m_Text: http://127.0.0.1:8000
 --- !u!222 &485716940
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2849,7 +2849,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 636ad981db7c2c94095c284ea49c127e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PatronusApiClient
-  apiBaseUrl: http://127.0.0.1:8000
+  apiBaseUrl: https://curator-caliber-magma.ngrok-free.dev
 --- !u!114 &1776927426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3079,7 +3079,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.7882353, g: 0.63529414, b: 0.15294118, a: 1}
   m_CustomCaretColor: 1
   m_SelectionColor: {r: 0.12156863, g: 0.18823528, b: 0.27843136, a: 1}
-  m_Text: 
+  m_Text: https://curator-caliber-magma.ngrok-free.dev
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
