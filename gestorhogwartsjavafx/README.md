@@ -88,7 +88,7 @@ pantalla pasa a estado **ERROR**; el `409` se trata aparte como **CONFLICTO**.
 3. **Clonar el repositorio:**
 
    ```bash
-   git clone https://github.com/koldoaso/Reto01-Omni3.git
+   git clone https://github.com/dm2-ethazi/Reto01-Omni3.git
    cd Reto01-Omni3/gestorhogwartsjavafx
    ```
 
@@ -485,7 +485,7 @@ flowchart LR
 - **Desarrollo principal:** [jairoben](https://github.com/koldoaso) — Jairo Ben
   (`jairoben` en `pom.xml`, autor de la práctica totalidad de los commits).
 - **Colaboraciones:** henritejada2006 y koldoaso (proprietario del repositorio).
-- **Repositorio:** <https://github.com/koldoaso/Reto01-Omni3> — rama `javafxapp`.
+- **Repositorio:** <https://github.com/dm2-ethazi/Reto01-Omni3> — rama `javafxapp`.
 - **Documentación relacionada:**
   [contrato técnico del cliente](docs/00-contrato-tecnico.md) ·
   [README de la API](../README.md).
