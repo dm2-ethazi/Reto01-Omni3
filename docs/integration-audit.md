@@ -1,5 +1,7 @@
 # Auditoría de integración · 20/10/2026
 
+> Actualización documental del 21/10/2026: la [Wiki ya está publicada](https://github.com/koldoaso/Reto01-Omni3/wiki) en `https://github.com/koldoaso/Reto01-Omni3.wiki.git`, tras hacerse público el repositorio e inicializar su página Home. La limitación de publicación descrita al final recoge el estado histórico del 20/10 y ya no está vigente. El README Android documenta además 9 pruebas instrumentadas correctas el 21/10, posteriores al intento incompleto registrado aquí. No se han repetido las pruebas de componentes al actualizar la documentación.
+
 ## Método Git
 
 La rama `integration` se creó en un worktree separado con `git switch --orphan` y un commit raíz vacío (`d1220b2`). Se conectó cada rama fuente mediante un merge real de dos padres, sin squash, rebase ni cherry-pick. Se usó `-s ours --no-commit` para impedir que los README, `.gitignore`, `compose.yaml` y configuraciones raíz de distintas ramas se sobrescribieran entre sí; antes de confirmar cada merge se restauró el directorio propio del componente desde la punta fuente. Para `javafxapp` se usó `--allow-unrelated-histories`. Las carpetas de los proyectos ya existían en los árboles originales, así que no se movieron rutas internas.

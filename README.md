@@ -43,10 +43,10 @@ py -3.14 -m venv api/.venv
 
 En otra terminal: `./scripts/check-api.ps1` debe informar la cantidad de alumnos. El esquema `database/mariadb/01_schema.sql` se aplica al crear un volumen nuevo de MariaDB. Si el volumen existía, revisa su contenido y aplica el SQL manualmente; no borres datos para repetir el inicio. En Linux usa `cp`, `python3.14 -m venv`, `api/.venv/bin/python` y `curl` para `/openapi.json` y `/alumnos`.
 
-JavaFX: `mvn -f gestorhogwartsjavafx/pom.xml test`; configura `GESTOR_API_URL` o `config.properties` y ejecuta `mvn -f gestorhogwartsjavafx/pom.xml javafx:run`. Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; la URL inicial del emulador es `http://10.0.2.2:8000` y se puede cambiar desde el campo **URL de la API** mientras la app está abierta. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
+JavaFX: `mvn -f gestorhogwartsjavafx/pom.xml test`; configura `GESTOR_API_URL` o `config.properties` y ejecuta `mvn -f gestorhogwartsjavafx/pom.xml javafx:run`. Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; para usar la API local desde el emulador, establece `http://10.0.2.2:8000` en el campo **URL de la API** y pulsa **Aplicar**. La rama actual trae un túnel HTTPS como valor inicial de compilación, que no es necesario para esa prueba local. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
 
 ## Documentación y equipo
 
-La [documentación navegable del proyecto](docs/wiki/Home.md) reúne la instalación, el contrato, los datos, la arquitectura y el recorrido de demostración. También está preparada como Wiki en un repositorio Git local independiente.
+La [Wiki de GitHub](https://github.com/koldoaso/Reto01-Omni3/wiki) reúne la instalación, el contrato, los datos, la arquitectura y el recorrido de demostración. Se conserva una [copia navegable](docs/wiki/Home.md) en este repositorio.
 
 Grupo **Omni3**: koldo ([@koldoaso](https://github.com/koldoaso)), henri ([@henritejada2006](https://github.com/henritejada2006)) y jairo ([@jairoben](https://github.com/jairoben)), identificados en el README de `javafxapp`.
