@@ -1,0 +1,8 @@
+﻿fecha_hora,wp,nombre,pid
+2026-10-01 09:16:36,wp1,infra-docker,11168
+2026-10-01 09:16:36,wp2,backend-core,21380
+2026-10-01 09:16:36,wp3,sync-service,19692
+2026-10-01 09:19:11,wp1,infra-docker,12608
+2026-10-01 09:19:11,wp2,backend-core,6020
+2026-10-01 09:19:11,wp3,sync-service,14152
+2026-10-01 09:41:49,wp2r,rescate-informe,16968

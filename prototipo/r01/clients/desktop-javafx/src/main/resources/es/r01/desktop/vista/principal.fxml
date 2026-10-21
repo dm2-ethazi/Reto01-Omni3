@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+  Vista MVVM de la pantalla principal. Sólo declara la interfaz: toda la
+  lógica vive en es.r01.desktop.viewmodel.PrincipalViewModel.
+
+  Los fx:id son contrato con PrincipalController y NO deben cambiarse:
+  campoUrl, campoNombre, campoDni, comboOrigen, tabla, estado,
+  botonBuscar, botonConectar, botonSincronizar, botonSalud, botonLimpiar.
+
+  Las columnas de la tabla NO se declaran aquí: las crea el controlador
+  (definirColumnas) con PropertyValueFactory.
+
+  La hoja de estilos (estilos.css) usa la misma paleta que Android/Unity.
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="es.r01.desktop.vista.PrincipalController"
+            styleClass="raiz"
+            prefWidth="1080.0" prefHeight="620.0"
+            stylesheets="@estilos.css">
+
+    <!-- Cabecera -->
+    <top>
+        <VBox styleClass="cabecera">
+            <padding><Insets top="14" right="18" bottom="12" left="18"/></padding>
+            <children>
+                <Label text="R01 Central" styleClass="cabecera-titulo"/>
+                <Label text="Integración de orígenes JDBC · Cliente de escritorio · Reto R01"
+                       styleClass="cabecera-subtitulo"/>
+            </children>
+        </VBox>
+    </top>
+
+    <!-- Cuerpo: barra de conexión + tabla -->
+    <center>
+        <VBox spacing="10.0" styleClass="panel-central">
+            <padding><Insets top="14" right="16" bottom="10" left="16"/></padding>
+
+            <VBox spacing="8.0" styleClass="tarjeta">
+                <padding><Insets top="12" right="14" bottom="14" left="14"/></padding>
+                <children>
+                    <Label text="CONEXIÓN Y FILTROS" styleClass="etiqueta-seccion"/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <children>
+                            <Label text="API:" styleClass="etiqueta-campo"/>
+                            <TextField fx:id="campoUrl" promptText="http://127.0.0.1:8000"
+                                       prefWidth="240" styleClass="campo"/>
+                            <Button fx:id="botonConectar" text="Conectar"
+                                    styleClasses="boton, boton-primario"/>
+                            <Separator orientation="VERTICAL" prefHeight="26"/>
+                            <Label text="Origen:" styleClass="etiqueta-campo"/>
+                            <ComboBox fx:id="comboOrigen" prefWidth="150" styleClass="campo-combo"/>
+                        </children>
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <children>
+                            <TextField fx:id="campoNombre" promptText="Nombre (parcial)"
+                                       prefWidth="200" styleClass="campo"/>
+                            <TextField fx:id="campoDni" promptText="DNI" prefWidth="120"
+                                       styleClass="campo"/>
+                            <Button fx:id="botonBuscar" text="Buscar"
+                                    styleClasses="boton, boton-primario"/>
+                            <Button fx:id="botonLimpiar" text="Limpiar"
+                                    styleClasses="boton, boton-secundario"/>
+                            <Button fx:id="botonSalud" text="Salud"
+                                    styleClasses="boton, boton-secundario"/>
+                            <Button fx:id="botonSincronizar" text="Sincronizar"
+                                    styleClasses="boton, boton-primario"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+
+            <VBox styleClass="tarjeta" VBox.vgrow="ALWAYS">
+                <padding><Insets top="6" right="6" bottom="6" left="6"/></padding>
+                <children>
+                    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS"/>
+                </children>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- Barra de estado -->
+    <bottom>
+        <HBox styleClass="barra-estado">
+            <padding><Insets top="8" right="16" bottom="8" left="16"/></padding>
+            <children>
+                <Label fx:id="estado" text="Sin conectar" styleClass="estado-texto"/>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

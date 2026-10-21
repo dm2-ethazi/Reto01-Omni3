@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="pantalla" styleClass="pantalla" spacing="12" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omni3.gestorhogwartsjavafx.controlador.AlumnosController"
+      stylesheets="@../css/tema.css">
+
+  <!-- Fila de búsqueda: título, filtro de texto y origen. -->
+  <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
+    <Label text="%pantalla.alumnos" styleClass="titulo-seccion" minWidth="90"/>
+    <TextField fx:id="campoBusqueda" promptText="%campo.buscar" prefWidth="200"
+               minWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+               styleClass="campo" onAction="#buscar"/>
+    <ComboBox fx:id="comboOrigen" prefWidth="180" minWidth="140" styleClass="campo-combo"/>
+  </HBox>
+
+  <!-- Fila de acciones: los botones siempre en una línea propia para
+       que entren enteros; en ventanas muy estrechas pasan a otra línea. -->
+  <HBox alignment="CENTER_LEFT" spacing="8" styleClass="barra-herramientas">
+    <FlowPane alignment="CENTER_LEFT" hgap="8" vgap="8" HBox.hgrow="ALWAYS">
+      <Button fx:id="botonBuscar" text="%boton.buscar" styleClass="boton-secundario" onAction="#buscar">
+        <tooltip><Tooltip text="%tooltip.buscar"/></tooltip>
+      </Button>
+      <Button fx:id="botonLimpiar" text="%boton.limpiar" styleClass="boton-secundario" onAction="#limpiar">
+        <tooltip><Tooltip text="%tooltip.limpiar"/></tooltip>
+      </Button>
+      <Button fx:id="botonNuevo" text="%boton.nuevo" styleClass="boton-primario" onAction="#nuevo">
+        <tooltip><Tooltip text="%tooltip.boton.nuevo"/></tooltip>
+      </Button>
+      <Button fx:id="botonEditar" text="%boton.editar" styleClass="boton-secundario" onAction="#editar">
+        <tooltip><Tooltip text="%tooltip.editar"/></tooltip>
+      </Button>
+      <Button fx:id="botonBaja" text="%boton.baja" styleClass="boton-peligro" onAction="#baja">
+        <tooltip><Tooltip text="%tooltip.baja"/></tooltip>
+      </Button>
+    </FlowPane>
+  </HBox>
+
+  <StackPane fx:id="contenedorTabla" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tabla" styleClass="tabla" VBox.vgrow="ALWAYS">
+      <columns>
+        <TableColumn fx:id="colDni" text="%col.dni" prefWidth="110"/>
+        <TableColumn fx:id="colNombre" text="%col.nombre" prefWidth="280"/>
+        <TableColumn fx:id="colCasa" text="%col.casa" prefWidth="130"/>
+        <TableColumn fx:id="colPatronus" text="%col.patronus" prefWidth="140"/>
+        <TableColumn fx:id="colOrigen" text="%col.origen" prefWidth="120"/>
+      </columns>
+      <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
+    </TableView>
+
+    <VBox fx:id="capaCarga" alignment="CENTER" spacing="8" styleClass="overlay-carga" visible="false">
+      <ProgressIndicator prefWidth="32" prefHeight="32"/>
+      <Label fx:id="textoCarga" text="%cargando" styleClass="texto-secundario"/>
+    </VBox>
+
+    <VBox fx:id="capaVacio" alignment="CENTER" spacing="10" visible="false">
+      <Label fx:id="textoVacio" text="%capa.vacio" styleClass="texto-vacio"/>
+      <Button fx:id="botonNuevoVacio" text="%boton.vacio.nuevo" styleClass="boton-primario"
+              onAction="#nuevo">
+        <tooltip><Tooltip text="%tooltip.vacio.nuevo"/></tooltip>
+      </Button>
+    </VBox>
+
+    <VBox fx:id="capaError" alignment="CENTER" spacing="10" visible="false">
+      <Label fx:id="textoError" text="%capa.error" styleClass="texto-error"
+             wrapText="true" maxWidth="520" alignment="CENTER"/>
+      <Button fx:id="botonReintentar" text="%boton.reintentar" styleClass="boton-primario"
+              onAction="#reintentar">
+        <tooltip><Tooltip text="%tooltip.reintentar"/></tooltip>
+      </Button>
+    </VBox>
+  </StackPane>
+
+  <HBox alignment="CENTER_LEFT" spacing="16" styleClass="barra-conteo">
+    <Label fx:id="etiquetaConteo" text="%conteo.inicial" styleClass="texto-secundario"/>
+    <Region HBox.hgrow="ALWAYS"/>
+    <Label fx:id="etiquetaMensaje" text="" styleClass="texto-secundario"/>
+    <Label fx:id="etiquetaRequestId" text="" styleClass="texto-secundario"/>
+  </HBox>
+</VBox>

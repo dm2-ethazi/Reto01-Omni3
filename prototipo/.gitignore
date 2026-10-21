@@ -1,0 +1,53 @@
+# === Python / backend ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Java / Maven ===
+target/
+dependency-reduced-pom.xml
+
+# === Gradle / Android ===
+.gradle/
+build/
+local.properties
+
+# === Entorno y secretos (se versionan los .example) ===
+.env
+*.env.local
+
+# === Datos / bases locales ===
+*.sqlite
+*.sqlite3
+*.db
+
+# === Drivers JDBC y herramientas binarias (se descargan) ===
+r01/backend/drivers/
+tools/
+
+# === Unity ===
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+
+# === IDE / sistema ===
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# === Opencode (registros locales) ===
+.opencode/logs/
+
+# === Logs y APKs sueltos ===
+*.log
+*.apk

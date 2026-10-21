@@ -1,0 +1,89 @@
+# R01 - Configuración de ejemplo para los conectores JDBC.
+# Copia este fichero a backend/config/connectors.yaml y ajusta si hace falta.
+# Las credenciales NUNCA se guardan aquí: se leen de variables de entorno
+# con el patrón ${NOMBRE_VARIABLE} (ver backend/.env.example).
+#
+# Cada entrada define un origen de datos con:
+#   driver_class : clase JDBC del driver
+#   url          : URL JDBC (modo servidor/red)
+#   jars         : ficheros .jar del classpath (relativos a backend/)
+#   env_user     : variable de entorno con el usuario
+#   env_password : variable de entorno con la contraseña
+#   dialect      : dialecto SQL (derby|hsqldb|h2|oracle)
+#   table        : tabla de origen
+#   columns      : mapeo modelo -> columna real
+#   page_size    : tamaño de página por defecto
+
+connectors:
+  derby:
+    nombre: Apache Derby (contenedor r01-derby)
+    driver_class: org.apache.derby.client.ClientAutoloadedDriver
+    url: jdbc:derby://localhost:1527/r01derby
+    jars:
+      - drivers/derbyclient-10.16.1.1.jar
+      - drivers/derbyshared-10.16.1.1.jar
+    env_user: DERBY_USER
+    env_password: DERBY_PASSWORD
+    dialect: derby
+    table: ESTUDIANTE
+    columns:
+      id: ID
+      dni: DNI
+      nombre: NOMBRE
+      casa: CASA
+      patronus: PATRONUS
+    page_size: 50
+
+  hsqldb:
+    nombre: HSQLDB (contenedor r01-hsqldb)
+    driver_class: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:hsql://localhost:9001/r01hsqldb
+    jars:
+      - drivers/hsqldb-2.7.3.jar
+    env_user: HSQLDB_USER
+    env_password: HSQLDB_PASSWORD
+    dialect: hsqldb
+    table: ESTUDIANTE
+    columns:
+      id: ID
+      dni: DNI
+      nombre: NOMBRE
+      casa: CASA
+      patronus: PATRONUS
+    page_size: 50
+
+  h2:
+    nombre: H2 (contenedor r01-h2)
+    driver_class: org.h2.Driver
+    url: jdbc:h2:tcp://localhost:9092/r01h2
+    jars:
+      - drivers/h2-2.2.224.jar
+    env_user: H2_USER
+    env_password: H2_PASSWORD
+    dialect: h2
+    table: ESTUDIANTE
+    columns:
+      id: ID
+      dni: DNI
+      nombre: NOMBRE
+      casa: CASA
+      patronus: PATRONUS
+    page_size: 50
+
+  oracle:
+    nombre: Oracle Free (contenedor r01-oracle)
+    driver_class: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+    jars:
+      - drivers/ojdbc11-23.26.3.0.0.jar
+    env_user: ORACLE_USER
+    env_password: ORACLE_PASSWORD_CONN
+    dialect: oracle
+    table: ESTUDIANTE
+    columns:
+      id: ID
+      dni: DNI
+      nombre: NOMBRE
+      casa: CASA
+      patronus: PATRONUS
+    page_size: 50

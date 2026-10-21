@@ -2,9 +2,39 @@
 <resources>
     <string name="app_name">Hogwarts Kudeatzaile Mugikorra</string>
     <string name="buscar">Bilatu</string>
-    <string name="sincronizar">Sinkronizatu</string>
+    <string name="api_url_hint">http://10.0.2.2:8000</string>
+    <string name="api_url_apply">Aplikatu</string>
+    <string name="api_url_invalid">Sartu baliozko HTTP edo HTTPS URL bat.</string>
+    <string name="api_url_loading">Itxaron uneko eskaera amaitu arte.</string>
     <string name="estado_inicial">Hasierako egoera</string>
-    <string name="salud">Osasuna</string>
-    <string name="nombre">Izena</string>
     <string name="dni">NAN</string>
+    <string name="idiomaBoton">Hizkuntza</string>
+    <string name="idioma_sistema">Gailuaren hizkuntza</string>
+    <string name="cargando_alumnos">Ikasleak kargatzen…</string>
+    <string name="alumnos_cargados">Kargatutako ikasleak: %1$d</string>
+    <string name="resultados_busqueda">Bilaketaren emaitzak: %1$d</string>
+    <string name="ficha_alumno">Ikaslearen fitxa</string>
+    <string name="nombre_completo">Izen-abizenak</string>
+    <string name="sexo">Sexua</string>
+    <string name="patronus">Patronusa</string>
+    <string name="casa">Etxea</string>
+    <string name="dato_no_disponible">Ez dago erabilgarri</string>
+    <string name="volver">Itzuli</string>
+    <string name="imagen_alumno">Ikaslearen irudia</string>
+    <string name="offline_sin_cache">Konexiorik eta gordetako daturik ez. Saiatu berriro konexioa dagoenean.</string>
+    <string name="buscar_hint">Izena edo identifikatzailea</string>
+    <string name="verificando">Zerbitzaria egiaztatzen…</string>
+    <string name="verificado" formatted="false">Zerbitzaria eta SQLite %100 bat datoz</string>
+    <string name="actualizado" formatted="false">Eguneratuta · SQLite %100 egiaztatuta</string>
+    <string name="sin_red_cache">Konexiorik gabe · gordetako datuak</string>
+    <string name="servidor_cache">Ezin izan da zerbitzaria egiaztatu · gordetako datuak</string>
+    <string name="error_persistencia">Ezin izan da tokiko gordetzea egiaztatu. Saiatu berriro deskonektatu aurretik.</string>
+    <string name="origen_sqlite">SQLite cachea</string>
+    <string name="origen_api">Uneko datuak</string>
+    <string name="ultima_sincronizacion">Azken egiaztapena: %1$s</string>
+    <string name="sin_resultados">Ez dago izen edo identifikatzaile horrekin ikaslerik. Berrikusi bilaketa.</string>
+    <string name="error_acceso">Sarbidea ez dago baimenduta. Jarri harremanetan zerbitzuaren arduradunarekin.</string>
+    <string name="error_servicio">Ikasleen zerbitzua ez dago erabilgarri. Saiatu geroago.</string>
+    <string name="error_amable">Ezin izan dira ikasleak kargatu. Saiatu berriro.</string>
+    <string name="estado_datos">%1$s\n%2$s · %3$s\n%4$s</string>
 </resources>

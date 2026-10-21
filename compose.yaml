@@ -134,6 +134,7 @@ services:
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD in .env}
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./database/mariadb/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
       test:
         [

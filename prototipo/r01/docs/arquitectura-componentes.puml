@@ -1,0 +1,119 @@
+pragma layout Smetana
+
+' ============================================================
+' R01 - Arquitectura de componentes
+' Backend FastAPI + conectores JDBC + central doble
+' Render: plantuml -tpng arquitectura-componentes.puml
+' ============================================================
+
+@startuml arquitectura-componentes
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam packageStyle rectangle
+skinparam shadowing true
+skinparam backgroundColor #FFFFFF
+
+title **R01 - Arquitectura de componentes**\nClientes · API · Origenes JDBC · Central doble
+
+actor "Estudiante / Operador" as usuario
+
+package "Clientes (r01/clients)" {
+    component [JavaFX MVVM\ndesktop-javafx] as javafx
+    component [Android\nmobile-android] as android
+    component [Unity\nunity-patronus] as unity
+}
+
+package "r01/backend - API FastAPI (puerto 8000)" {
+    component [Raiz GET /] as raiz
+    component "GET /health\nsalud.py" as health
+    component "GET|POST /connectors\nconnectors.py" as conn
+    component "POST /sync\nsync.py" as sync
+    component "GET /central\ncentral.py" as central
+
+    component [RequestIdMiddleware\n+ install_error_handlers] as mw
+    component [app/api/deps.py\ninyeccion de servicios] as deps
+}
+
+package "Capa de servicios (app/services)" {
+    component [ConnectorService] as cserv
+    component [SyncService] as sserv
+    component [CentralService] as central_serv
+    component [transform.py\nnormaliza + valida DNI] as transform
+}
+
+package "Acceso a origenes (app/data_access)" {
+    component [ConnectorRegistry\nJVM unica - JPype/JayDeBeApi] as registry
+    component [JdbcDataSource\ndialects.py] as jdbc
+}
+
+package "Persistencia central (app/persistence)" {
+    component [CompositeCentralRepository] as composite
+    component [MariaDbRepository] as mariadb_repo
+    component [SqliteRepository] as sqlite_repo
+    component [SqliteRetryQueue\ncola de reintentos] as retry
+}
+
+database "MariaDB\n(central principal)" as mariadb
+database "SQLite\n(central espejo)\ndata/central.db" as sqlite
+
+database "Apache Derby\n:1527" as derby
+database "HSQLDB\n:9001" as hsqldb
+database "H2\n:9092" as h2
+database "Oracle Free\n:1521" as oracle
+
+' --- Clientes -> API
+usuario --> javafx : usa
+usuario --> android : usa
+usuario --> unity : usa
+javafx -down-> mw : HTTP/JSON
+android -down-> mw
+unity -down-> mw
+
+mw --> raiz
+mw --> health
+mw --> conn
+mw --> sync
+mw --> central
+
+' --- API -> servicios
+conn --> deps
+sync --> deps
+central --> deps
+health --> deps
+deps --> cserv
+deps --> sserv
+deps --> central_serv
+
+cserv --> registry
+sserv --> registry
+sserv --> transform
+sserv --> composite
+central_serv --> composite
+
+' --- Capas inferiores
+registry --> jdbc
+jdbc --> derby
+jdbc --> hsqldb
+jdbc --> h2
+jdbc --> oracle
+
+composite --> mariadb_repo
+composite --> sqlite_repo
+composite --> retry
+mariadb_repo --> mariadb
+sqlite_repo --> sqlite
+retry --> sqlite : persiste fallos
+
+note right of composite
+  Orden: MariaDB (principal) -> SQLite (espejo).
+  Si MariaDB no responde, se lee desde SQLite.
+end note
+
+note bottom of registry
+  Arranca la JVM una sola vez
+  y carga los .jar de drivers/
+end note
+
+@enduml

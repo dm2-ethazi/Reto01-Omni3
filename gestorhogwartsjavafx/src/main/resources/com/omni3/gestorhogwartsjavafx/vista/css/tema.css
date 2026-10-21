@@ -1,0 +1,709 @@
+/*
+ * Tema "Dark Academia" — Gestor Hogwarts · Reto R01 · Omni3.
+ * Autor: jairoben
+ *
+ * Paleta y métricas definidas UNA SOLA VEZ usando variables nativas de
+ * JavaFX. JavaFX no soporta propiedades CSS personalizadas (var());
+ * se usan -fx-base, -fx-accent, -fx-focus-color, -fx-faint-focus-color,
+ * -fx-text-base-color, -fx-mark-color, -fx-default-button, -fx-default-border.
+ *
+ * Tokens de la paleta (dark academia moderna):
+ *   fondo            #1C1914   (marrón espresso muy oscuro)
+ *   surface          #26211C   (tarjetas / paneles)
+ *   surface-alt      #2E2820   (barras, cabeceras de tabla)
+ *   borde            #3D362D   (bordes sutiles)
+ *   azul-noche       #1B2836   (cabecera y barra lateral)
+ *   azul-noche-alt   #223347   (hover lateral)
+ *   dorado           #C9A227   (acento primario / botones)
+ *   dorado-hover     #D4B044
+ *   dorado-activo    #A8841C
+ *   granate          #7A2E3B   (peligro / acento fuerte)
+ *   granate-hover    #8E3A4A
+ *   seleccion        #3A3324   (selección de fila tenue dorada)
+ *   fila-alterna     #221E19
+ *   texto            #EDE6D8   (pergamino)
+ *   texto-sec        #A89A88
+ *   exito            #8FAE86
+ *   error            #C98484
+ *   aviso            #D4B044
+ *   disabled         #6B6154
+ *   foco             #C9A227
+ *
+ * Tipografía: títulos Cinzel (embebida en resources/fonts) y cuerpo
+ * con sans del sistema. Si Cinzel no carga, se cae a Georgia/serif.
+ */
+
+.root {
+    /* Variables nativas que el tema Modena hereda y usa internamente */
+    -fx-base: #26211C;
+    -fx-accent: #C9A227;
+    -fx-focus-color: #C9A227;
+    -fx-faint-focus-color: transparent;
+    -fx-text-base-color: #EDE6D8;
+    -fx-mark-color: #EDE6D8;
+    -fx-default-button: #C9A227;
+    -fx-default-border: #3D362D;
+
+    /* Tokens documentales (heredables, no usados por Modena) */
+    -fondo: #1C1914;
+    -surface: #26211C;
+    -surface-alt: #2E2820;
+    -borde: #3D362D;
+    -azul-noche: #1B2836;
+    -azul-noche-alt: #223347;
+    -dorado: #C9A227;
+    -dorado-hover: #D4B044;
+    -dorado-activo: #A8841C;
+    -granate: #7A2E3B;
+    -granate-hover: #8E3A4A;
+    -seleccion: #3A3324;
+    -fila-alterna: #221E19;
+    -texto: #EDE6D8;
+    -texto-sec: #A89A88;
+    -exito: #8FAE86;
+    -error: #C98484;
+    -aviso: #D4B044;
+    -disabled: #6B6154;
+    -foco: #C9A227;
+
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* =====================================================================
+ * 1. Marco general: raíz, cabecera, cuerpo, lateral y pie
+ * ===================================================================== */
+
+.raiz {
+    -fx-background-color: -fondo;
+}
+
+.cabecera {
+    -fx-background-color: linear-gradient(to right, #1B2836, #16202C);
+    -fx-background-radius: 0;
+    -fx-padding: 12 20 12 20;
+}
+
+.titulo-cabecera {
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.subtitulo-cabecera {
+    -fx-text-fill: #A89A88;
+    -fx-font-size: 12px;
+}
+
+.cuerpo {
+    -fx-background-color: -fondo;
+}
+
+.lateral {
+    -fx-background-color: linear-gradient(to bottom, #1B2836, #15202B);
+    -fx-border-color: transparent #3D362D transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 16 12 16 12;
+}
+
+.contenido {
+    -fx-background-color: -fondo;
+}
+
+.etiqueta-seccion {
+    -fx-text-fill: -dorado;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Cinzel", "Georgia", serif;
+}
+
+.barra-estado {
+    -fx-background-color: -surface-alt;
+    -fx-border-color: -borde transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8 20 8 20;
+}
+
+/* Textos de la barra lateral y pie sobre fondo oscuro */
+.lateral .label,
+.lateral .texto-secundario {
+    -fx-text-fill: #A89A88;
+}
+
+.barra-estado.info    .estado-texto { -fx-text-fill: -texto-sec; }
+.barra-estado.exito   .estado-texto { -fx-text-fill: -exito; }
+.barra-estado.aviso   .estado-texto { -fx-text-fill: -aviso; }
+.barra-estado.error   .estado-texto { -fx-text-fill: -error; }
+
+/* =====================================================================
+ * 2. Textos
+ * ===================================================================== */
+
+.titulo-seccion {
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.texto-secundario {
+    -fx-text-fill: -texto-sec;
+    -fx-font-size: 12px;
+}
+
+.texto-vacio {
+    -fx-text-fill: -texto-sec;
+    -fx-font-size: 14px;
+}
+
+.valor-dato {
+    -fx-text-fill: -texto;
+    -fx-font-size: 14px;
+    -fx-background-color: transparent;
+    -fx-padding: 4 8 4 8;
+}
+
+.etiqueta-campo {
+    -fx-text-fill: -texto-sec;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.texto-error   { -fx-text-fill: -error;   -fx-font-size: 12px; }
+.texto-exito   { -fx-text-fill: -exito;   -fx-font-size: 12px; }
+.texto-aviso   { -fx-text-fill: -aviso;   -fx-font-size: 12px; }
+
+/* =====================================================================
+ * 3. Campos de texto y desplegables
+ * ===================================================================== */
+
+.campo {
+    -fx-background-color: #1F1B16;
+    -fx-background-radius: 12;
+    -fx-border-color: -borde;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: -texto;
+    -fx-highlight-fill: -dorado;
+    -fx-highlight-text-fill: #1C1914;
+}
+
+.campo:focused {
+    -fx-border-color: -foco;
+    -fx-background-color: #1F1B16;
+}
+
+.campo:disabled {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-text-fill: -disabled;
+    -fx-highlight-fill: -borde;
+    -fx-highlight-text-fill: -disabled;
+}
+
+.campo-combo {
+    -fx-background-color: #1F1B16;
+    -fx-background-radius: 12;
+    -fx-border-color: -borde;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: -texto;
+}
+
+.campo-combo:focused {
+    -fx-border-color: -foco;
+}
+
+.campo-combo:disabled {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-text-fill: -disabled;
+}
+
+.campo-combo.valor-dato,
+.combo-box.valor-dato {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -texto;
+    -fx-padding: 4 8 4 8;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4;
+}
+
+/* Estado enfocado: Modena pinta aquí su interior gris
+   (-fx-control-inner-background); se fuerza el fondo oscuro del tema. */
+.combo-box-popup > .list-view,
+.combo-box-popup > .list-view:focused {
+    -fx-background-color: -surface;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+}
+
+/* Raíz de la escena del popup (clases [root, popup]): si el hueco del
+   popup queda mayor que el contenido, debe verse oscuro, no el gris de
+   Modena (.root). */
+.root.popup {
+    -fx-background-color: -fondo;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-text-fill: -texto;
+    -fx-padding: 6 8 6 8;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -surface-alt;
+}
+
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: -seleccion;
+    -fx-text-fill: -dorado;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================================
+ * 4. Botones
+ * ===================================================================== */
+
+.boton-primario,
+.boton-secundario,
+.boton-peligro,
+.boton-lateral {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+/* Primario: dorado envejecido, texto oscuro (contraste AA) */
+.boton-primario {
+    -fx-background-color: -dorado;
+    -fx-text-fill: #1C1914;
+    -fx-border-color: transparent;
+    -fx-font-weight: bold;
+}
+.boton-primario:hover { -fx-background-color: -dorado-hover; }
+.boton-primario:pressed { -fx-background-color: -dorado-activo; }
+.boton-primario:focused { -fx-border-color: -foco; }
+.boton-primario:disabled {
+    -fx-background-color: -borde;
+    -fx-border-color: transparent;
+    -fx-text-fill: -disabled;
+}
+
+/* Secundario: borde dorado, fondo panel */
+.boton-secundario {
+    -fx-background-color: -surface;
+    -fx-text-fill: -dorado;
+    -fx-border-color: -dorado;
+}
+.boton-secundario:hover { -fx-background-color: -seleccion; }
+.boton-secundario:pressed { -fx-background-color: #332C1F; }
+.boton-secundario:focused { -fx-border-color: -foco; }
+.boton-secundario:disabled {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-text-fill: -disabled;
+}
+
+/* Peligro: granate */
+.boton-peligro {
+    -fx-background-color: -surface;
+    -fx-text-fill: -error;
+    -fx-border-color: -granate;
+}
+.boton-peligro:hover { -fx-background-color: #3A2428; }
+.boton-peligro:pressed { -fx-background-color: #2E1C20; }
+.boton-peligro:focused { -fx-border-color: -foco; }
+.boton-peligro:disabled {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-text-fill: -disabled;
+}
+
+/* ---------- Navegación lateral ---------- */
+.boton-lateral {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #C9BFB0;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 13px;
+}
+.boton-lateral:hover {
+    -fx-background-color: -azul-noche-alt;
+}
+.boton-lateral:focused {
+    -fx-border-color: -foco;
+    -fx-background-color: -azul-noche-alt;
+}
+.boton-lateral:armed {
+    -fx-background-color: #2A3B50;
+}
+
+/* Activo: dorado tenue + borde dorado completo */
+.boton-lateral.activo {
+    -fx-background-color: rgba(201,162,39,0.14);
+    -fx-border-color: -dorado;
+    -fx-border-width: 2;
+    -fx-border-insets: 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: -dorado;
+}
+
+/* =====================================================================
+ * 5. Tarjetas, pantallas y barras
+ * ===================================================================== */
+
+.tarjeta {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 14, 0.35, 0, 4);
+}
+
+.pantalla {
+    -fx-background-color: -fondo;
+}
+
+.barra-herramientas {
+    -fx-background-color: -surface-alt;
+    -fx-border-color: transparent transparent -borde transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12 8 12 8;
+}
+
+/* Botones de la barra: padding menor para que los cinco quepan
+   enteros incluso en la ventana mínima (640px de ancho). */
+.barra-herramientas .button {
+    -fx-padding: 8 12 8 12;
+}
+
+.barra-conteo {
+    -fx-background-color: -surface-alt;
+    -fx-border-color: -borde transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8 8 8 8;
+}
+
+/* =====================================================================
+ * 6. Tablas
+ * ===================================================================== */
+
+.tabla {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 8;
+}
+.tabla:focused {
+    -fx-border-color: -foco;
+}
+
+.tabla .column-header-background {
+    -fx-background-color: -surface-alt;
+}
+.tabla .column-header-background:hover {
+    -fx-background-color: #363028;
+}
+
+.tabla .column-header,
+.tabla .filler {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-text-fill: -dorado;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Cinzel", "Georgia", serif;
+    -fx-padding: 8 10 8 10;
+}
+
+.tabla .table-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -texto;
+    -fx-padding: 0 10 0 10;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.table-row-cell {
+    -fx-background-color: -surface;
+    -fx-text-fill: -texto;
+    -fx-border-color: transparent transparent -borde transparent;
+    -fx-padding: 0 10 0 10;
+}
+.table-row-cell:odd {
+    -fx-background-color: -fila-alterna;
+}
+.table-row-cell:hover {
+    -fx-background-color: #2A251E;
+}
+
+/* Selección: dorado tenue, nunca el cian Modena */
+.table-row-cell:selected {
+    -fx-background-color: -seleccion;
+    -fx-text-fill: -dorado;
+}
+.table-row-cell:selected:hover {
+    -fx-background-color: #463C2A;
+}
+.tabla:focused .table-row-cell:selected {
+    -fx-background-color: #463C2A;
+}
+
+.tabla .placeholder .label {
+    -fx-text-fill: -texto-sec;
+    -fx-font-size: 14px;
+}
+
+.tabla .celda-exito   { -fx-text-fill: -exito;   -fx-font-weight: bold; }
+.tabla .celda-aviso   { -fx-text-fill: -aviso;   -fx-font-weight: bold; }
+.tabla .celda-error   { -fx-text-fill: -error;   -fx-font-weight: bold; }
+.tabla .celda-neutro  { -fx-text-fill: -texto-sec; -fx-font-weight: bold; }
+
+/* =====================================================================
+ * 7. Píldoras de Casa — tintes sobre fondo oscuro
+ * ===================================================================== */
+
+.pildora-casa {
+    -fx-background-radius: 999;
+    -fx-padding: 2 10 2 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+.pildora-casa.gryffindor  { -fx-background-color: rgba(176,58,46,0.22);  -fx-text-fill: #E08A7E; }
+.pildora-casa.slytherin   { -fx-background-color: rgba(62,122,80,0.22);  -fx-text-fill: #8FBF9A; }
+.pildora-casa.ravenclaw   { -fx-background-color: rgba(58,98,156,0.22);  -fx-text-fill: #8FAECF; }
+.pildora-casa.hufflepuff  { -fx-background-color: rgba(196,160,52,0.20); -fx-text-fill: #D9BC6E; }
+.pildora-casa.hogwarts    { -fx-background-color: rgba(201,162,39,0.18); -fx-text-fill: -dorado; }
+
+/* =====================================================================
+ * 8. Carga y formulario
+ * ===================================================================== */
+
+.overlay-carga {
+    -fx-background-color: rgba(28,25,20,0.92);
+    -fx-background-radius: 16;
+    -fx-border-color: -borde;
+    -fx-border-radius: 16;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 14, 0.35, 0, 4);
+}
+
+.formulario {
+    -fx-background-color: -surface;
+    -fx-padding: 20;
+}
+
+/* =====================================================================
+ * 9. Diálogos nativos (Alert, Dialog)
+ * ===================================================================== */
+
+.dialog-pane {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: linear-gradient(to right, #1B2836, #16202C);
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 14 16 14 16;
+}
+.dialog-pane .header-panel .label {
+    -fx-text-fill: -dorado;
+    -fx-font-family: "Cinzel", "Georgia", serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+.dialog-pane .header-panel .graphic {
+    -fx-opacity: 0;
+}
+
+.dialog-pane .content {
+    -fx-background-color: -surface;
+    -fx-background-radius: 0 0 12 12;
+    -fx-padding: 16;
+    -fx-text-fill: -texto;
+}
+.dialog-pane .content .label {
+    -fx-text-fill: -texto;
+    -fx-font-size: 13px;
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: -surface;
+    -fx-background-radius: 0 0 12 12;
+    -fx-padding: 0 16 16 16;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: -surface;
+    -fx-text-fill: -dorado;
+    -fx-border-color: -dorado;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 6 16 6 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: -seleccion;
+}
+.dialog-pane .button-bar .button:focused {
+    -fx-border-color: -foco;
+}
+
+.dialog-pane .button-bar .button:default {
+    -fx-background-color: -dorado;
+    -fx-text-fill: #1C1914;
+    -fx-border-color: transparent;
+    -fx-font-weight: bold;
+}
+.dialog-pane .button-bar .button:default:hover { -fx-background-color: -dorado-hover; }
+.dialog-pane .button-bar .button:default:pressed { -fx-background-color: -dorado-activo; }
+
+.dialog-pane .button-bar .button.boton-peligro {
+    -fx-background-color: -granate;
+    -fx-text-fill: #F5EDE8;
+    -fx-border-color: transparent;
+}
+.dialog-pane .button-bar .button.boton-peligro:hover {
+    -fx-background-color: -granate-hover;
+    -fx-text-fill: #F5EDE8;
+}
+.dialog-pane .button-bar .button.boton-peligro:pressed {
+    -fx-background-color: #5E2330;
+    -fx-text-fill: #F5EDE8;
+}
+
+/* =====================================================================
+ * 10. Tooltip, scrollbar, progress-indicator, separator
+ * ===================================================================== */
+
+.tooltip {
+    -fx-background-color: -dorado;
+    -fx-background-radius: 8;
+    -fx-text-fill: #1C1914;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 9 6 9;
+    -fx-show-delay: 800ms;
+}
+
+.scroll-bar { -fx-background-color: transparent; }
+.scroll-bar .track {
+    -fx-background-color: -surface;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 2;
+}
+.scroll-bar .thumb {
+    -fx-background-color: -borde;
+    -fx-background-radius: 8;
+}
+.scroll-bar .thumb:hover { -fx-background-color: -dorado; }
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button { -fx-background-color: transparent; -fx-padding: 0; }
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow { -fx-shape: " "; -fx-padding: 0; }
+
+.progress-indicator { -fx-progress-color: -dorado; }
+.progress-indicator .percentage { -fx-fill: -texto; -fx-font-size: 11px; }
+
+.separator .line { -fx-border-color: -borde; -fx-border-width: 1 0 0 0; }
+
+/* Separador del lateral sobre azul noche */
+.lateral .separator .line { -fx-border-color: #314052 transparent transparent transparent; }
+
+/* =====================================================================
+ * 11. Selector de idioma (barra de estado) y su menú desplegable
+ * ===================================================================== */
+
+.boton-idioma {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: -borde;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 3 8 3 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.boton-idioma > .label {
+    -fx-text-fill: -texto-sec;
+}
+.boton-idioma:hover {
+    -fx-background-color: #4A3F2A;
+    -fx-border-color: -dorado;
+}
+.boton-idioma:hover > .label {
+    -fx-text-fill: -dorado;
+}
+.boton-idioma:hover > .arrow-button > .arrow {
+    -fx-background-color: -dorado;
+}
+.boton-idioma > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 4;
+}
+.boton-idioma > .arrow-button > .arrow {
+    -fx-background-color: -texto-sec;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+/* El popup del MenuButton: panel oscuro con opciones doradas al pasar */
+.context-menu {
+    -fx-background-color: -surface;
+    -fx-border-color: -borde;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 4;
+}
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-text-background-color: -texto;
+    -fx-padding: 6 12 6 12;
+}
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: #4A3F2A;
+    -fx-text-background-color: -dorado;
+}
+/* Modena pinta focused > .label con texto oscuro; aquí se fuerza dorado
+   para que sea legible sobre el fondo de hover #4A3F2A. */
+.menu-item:hover > .label,
+.menu-item:focused > .label {
+    -fx-text-fill: -dorado;
+}
+
+/* Etiquetas de los comandos del menú de ayuda y del selector de idioma */
+.comando-menu {
+    -fx-text-fill: -texto;
+}
+.menu-item:hover .comando-menu,
+.menu-item:focused .comando-menu {
+    -fx-text-fill: -dorado;
+}
