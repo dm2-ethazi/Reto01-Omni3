@@ -65,9 +65,12 @@ Abrir esta carpeta en Android Studio, sincronizar Gradle y elegir dispositivo.
 Se requiere SDK 37 para compilar; la app admite Android 7.0/API 24 o superior.
 El proyecto usa el wrapper incluido y el JDK de Android Studio.
 
-La URL inicial de la API es `http://10.0.2.2:8000`, válida para el emulador
-Android con la API en el equipo anfitrión. En la pantalla principal se puede
-introducir una URL HTTP o HTTPS y pulsar **Aplicar** o **Hecho** en el teclado.
+La URL inicial de la API es `https://curator-caliber-magma.ngrok-free.dev` y
+aparece escrita en el campo. Al vaciarlo, el hint muestra `http://10.0.2.2:8000`,
+la dirección local para el emulador Android con la API en el equipo anfitrión.
+El hint es solo una ayuda visual y no cambia la conexión. En la pantalla
+principal se puede introducir una URL HTTP o HTTPS y pulsar **Aplicar** o
+**Hecho** en el teclado.
 La app recuerda esa elección al reiniciarse y la usa para las siguientes
 peticiones. Para Redmi Note 11, Redmi Pad SE u otro dispositivo físico, utiliza
 una dirección accesible desde la misma red.
