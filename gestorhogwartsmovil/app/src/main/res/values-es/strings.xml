@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Gestor Hogwarts Móvil</string>
     <string name="buscar">Buscar</string>
-    <string name="api_url_hint">URL de la API (por defecto: http://10.0.2.2:8000)</string>
+    <string name="api_url_hint">http://10.0.2.2:8000</string>
     <string name="api_url_apply">Aplicar</string>
     <string name="api_url_invalid">Introduce una URL HTTP o HTTPS válida.</string>
     <string name="api_url_loading">Espera a que termine la petición actual.</string>

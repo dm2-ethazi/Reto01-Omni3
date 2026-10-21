@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Hogwarts Mobile Manager</string>
     <string name="buscar">Search</string>
-    <string name="api_url_hint">API URL (default: http://10.0.2.2:8000)</string>
+    <string name="api_url_hint">http://10.0.2.2:8000</string>
     <string name="api_url_apply">Apply</string>
     <string name="api_url_invalid">Enter a valid HTTP or HTTPS URL.</string>
     <string name="api_url_loading">Wait for the current request to finish.</string>
