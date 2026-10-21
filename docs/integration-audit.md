@@ -1,6 +1,10 @@
 # Auditoría de integración · 20/10/2026
 
-> Actualización documental del 21/10/2026: la [Wiki ya está publicada](https://github.com/dm2-ethazi/Reto01-Omni3/wiki) en `https://github.com/dm2-ethazi/Reto01-Omni3.wiki.git`, tras hacerse público el repositorio e inicializar su página Home. La limitación de publicación descrita al final recoge el estado histórico del 20/10 y ya no está vigente. El README Android documenta además 9 pruebas instrumentadas correctas el 21/10, posteriores al intento incompleto registrado aquí. No se han repetido las pruebas de componentes al actualizar la documentación.
+> Actualización documental del 21/10/2026: la [Wiki ya está publicada](https://github.com/dm2-ethazi/Reto01-Omni3/wiki) en `https://github.com/dm2-ethazi/Reto01-Omni3.wiki.git`, tras hacerse público el repositorio e inicializar su página Home. La limitación de publicación descrita al final recoge el estado histórico del 20/10 y ya no está vigente. El README Android documenta además 9 pruebas instrumentadas correctas el 21/10, posteriores al intento incompleto registrado aquí. La publicación de la Wiki no implicó repetir las pruebas de componentes.
+
+> Revisión posterior del 21/10/2026 sobre `main`: JavaFX pasó `mvn verify` con 100 pruebas y JAR generado, usando Oracle JDK 25.0.2 y Maven 3.9.16 en Windows 11. Javadoc se generó; Maven Site omitió un informe por incompatibilidad entre plugins. Las cuatro vistas cargaron desde el JAR en ES/EU/EN. El detalle y las carencias frente a la rúbrica están en la [revisión de JavaFX](javafx-review.md). Las tablas siguientes conservan los resultados de la integración del 20/10 y no representan una nueva ejecución conjunta.
+
+> Pruebas manuales: el [registro de validación manual](manual-validation.md) recoge la confirmación del equipo y las pruebas físicas Android documentadas en Redmi Note 11 y Redmi Pad SE. Los resultados históricos siguientes describen lo ejecutado durante aquella integración.
 
 ## Método Git
 
@@ -41,7 +45,7 @@ La base MariaDB de `compose.yaml` de este checkout tenía un volumen preexistent
 
 - No se verificó el sistema con Oracle, H2, HSQLDB y Derby simultáneamente: faltan DDL y semillas `ALUMNOS` para esas fuentes en la rama principal. Los scripts del prototipo no son equivalentes.
 - La API no implementa autenticación, autorización, transacción distribuida ni `/health`.
-- La interfaz JavaFX, la escena Unity y una sesión Android con usuario aún requieren prueba visual de extremo a extremo. La API sí se probó contra MariaDB real. Las pruebas instrumentadas Android no terminaron por falta de memoria del AVD usado.
+- El equipo confirma pruebas manuales en dispositivos. No se ha detallado si incluyeron una sesión conjunta de los tres clientes contra esta instalación MariaDB; el registro histórico de esta integración no incluye ese recorrido. La API sí se probó contra MariaDB real. El intento instrumentado Android del 20/10 no terminó por falta de memoria; su README documenta 9 pruebas correctas posteriores el 21/10.
 - **Publicación de la Wiki, incidencia histórica del 20/10/2026.** La Wiki se preparó en un repositorio Git hermano `Reto01-Omni3.wiki` con commits propios. El primer `git push` a `<repo>.wiki.git` devolvió `Repository not found`. La API autenticada de GitHub confirmó entonces `private=true`, permisos `admin=true` y `has_wiki=false`; una petición para activar `has_wiki=true` devolvió de nuevo `false`. Se conservó temporalmente una copia de lectura en el código. El 21/10/2026, tras hacerse público el repositorio e inicializar Home, se publicó la [Wiki del proyecto](https://github.com/dm2-ethazi/Reto01-Omni3/wiki). La documentación se mantiene ahora únicamente en `https://github.com/dm2-ethazi/Reto01-Omni3.wiki.git`; la copia duplicada se retiró de `integration` y este informe se conserva como registro de la integración.
 
 La plantilla `template-reto-base` se inspeccionó desde el clon local existente: se tomó su estructura de README, documentación y scripts como referencia, sin copiar su código ni sus ejemplos. La URL web directa no fue accesible sin autenticación desde este entorno.

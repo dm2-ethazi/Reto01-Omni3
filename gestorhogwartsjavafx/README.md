@@ -4,7 +4,10 @@ Cliente de escritorio para **consultar, dar de alta, editar y dar de baja** alum
 contra la API REST central del Reto R01 · Omni3, con pantalla de estado, catálogo de
 patronus y tres idiomas.
 
-> Fuente de verdad del proyecto: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
+> Requisitos de referencia: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
+> Este README describe la implementación actual; las diferencias pendientes con esos
+> requisitos y las comprobaciones del 21/10/2026 constan en la
+> [revisión de JavaFX](../docs/javafx-review.md). Documentarlas no supone aprobar un cambio de alcance.
 
 ---
 
@@ -12,7 +15,7 @@ patronus y tres idiomas.
 
 **Título:** Gestor Hogwarts — Cliente de escritorio (JavaFX) · `com.omni3:gestorhogwartsjavafx:1.0.0`
 
-La aplicación habla **siempre por HTTP con la API remota**: no existe modo demo, ni
+La aplicación habla **por HTTP con la API configurada, local o remota**: no existe modo demo, ni
 conmutador de datos, ni acceso directo a bases de datos (requisito del contrato §2–§3).
 El único cliente es `api/ClienteAlumnosHttp` (`java.net.http.HttpClient` + Jackson).
 
@@ -28,10 +31,12 @@ Reglas de negocio implementadas:
 - **Edición**: se lee la ficha vigente y se envía `PUT /alumnos/{dni}` con el nombre
   completo y el patronus; la fuente (`casa`) es de solo lectura porque la API no admite
   cambiarla.
-- **Baja**: `DELETE /alumnos/{dni}`; en los alumnos históricos la base de origen aplica
-  su propio comportamiento.
-- Los DNI **nunca se muestran completos** en mensajes (se enmascaran: `12***78A`) y toda
-  petición lleva cabecera **`request-id`** visible cuando hay error.
+- **Baja**: `DELETE /alumnos/{dni}` elimina físicamente el registro en las fuentes
+  donde exista. No implementa la baja lógica de nuevos alumnos exigida en el contrato.
+- Los mensajes de negocio que usan `enmascararDNI` ocultan parte del identificador
+  (`12***78A`); la tabla y el formulario muestran el DNI completo. Las respuestas y
+  trazas externas no tienen un filtro general de datos sensibles. Toda petición HTTP
+  lleva cabecera **`request-id`**, que se conserva en los errores del cliente.
 - **Tres idiomas** (castellano, euskera, inglés) con cambio en caliente desde la barra
   de estado (§9).
 
@@ -48,8 +53,9 @@ Endpoints que consume la API:
 
 Los errores se aceptan en los dos formatos del backend
 (`{"error":{codigo,mensaje,detalle}}` o `{"detail":"…"}`); cualquier respuesta `>= 400`
-se convierte en `ExcepcionApi` (código, mensaje, `request-id`, estado HTTP) y la
-pantalla pasa a estado **ERROR**; el `409` se trata aparte como **CONFLICTO**.
+se convierte en `ExcepcionApi` (código, mensaje, `request-id`, estado HTTP).
+La edición ofrece recarga ante un `409`, pero el backend actual no comprueba
+versiones ni produce conflictos de concurrencia reales. El `409` de alta indica DNI duplicado.
 
 ---
 
@@ -57,9 +63,9 @@ pantalla pasa a estado **ERROR**; el `409` se trata aparte como **CONFLICTO**.
 
 | Componente | Versión | Notas |
 |---|---|---|
-| Sistema | Windows 10/11 x86-64 (también Linux y macOS) | Los perfiles de `pom.xml` (`win`, `linux`, `mac`, `mac-aarch64`) eligen el clasificador JavaFX según el SO. |
-| Java | **JDK 17 o superior** (`maven.compiler.release=17`) | Verificado con Temurin 25.0.4.1 sin cambiar nada. |
-| Maven | **3.9 o superior** | En este repositorio ya va incluido en `../tools/apache-maven-3.9.11/`. |
+| Sistema | Windows 10/11 x86-64 de referencia | Revisión del 21/10/2026 en Windows 11. Hay perfiles Linux y macOS, sin verificar su ejecución en esta revisión. |
+| Java | **JDK 17 o superior** (`maven.compiler.release=17`) | Revisión del 21/10/2026 con Oracle JDK 25.0.2; la integración anterior documenta JDK 21. |
+| Maven | **3.9 o superior** | Instalación externa o Maven del IDE; no se incluye Maven ni wrapper en este módulo. Verificado con 3.9.16. |
 | JavaFX | **21** (usa `21.0.5`) | **No hay que instalarlo a mano**: lo descarga Maven Central. |
 | Memoria | 8 GB (16 GB recomendados) | §1 del contrato. |
 | Red | Internet en el primer build | Para bajar dependencias de Maven Central. |
@@ -77,18 +83,19 @@ pantalla pasa a estado **ERROR**; el `409` se trata aparte como **CONFLICTO**.
    java -version    # debe informar de 17 o superior
    ```
 
-2. **Maven.** Usa el que trae el repositorio (no requiere instalación):
+2. **Maven.** Instala Maven 3.9+ y añade su carpeta `bin` al `PATH`, o configura
+   el Maven incluido en tu IDE. Comprueba:
 
    ```powershell
-   & 'C:\Users\dm2\Documents\Reto01-Omni3\tools\apache-maven-3.9.11\bin\mvn.cmd' -v
+   mvn -version
    ```
 
-   O instala Maven 3.9+ en el `PATH` y sustituye `mvn.cmd` por `mvn` en los ejemplos.
+   No hay carpeta `tools/apache-maven-...` en la entrega actual.
 
 3. **Clonar el repositorio:**
 
    ```bash
-   git clone https://github.com/dm2-ethazi/Reto01-Omni3.git
+   git clone --branch main https://github.com/dm2-ethazi/Reto01-Omni3.git
    cd Reto01-Omni3/gestorhogwartsjavafx
    ```
 
@@ -120,7 +127,7 @@ pantalla pasa a estado **ERROR**; el `409` se trata aparte como **CONFLICTO**.
 
 ## 4. Configuración de la API
 
-La URL de la API **no está en el código ni se edita desde la ventana**: la resuelve
+La URL de despliegue **no se edita desde la ventana**: la resuelve
 `util/ConfigLoader` siguiendo este orden (**primero que encuentre, gana**):
 
 | # | Fuente | Detalle |
@@ -134,10 +141,13 @@ La URL de la API **no está en el código ni se edita desde la ventana**: la res
 Plantilla versionada (`config.properties.example`):
 
 ```properties
-# URL base de la API. NO subir este fichero a git: copia este ejemplo
-# a config.properties (está en .gitignore) y escribe aquí tu URL real.
+# Copia la plantilla versionada a config.properties y escribe allí tu URL.
+# config.properties es local y está en .gitignore.
 api.url=https://tu-api-aqui.com
 ```
+
+La plantilla se versiona; el fichero local `config.properties` que creas a partir de
+ella queda ignorado por Git. El código conserva la URL local de respaldo indicada abajo.
 
 Para desarrollo local con la API del propio equipo:
 
@@ -173,6 +183,7 @@ mvn clean javafx:run
 ```
 
 Compila y abre la ventana; no necesita build previo.
+Este lanzamiento interactivo no se ha repetido en la revisión del 21/10/2026.
 
 ### b) Fat JAR (recomendado para distribuir)
 
@@ -184,6 +195,11 @@ java -jar target/gestorhogwartsjavafx-1.0.0.jar
 El JAR final lleva dentro las dependencias JavaFX, los FXML/CSS, las fuentes, los
 iconos y los bundles i18n; su `Main-Class` es `com.omni3.gestorhogwartsjavafx.Launcher`
 (una lanzadera que no extiende `Application`, requisito para poder hacer `java -jar`).
+Incluye los binarios nativos de JavaFX de la plataforma elegida al compilar: el JAR
+generado en Windows no es una entrega universal para Linux y macOS. El destinatario
+necesita Java 17+ y una compilación para su sistema; el JAR no incorpora un JRE.
+El empaquetado, el manifiesto y la carga de las cuatro vistas desde ese JAR están
+comprobados. El equipo confirma pruebas manuales en dispositivos; no ha especificado si se hicieron mediante este JAR o mediante otro lanzamiento.
 
 ### c) Scripts de lanzamiento
 
@@ -220,49 +236,55 @@ docker run --rm gestorhogwarts-javafx
 
 El build usa `maven:3.9-eclipse-temurin-17` y la imagen final
 `eclipse-temurin:17-jre-jammy` con Xvfb: la ventana se pinta en un X virtual, así que
-el contenedor **arranca sin servidor gráfico** (si la API no está, muestra el aviso de
-conexión y sigue vivo). Para ver la interfaz en el host hay que montar un X11
-(X410/VcXsrv en Windows); el objetivo del contenedor es el despliegue reproducible,
-no sustituir al JAR nativo. Para inyectar la URL:
+el contenedor está preparado para iniciar sin servidor gráfico del anfitrión.
+Su comando de inicio usa una pantalla virtual; no ofrece una ventana visible ni
+acceso remoto a ella. Para mostrarla en un servidor X11 externo habría que configurar
+el display y sustituir el comando `xvfb-run` del contenedor. Para uso interactivo
+local, utiliza el JAR de tu plataforma. Para inyectar la URL de una API accesible
+desde el contenedor:
 `docker run --rm -e GESTOR_API_URL=https://tu-api-aqui.com gestorhogwarts-javafx`
 (o monta un `config.properties` con `-v`).
 
-> **Nota de verificación:** el Dockerfile está revisado y su `CMD` probado en local
-> con los mismos Java y JAR, pero el `docker build` **no se ha ejecutado en este
-> entorno** (el demonio de Docker estaba apagado); ejéctutalo tú en el paso 1.
+> **Pendiente de verificación:** en la revisión del 21/10/2026 no se han ejecutado
+> `docker build` ni `docker run`. La presencia del Dockerfile no acredita un despliegue
+> probado ni una interfaz visible desde el equipo anfitrión.
 
 ### f) Sin API levantada
 
-La aplicación **arranca igual**: la pantalla de estado muestra el error de conexión con
-su `request-id` y no se cierra (comportamiento verificado).
+El cliente contempla el fallo de conexión y lo presenta con un `request-id`.
+Las pruebas HTTP comprueban conexión rechazada y timeout. La revisión actual no
+incluye una sesión manual de arranque sin API.
 
 ---
 
 ## 6. Comandos Maven útiles
 
-Todos estos comandos se han verificado en este entorno con `EXIT=0`:
+Ejecuta los comandos desde la carpeta `gestorhogwartsjavafx/` con Maven disponible.
+El resultado de la revisión del 21/10/2026 se distingue de los comandos de uso:
 
-| Comando | Qué hace |
+| Comando | Función y estado de comprobación |
 |---|---|
-| `mvn clean package` | Limpia, compila, ejecuta las **100 pruebas** y genera el fat JAR en `target/`. |
-| `mvn test` | Solo pruebas (Surefire). Fija `gestor.idioma=es` para que sean independientes del equipo. |
-| `mvn clean javafx:run` | Compila y abre la ventana en desarrollo. |
-| `mvn dependency:resolve` | Descarga/comprueba todas las dependencias (útil para el primer build o para CI). |
-| `mvn javadoc:javadoc` | Genera la Javadoc en `target/reports/apidocs/index.html`. |
-| `mvn site` | Genera el informe del sitio en `target/site/index.html` (aviso inofensivo de anclas XHTML). |
-| `mvn clean` | Borra `target/` (build completo limpio antes de empaquetar). |
+| `mvn verify` | **Correcto:** compila, ejecuta 100 pruebas sin fallos ni errores y genera el fat JAR. No se hizo `clean` en esta ejecución. |
+| `mvn clean package` | Comando para regenerar la entrega desde cero; no repetido por separado en esta revisión. |
+| `mvn test` | Surefire fija `gestor.idioma=es`; sus 100 pruebas se ejecutaron dentro de `verify`. |
+| `mvn clean javafx:run` | Lanzamiento interactivo en desarrollo; no repetido en esta revisión. |
+| `mvn dependency:resolve` | Resolución explícita de dependencias; no repetida por separado. |
+| `mvn javadoc:javadoc` | **Correcto:** genera `target/reports/apidocs/index.html`. |
+| `mvn site` | Genera `target/site/index.html` y termina con `BUILD SUCCESS`, pero omite el informe `dependency-info` por un `LinkageError` entre plugins. Pendiente de corregir en el POM. |
+| `mvn clean` | Limpia artefactos generados en `target/`. |
 
 - **Perfiles de plataforma** (se activan solos según el SO; se pueden forzar con
   `-P`): `win`, `linux`, `mac`, `mac-aarch64`. Sirven para empaquetar los binarios
   JavaFX de otro sistema desde esta máquina.
-- Las pruebas **no arrancan el toolkit JavaFX** (usan ejecutores síncronos y un doble
-  del cliente) y son deterministas: doble de cliente HTTP, mapeo de DTOs, validaciones,
-  servicio, fábrica, `ConfigLoader`, idiomas, catálogo de patronus y viewmodels —
-  12 clases, 100 pruebas.
-- Ruta larga si Maven no está en el `PATH`:
+- Las 100 pruebas JUnit se distribuyen en 12 clases y **no arrancan el toolkit JavaFX**.
+  Cubren el doble de cliente, DTOs, validaciones, servicio, fábrica, configuración,
+  idiomas, catálogo y viewmodels. `ClienteAlumnosHttpTest` usa sockets locales para
+  comprobar fallos de red; el conjunto no certifica CRUD contra la API real.
+- Si Maven no está en el `PATH`, configura su instalación o utiliza su ruta real.
+  Ejemplo PowerShell con una ruta que debes sustituir por la de tu equipo:
 
   ```powershell
-  & 'C:\Users\dm2\Documents\Reto01-Omni3\tools\apache-maven-3.9.11\bin\mvn.cmd' -f '.\pom.xml' clean package
+  & 'C:\RUTA_A_MAVEN\bin\mvn.cmd' -f '.\pom.xml' verify
   ```
 
 ---
@@ -273,7 +295,7 @@ Todos estos comandos se han verificado en este entorno con `EXIT=0`:
 gestorhogwartsjavafx/
 ├── pom.xml                      build: perfiles multiSO, shade (fat JAR), surefire
 ├── README.md                    este documento
-├── docs/00-contrato-tecnico.md  fuente de verdad del desarrollo
+├── docs/00-contrato-tecnico.md  requisitos de referencia y diferencias actuales
 ├── config.properties.example    plantilla versionada (la real va en .gitignore)
 ├── Dockerfile · run.bat · run.sh despliegue y lanzamiento rápido
 └── src/
@@ -299,13 +321,13 @@ gestorhogwartsjavafx/
 
 **Por qué así:**
 
-- **Reparto del contrato (§7):** las vistas son solo FXML/CSS (`vista/`), los
-  controladores solo Java (`controlador/`) y cada paquete tiene su zona; nadie invade
-  la carpeta de otro.
-- **MVVM en tres capas:** `controlador` → `viewmodel` (propiedades observables) →
+- **Organización actual:** vistas FXML/CSS en `vista/`, controladores Java en
+  `controlador/` y paquetes separados por responsabilidad. Las diferencias con las
+  rutas y vistas previstas inicialmente constan en el contrato anotado.
+- **Separación por responsabilidades:** `controlador` → `viewmodel` (propiedades observables) →
   `servicio` → `api` → la respuesta vuelve con
-  `Platform.runLater` al viewmodel y de ahí a la vista. **El hilo de JavaFX nunca se
-  bloquea**: toda llamada de red va en un `ExecutorService`.
+  `Platform.runLater` al viewmodel y de ahí a la vista. Las operaciones de la API
+  se despachan en un `ExecutorService` para no ejecutarlas en el hilo de interfaz.
 - **Una sola puerta a la API:** la interfaz `ClienteAlumnos` con una única
   implementación HTTP (`ClienteAlumnosHttp`); el doble `ClienteAlumnosFalso` vive en
   `src/test` y **no se empaqueta**.
@@ -342,29 +364,36 @@ flowchart LR
 | `java.net.http.HttpClient` | incluido en el JDK | Cliente HTTP moderno y suficiente (timeouts, HTTP/2); cero dependencias extra. |
 | `maven-shade-plugin` | 3.5.1 | Fat JAR con `Main-Class=Launcher`; Launcher evita el error «JavaFX runtime components are missing» de hacer `java -jar` sobre `Application`. |
 | `javafx-maven-plugin` | 0.0.8 | `mvn javafx:run` en desarrollo. |
-| JUnit Jupiter | 5.10.3 | Pruebas unitarias sin arrancar JavaFX ni la red (doble falso). |
+| JUnit Jupiter | 5.10.3 | Pruebas sin arrancar JavaFX; incluyen doble del cliente y comprobaciones HTTP con sockets locales. |
 | Sin module-info | classpath | Empaquetado simple y compatible con shade; el aviso «unnamed module» al lanzar es cosmético (§11). |
 | `util/Registro` propio | fichero `gestor-hogwarts.log` | Registro UTF-8 en apéndice sin añadir log4j/slf4j; cero dependencias. |
 | Bundles `ResourceBundle` | 4 ficheros | i18n estándar del JDK, sin frameworks; `config.properties` aparte (§10). |
 
 - **Patrón MVVM:** los viewmodels exponen `Property` de JavaFX; la vista solo traduce
   estado visible. Nunca hay lógica de negocio ni red en los FXML.
-- **Sistema de diseño «dark academia»:** tokens documentados y clases semánticas en
-  `tema.css` (§5 del contrato); sin colores hex sueltos en FXML/Java, contraste AA,
-  tipografías Cinzel/Cormorant incluidas en el JAR.
-- **Configuración por entorno (12-factor)** en vez de campo editable en la UI: la URL
-  vive fuera del código (§4) y no cambia entre compilaciones.
-- **Logger condicional propio:** los puntos de log se mantienen (`aviso`, `info`,
-  `error` con traza) y todo `System.out/err` de depuración fue sustituido por
-  `Registro` (§9).
+- **Sistema de diseño «dark academia»:** clases semánticas en `tema.css` y
+  tipografías Cinzel/Cormorant incluidas en el JAR. Difiere de la paleta «azul tenue»
+  del contrato. Hay un color literal en `ControladorVista` para el fondo de diálogos;
+  no se ha medido el contraste AA en esta revisión.
+- **Configuración externa:** la URL de despliegue se configura sin recompilar (§4).
+  El código conserva `http://127.0.0.1:8000` como respaldo local.
+- **Registro propio:** escribe `info`, `aviso` y `error` en fichero y consola (§9).
+  No dispone de nivel debug ni de auditoría completa de operaciones CRUD.
 
-**Limitaciones heredadas de la API (no son fallos del cliente):**
+**Límites de la implementación y diferencias pendientes con el contrato:**
 
 - La fuente (`casa`) no es editable: la API identifica la base con la que responde.
-- El backend no versiona: `version = 0`, no hay `409` por concurrencia real.
+- El backend no versiona: el DTO HTTP usa `version = 0` y el modelo la normaliza a 1;
+  ninguno de esos valores acredita control de concurrencia. PUT no envía el estado previo.
+- La baja es física, también en MariaDB. El campo `activo` del modelo no implementa
+  borrado lógico en el backend.
+- La pantalla Estado consulta `/alumnos`; no hay `/health`, conectores ni
+  sincronización en este cliente y su API principal.
 - `GET /alumnos` devuelve el listado completo: filtro, búsqueda y paginación se aplican
   en el cliente.
-- No hay autenticación ni nube: añadirlas serían cambios de alcance (§2 del contrato).
+- Autenticación y nube figuran fuera de alcance en el contrato de referencia.
+  Las otras diferencias requieren implementación o una modificación de requisitos
+  expresamente aprobada; no se ha encontrado esa aprobación en la documentación revisada.
 
 ---
 
@@ -374,16 +403,19 @@ flowchart LR
 
 - **Cuatro bundles** en `src/main/resources/i18n/`:
   `messages.properties` (base **inglesa**, red de seguridad), `messages_es.properties`,
-  `messages_eu.properties` y `messages_en.properties`; **135 claves idénticas** en los
-  cuatro ficheros (0 faltantes; 133 usadas por la interfaz).
-- En **FXML** los textos son `%clave` (`text="%boton.aceptar"`); en **Java**,
+  `messages_eu.properties` y `messages_en.properties`; **150 claves con los mismos
+  nombres** en los cuatro ficheros, comprobadas el 21/10/2026.
+- En **FXML** los textos traducibles son `%clave` (`text="%boton.buscar"`); en **Java**,
   `Idiomas.texto("clave", …)` (con `MessageFormat` para los parámetros).
 - **Idioma inicial:** sigue al del sistema cuando es `es`, `eu` o `en`; cualquier otro
   locale cae a inglés. Se fuerza con `-Dgestor.idioma=es|eu|en` (lo usan las pruebas).
 - **Cambio en caliente** con el desplegable de la barra de estado (`ES`/`EU`/`EN`):
-  cambia los textos de la pantalla visible sin reiniciar ni perder datos.
-- Si apareciera una clave no traducida se vería `!clave!` o un
-  `MissingResourceException`: la solución está en §11.
+  reconstruye la raíz y restaura la pantalla visible. No se ha verificado conservar
+  búsquedas, selección o formularios sin guardar; termina las ediciones antes de cambiar.
+- La revisión cargó las cuatro vistas en cada uno de los tres idiomas desde el JAR
+  generado: 12 cargas correctas. No equivale a revisar visualmente todas las pantallas.
+- Una clave ausente incluso en el bundle base puede producir
+  `MissingResourceException` o un error de carga FXML: véase §11.
 
 ### Logs
 
@@ -391,7 +423,7 @@ flowchart LR
   también se replica en consola. Si el disco no permite escribir, el aviso va a
   `System.err` y la app continúa.
 - Puntos de registro (`util/Registro`): `aviso`, `info`, `error` (con traza de la
-  excepción). Ejemplos reales:
+  excepción). Ejemplos de formato:
 
   ```text
   …INFO  URL de la API resuelta desde fichero config.properties
@@ -400,23 +432,31 @@ flowchart LR
   …ERROR Fallo de red al consultar la API (petición 22f5d0b0-…)
   ```
 
-- El registro escribe el **origen** de la configuración, **nunca el valor**; los
-  mensajes no incluyen credenciales (§10), los DNI van enmascarados y cada petición
-  arrastra su `request-id`.
+- `ConfigLoader` registra el **origen** de la configuración, sin escribir su valor.
+  El cliente registra los fallos de red con `request-id`; no registra sistemáticamente
+  consultas, altas, modificaciones, bajas correctas ni errores HTTP. No permite
+  reconstruir toda la actividad. Las trazas se copian sin saneamiento general (§10).
+
+### Pruebas manuales del equipo
+
+El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](../docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
+La lista siguiente describe los mecanismos de accesibilidad presentes y los puntos concretos aún por documentar o corregir.
 
 ### Accesibilidad
 
-- **Tooltips** en todos los botones: 24 en los FXML (`%tooltip.*`) más los de los
-  diálogos y del icono de la aplicación.
-- **Mnemónicos** (`mnemonicParsing="true"`, 5 nodos) y **enlaces etiqueta↔campo**
-  (`labelFor`, 5 en el formulario) resueltos en `FormularioAlumnoController`.
-- **Campos con texto de ayuda** (`promptText`, 5: búsquedas y guías de cada campo).
+- **Tooltips** declarados en los FXML y añadidos a botones de diálogo desde los
+  controladores. Comprobados en Buscar, Limpiar, Nuevo alumno, Editar y Dar de baja.
+- **Mnemónicos y etiquetas:** hay `mnemonicParsing` y cuatro enlaces `labelFor` en el
+  formulario. Los cinco botones anteriores no tienen marcador `_` en sus textos y
+  carecen de mnemónico, aunque algunas acciones sí tienen atajo.
+- **Campos con texto de ayuda** mediante `promptText`.
 - **Atajos de teclado:** `Ctrl`/`⌘` + `N` (alumno nuevo), `Ctrl`/`⌘` + `F` (buscar) y
-  `F1` (ayuda).
-- **Dimensiones mínimas** (`minWidth`/`minHeight`) y ventana redimensionable: el
-  contenido no se corta al reducirla.
-- Contraste AA y foco visible definidos en `tema.css`; la interfaz se puede recorrir
-  con teclado.
+  `Ctrl`/`⌘` + `Supr` (baja), `Ctrl`/`⌘` + `1`/`2` (Estado/Alumnos) y `F1` (ayuda).
+- **Dimensiones mínimas:** ventana principal de 640 × 480 y formulario de 480 × 460;
+  los tamaños mínimos y los contenedores flexibles no sustituyen una prueba visual
+  de redimensionado, escalado del sistema y navegación por teclado.
+- El CSS define estilos de foco; falta documentar la comprobación específica y la
+  medición de contraste antes de afirmar conformidad AA o presentación perfecta.
 
 ---
 
@@ -426,8 +466,8 @@ flowchart LR
 
   | Garantía | Dónde está |
   |---|---|
-  | Fuera de git | `.gitignore` del módulo y de la raíz (`config.properties`) |
-  | Fuera de `target/` | `maven-resources-plugin` → `<excludes>` en `pom.xml` |
+  | Ignorado por Git | `.gitignore` del módulo (`config.properties`) |
+  | Fuera de los recursos copiados a `target/classes/` | `maven-resources-plugin` → `<excludes>` en `pom.xml` |
   | Fuera del fat JAR | filtro de `maven-shade-plugin` en `pom.xml` |
   | Fuera de la imagen | `.dockerignore` |
   | Plantilla versionada | `config.properties.example` (valor de ejemplo, sin secreto) |
@@ -443,17 +483,21 @@ flowchart LR
 - **La URL real no aparece en el código:** la única URL escrita en Java es la local de
   desarrollo `http://127.0.0.1:8000` (`ConfigApi.URL_POR_DEFECTO`), usada por
   `porDefecto()` y por el aviso de respaldo.
-- **Mensajes sin secretos:** el aviso de configuración solo explica cómo crear el
-  fichero (sin imprimir ninguna URL ajena); el registro anota el *origen* resuelto y
-  jamás el valor. Los DNI se enmascaran (`12***78A`) y toda respuesta queda ligada a su
-  `request-id`.
+- **Límite del tratamiento de mensajes:** el aviso inicial evita imprimir el valor
+  configurado y el registro de carga anota su origen. Los mensajes de fallo de red sí
+  incluyen la URL base; algunas respuestas y trazas conservan el detalle original.
+  No se deben introducir credenciales en la URL ni afirmar que existe un filtro
+  general de secretos o DNI. El backend no registra ni propaga el `request-id` del cliente.
 - **Cabeceras:** el cliente envía `ngrok-skip-browser-warning` (cabecera pública de
   ngrok, sin credenciales) para que el túnel no interponga su página de aviso.
 - **Sin autenticación:** fuera de alcance según el contrato; no hay usuarios, tokens ni
   claves en el cliente.
-- **Recomendaciones operativas:** nunca subas tu `config.properties` (por eso está en
-  `.gitignore`); si una URL con credenciales llega a filtrarse en el historial de git,
-  rota el túnel/credenciales y limpia el historial con `git filter-repo` o BFG.
+- **Comprobación del 21/10/2026:** el JAR generado no contiene `config.properties` ni
+  `ClienteAlumnosFalso`. No se encontraron credenciales reales en el módulo revisado;
+  esto no equivale a auditar todo el repositorio y su historial.
+- **Recomendaciones operativas:** mantén `config.properties` fuera de Git. Ante una
+  filtración confirmada, revoca o rota primero las credenciales y coordina la retirada
+  del contenido y, si procede, del historial con el equipo.
   La API documenta su propia configuración secreta (`.env`) en el
   [README de la raíz](../README.md).
 
@@ -464,31 +508,34 @@ flowchart LR
 | Síntoma | Causa probable | Solución |
 |---|---|---|
 | Aviso **«No se pudo cargar la configuración de la API»** al arrancar | No hay `config.properties` ni variables | Copia `config.properties.example` a `config.properties` junto al JAR o en el directorio de trabajo y rellena `api.url` (§4). La app sigue abierta con la API local. |
-| **«No se pudo contactar con la API en http://127.0.0.1:8000 (conexión rechazada)»** | La API no está levantada o la URL es otra | Levanta la API y comprueba con `curl /alumnos`; si vive en otro sitio, cambia `api.url` (§4) y pulsa «Comprobar ahora». |
-| Textos con **`!clave!`** o `MissingResourceException` | Falta una clave en algún bundle | Añade la clave a **los cuatro** ficheros de `src/main/resources/i18n/` (base, `_es`, `_eu`, `_en`) con el mismo nombre y vuelve a compilar. |
+| **«No se pudo contactar con la API en http://127.0.0.1:8000 (conexión rechazada)»** | La API no está levantada o la URL es otra | Levanta la API y comprueba `curl http://127.0.0.1:8000/alumnos`. Si cambia la URL, modifica `api.url` (§4) y reinicia el cliente para recargar la configuración. |
+| `MissingResourceException` o error al cargar textos FXML | Falta una clave incluso en el bundle base | Añade la clave a los cuatro ficheros de `src/main/resources/i18n/` con sus traducciones y vuelve a compilar. |
 | Error al cargar un FXML («Controller … not found», campo nulo) | Ruta o `fx:id` desalineados | Las vistas se cargan desde `ControladorVista.RUTA_VISTAS` = `/com/omni3/gestorhogwartsjavafx/vista/fxml/`; `fx:id` y `fx:controller` deben coincidir con el controlador. |
 | **«JavaFX runtime components are missing»** | Se lanzó `App` con un classpath incompleto | Usa `mvn javafx:run` o el fat JAR (su `Main-Class` es `Launcher`, §5). |
 | `Unsupported JavaFX configuration: classes were loaded from 'unnamed module'` | Aviso de JavaFX con classpath (sin module-info) | Cosmético e inofensivo; documentado como decisión en §8. |
-| `WARNING: … System::load … / Restricted methods` | Java moderno pide `--enable-native-access` al cargar librerías nativas | Solo avisos de la JDK; no afectan al funcionamiento. |
-| **`mvn` no se reconoce** | Maven no está en el `PATH` | Usa la ruta completa de `../tools/apache-maven-3.9.11/bin/mvn.cmd` (§6). |
+| `WARNING: … System::load … / Restricted methods` | Java moderno avisa sobre acceso nativo | La carga FXML pasó con JDK 25.0.2 pese al aviso. Para ese JDK puede usarse `java --enable-native-access=ALL-UNNAMED -jar target/gestorhogwartsjavafx-1.0.0.jar`; no se garantiza el comportamiento de futuras versiones. |
+| **`mvn` no se reconoce** | Maven no está en el `PATH` | Instala Maven 3.9+ y configura `PATH`, o usa la ruta real del Maven de tu IDE (§3 y §6). |
+| `mvn site` termina pero omite `dependency-info` | Incompatibilidad entre el plugin de informes y Doxia (`Sink.verbatim()`) | El sitio se genera parcialmente. La corrección requiere ajustar versiones en `pom.xml`; sigue pendiente. |
 | `java -version` informa de algo menor que 17 | JDK antiguo o `JAVA_HOME` mal apuntando | Instala Temurin 17+ (§2–§3) y reabre la terminal. |
 | Fallan pruebas tras un cambio grande | Artefactos de `target/` desactualizados | `mvn clean test`. |
 | El log `gestor-hogwarts.log` no aparece | El directorio de trabajo es de solo lectura | Lanza desde una carpeta con permisos de escritura; el error también va a consola. |
-| Docker: build no probado o ventana invisible | Demonio apagado / Xvfb es virtual | Activa Docker y ejecuta los comandos de §5e; para ver la ventana monta un X11. |
+| Docker: build no probado o ventana invisible | Demonio apagado / Xvfb usa una pantalla virtual | Comprueba Docker y los comandos de §5e. El inicio actual no muestra una ventana en el anfitrión; usa el JAR para la ejecución interactiva local. |
 | curl devuelve HTML en vez de JSON (túnel ngrok) | Página interstitial de ngrok-free | Añade `-H "ngrok-skip-browser-warning: 1"` (el cliente ya la envía siempre). |
-| Aparece una carpeta `tests-pendientes/` local | Material de trabajo no versionado | Fuera del alcance de este repositorio; no forma parte del build. |
 
 ---
 
 ## 12. Autores y licencia
 
-- **Desarrollo principal:** [jairoben](https://github.com/koldoaso) — Jairo Ben
-  (`jairoben` en `pom.xml`, autor de la práctica totalidad de los commits).
-- **Colaboraciones:** henritejada2006 y koldoaso (proprietario del repositorio).
-- **Repositorio:** <https://github.com/dm2-ethazi/Reto01-Omni3> — rama `javafxapp`.
+- **Desarrollo principal del cliente:** [jairoben](https://github.com/jairoben) — Jairo Ben,
+  identificado como desarrollador en `pom.xml`.
+- **Equipo Omni3:** [henritejada2006](https://github.com/henritejada2006) y
+  [koldoaso](https://github.com/koldoaso), junto a Jairo.
+- **Repositorio de la organización:** <https://github.com/dm2-ethazi/Reto01-Omni3>.
+  La entrega integrada está en `main`; `javafxapp` conserva la rama de origen del cliente.
 - **Documentación relacionada:**
   [contrato técnico del cliente](docs/00-contrato-tecnico.md) ·
-  [README de la API](../README.md).
+  [README de la API](../api/README.md) · [README general](../README.md) ·
+  [revisión de JavaFX](../docs/javafx-review.md).
 
 **Licencia:** el repositorio **no incluye fichero `LICENSE`**, así que no se declara
 licencia formal: el código forma parte del Reto R01 · Omni3 y sus autores conservan

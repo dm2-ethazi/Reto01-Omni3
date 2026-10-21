@@ -4,6 +4,13 @@
 > Basado en: *Propuesta técnica R01 v5* + *Convenio de colaboración Omni3 · Hogwarts*.
 > Si este documento y una implementación discrepan, **gana este documento**.
 
+> **Estado documental del 21/10/2026:** los apartados 1–7 conservan los requisitos
+> de referencia, no una certificación de cumplimiento de la entrega. La implementación
+> actual difiere en los puntos recogidos en el apartado 9. Esta anotación no cambia
+> los requisitos ni acredita la aprobación del cliente. El
+> [README del módulo](../README.md) describe el uso actual y la
+> [revisión de JavaFX](../../docs/javafx-review.md) detalla las comprobaciones.
+
 ---
 
 ## 1. Entorno de referencia (extraído de los PDFs)
@@ -183,14 +190,39 @@ gestorhogwartsjavafx/
 
 ## 8. Verificación obligatoria (todos los workers)
 
-```powershell
-& 'C:\Users\dm2\Documents\Reto01-Omni3\tools\apache-maven-3.9.11\bin\mvn.cmd' `
-  -f 'C:\Users\dm2\Documents\Reto01-Omni3\gestorhogwartsjavafx\pom.xml' test -q
-# EXIT=0 es obligatorio. Sin él, la tarea NO está terminada.
+Desde la raíz del repositorio, con JDK 17+ y una instalación externa de Maven 3.9+
+disponible en `PATH`:
+
+```bash
+mvn -f gestorhogwartsjavafx/pom.xml test -q
 ```
+
+`EXIT=0` es obligatorio para las pruebas. El repositorio actual no incluye la
+instalación de Maven de las antiguas rutas personales. Para verificar también el
+empaquetado, usa `mvn -f gestorhogwartsjavafx/pom.xml verify`.
 
 Reglas:
 - **Nada de `System.out`** para estado de UI → usar `javafx.application.Platform.runLater` desde hilos de red.
 - **Nunca** bloquear el hilo FX: toda llamada a `api/` va en `Thread`/`ExecutorService` y vuelve con callback o `CompletableFuture`.
 - Código, Javadoc y mensajes **en español**.
 - Sin comentarios sobredimensionados; Javadoc en clases y métodos públicos.
+
+## 9. Correspondencia con la entrega actual · 21/10/2026
+
+| Requisito de referencia | Implementación observada | Estado |
+|---|---|---|
+| Consulta y CRUD por la API común (§2–§3) | HTTP contra `/alumnos` y `/patronus`; las rutas `/students` del contrato no están publicadas por la API principal. | Adaptación al backend actual; contrato HTTP distinto. |
+| Edición con estado previo y conflicto 409 (§2.3) | PUT envía nombre, apellido y patronus, sin versión ni estado previo. La interfaz puede ofrecer recarga ante un 409, pero la API no detecta concurrencia. | Pendiente. |
+| Baja lógica de nuevos alumnos (§2.4) | DELETE elimina físicamente el registro, también en MariaDB. El atributo `activo` del cliente no cambia esa operación. | Pendiente. |
+| Salud `/health`, conectores, sincronización y cola (§2.5 y §3) | Estado comprueba `GET /alumnos`. La API principal no publica esas rutas y el cliente no ofrece las pantallas de conectores/sincronización. | Pendiente; las funciones del prototipo no las sustituyen. |
+| `request-id` y DNI enmascarado en logs (§2.6) | El cliente genera la cabecera; hay enmascarado en mensajes de negocio. No hay saneamiento general de trazas ni correlación persistida por el backend. | Parcial. |
+| Sin variables de entorno de configuración (§3) | Se admiten `GESTOR_API_URL`, propiedad Java y `config.properties`. | Diferencia con el requisito de referencia. |
+| Modelo de dominio (§4) | Record inmutable con validaciones y normalización. Los metadatos de versión y activo no están respaldados por control de concurrencia o baja lógica en el servidor. | Implementación parcial del comportamiento previsto. |
+| Paleta azul tenue y ausencia de colores literales en Java (§5) | Tema «dark academia» y un color literal para el fondo de diálogos en `ControladorVista`. | Diferencia de diseño sin aprobación acreditada en esta revisión. |
+| Identificadores y vistas originales (§6–§7) | Hay cuatro FXML en `vista/fxml/`; se retiraron campo de URL, navegación y vistas de conectores/sincronización. | Estructura actual distinta; consultar el README para sus rutas. |
+| Verificación (§8) | `mvn verify`: 100 pruebas correctas y JAR generado. Javadoc correcto; `mvn site` omite un informe por incompatibilidad de plugins. | Pruebas automáticas registradas y pruebas manuales en dispositivos confirmadas por el equipo; Docker pendiente de verificación. |
+
+No se han revisado los PDF firmados originales en esta comprobación. Para cerrar
+las diferencias funcionales se necesita implementar lo requerido o incorporar una
+modificación de requisitos aprobada por el cliente; cambiar la documentación por sí
+solo no acredita ese cumplimiento.
