@@ -5,7 +5,7 @@ plugins {
 
 val apiBaseUrl = providers.gradleProperty("omni3ApiUrl")
     .orElse(providers.environmentVariable("GESTOR_API_URL"))
-    .getOrElse("http://10.0.2.2:8000")
+    .getOrElse("https://curator-caliber-magma.ngrok-free.dev")
     .trimEnd('/')
 
 android {

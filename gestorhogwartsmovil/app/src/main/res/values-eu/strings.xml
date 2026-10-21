@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Hogwarts Kudeatzaile Mugikorra</string>
     <string name="buscar">Bilatu</string>
-    <string name="api_url_hint">APIaren URLa</string>
+    <string name="api_url_hint">APIaren URLa (lehenetsia: http://10.0.2.2:8000)</string>
     <string name="api_url_apply">Aplikatu</string>
     <string name="api_url_invalid">Sartu baliozko HTTP edo HTTPS URL bat.</string>
     <string name="api_url_loading">Itxaron uneko eskaera amaitu arte.</string>
