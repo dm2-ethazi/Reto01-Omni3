@@ -11,6 +11,8 @@ import oracledb
 
 from .base import COLUMNAS_ALUMNO_SQL, Alumno, AlumnoActualizacion, campos_a_actualizar, fila_a_alumno
 
+__author__ = "Henri Tejada"
+
 
 class RepositorioOracle:
     """Repositorio de alumnos para la base de datos Oracle de Ravenclaw.

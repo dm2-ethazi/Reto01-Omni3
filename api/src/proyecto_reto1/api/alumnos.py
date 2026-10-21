@@ -29,6 +29,8 @@ from ..db.base import (
 from ..db.factory import obtener_repositorios
 from ..db.mariadb import RepositorioMariaDB
 
+__author__ = "Henri Tejada"
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()

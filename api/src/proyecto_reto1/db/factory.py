@@ -15,6 +15,8 @@ from .hsqldb import RepositorioHSQLDB
 from .mariadb import RepositorioMariaDB
 from .oracle import RepositorioOracle
 
+__author__ = "Henri Tejada"
+
 # Drivers JDBC necesarios para cada motor.
 _JARS = {
     "h2": ("h2.jar",),

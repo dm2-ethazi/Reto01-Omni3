@@ -6,3 +6,5 @@
 - `oracle.py`, `mariadb.py`, `h2.py`, `hsqldb.py`, `derby.py`: un
   repositorio por motor.
 """
+
+__author__ = "Henri Tejada"

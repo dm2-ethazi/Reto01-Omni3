@@ -12,6 +12,8 @@ Arranque:
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
+__author__ = "Henri Tejada"
+
 app = FastAPI(title="API Tareas")
 
 

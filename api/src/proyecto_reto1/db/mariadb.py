@@ -23,6 +23,8 @@ from .base import (
     texto,
 )
 
+__author__ = "Henri Tejada"
+
 
 class RepositorioMariaDB:
     """Repositorio de alumnos para la base de datos MariaDB (r01_central).

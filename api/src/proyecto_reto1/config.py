@@ -12,6 +12,8 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+__author__ = "Henri Tejada"
+
 # Ruta raíz del proyecto api/ (donde está .env y jars/)
 _API_DIR = Path(__file__).resolve().parent.parent.parent
 _ENV_PATH = _API_DIR / ".env"

@@ -18,6 +18,8 @@ from typing import Protocol
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+__author__ = "Henri Tejada"
+
 # --------------------------------------------------------------------------- #
 #  1. Modelos Pydantic                                                        #
 # --------------------------------------------------------------------------- #

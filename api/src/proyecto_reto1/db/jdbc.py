@@ -32,6 +32,8 @@ from .base import (
     fila_a_alumno,
 )
 
+__author__ = "Henri Tejada"
+
 
 # --------------------------------------------------------------------------- #
 #  Arranque de la JVM                                                         #

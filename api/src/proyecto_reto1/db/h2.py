@@ -3,8 +3,9 @@
 Hereda toda la implementación JDBC de `RepositorioJDBC`.
 """
 
-
 from .jdbc import RepositorioJDBC
+
+__author__ = "Henri Tejada"
 
 
 class RepositorioH2(RepositorioJDBC):

@@ -9,6 +9,8 @@ Estructura del paquete:
 - `db/`: modelos, protocolo y repositorios de cada motor.
 """
 
+__author__ = "Henri Tejada"
+
 
 def main() -> None:
     """Arranca la API con Uvicorn (ejecutable `proyecto-reto1`)."""

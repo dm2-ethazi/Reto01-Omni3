@@ -8,6 +8,8 @@ from fastapi import FastAPI
 
 from .api.alumnos import router as router_alumnos
 
+__author__ = "Henri Tejada"
+
 app = FastAPI(
     title="API Alumnos",
     description=(
