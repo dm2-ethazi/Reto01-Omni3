@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Pruebas del fallo de red del cliente HTTP: el mensaje que ve el usuario
  * debe ser entendible y con el request-id de la petición.
+ * @author jairoben
  */
 class ClienteAlumnosHttpTest {
 

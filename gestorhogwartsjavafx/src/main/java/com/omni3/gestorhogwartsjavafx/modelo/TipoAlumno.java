@@ -9,6 +9,7 @@ import java.util.Optional;
  * <p>Los alumnos históricos proceden de las bases de origen y siempre
  * llevan casa; los alumnos nuevos se dan de alta en la central MariaDB,
  * con patronus obligatorio y sin casa.</p>
+ * @author jairoben
  */
 public enum TipoAlumno {
 

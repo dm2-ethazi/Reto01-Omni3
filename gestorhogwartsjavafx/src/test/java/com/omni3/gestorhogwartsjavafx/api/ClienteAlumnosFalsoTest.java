@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Pruebas del doble de pruebas de ClienteAlumnos (§3 del contrato): consultas con
  * fuente de origen, alta, duplicidad, conflicto de concurrencia 409,
  * baja lógica y salud con identificador R01. Sin llamadas de red.
+ * @author jairoben
  */
 @DisplayName("ClienteAlumnosFalso")
 class ClienteAlumnosFalsoTest {

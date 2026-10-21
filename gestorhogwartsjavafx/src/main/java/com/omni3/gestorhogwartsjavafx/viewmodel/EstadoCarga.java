@@ -6,6 +6,7 @@ package com.omni3.gestorhogwartsjavafx.viewmodel;
  * <p>La vista solo lee este enumerado: nunca interpreta errores de red ni
  * decide como pintarlos. Cada viewmodel publica ademas su mensaje de error
  * en espanol y su codigo de negocio.</p>
+ * @author jairoben
  */
 public enum EstadoCarga {
 

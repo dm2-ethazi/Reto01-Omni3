@@ -5,6 +5,7 @@ import java.util.Optional;
 /**
  * Resultado inmutable de una validación: o es válido o lleva un mensaje
  * de error en español listo para mostrar al usuario.
+ * @author jairoben
  */
 public final class ResultadoValidacion {
 

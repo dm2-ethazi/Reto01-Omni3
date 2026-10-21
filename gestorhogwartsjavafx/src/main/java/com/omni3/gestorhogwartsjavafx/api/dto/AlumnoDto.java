@@ -28,6 +28,7 @@ import java.time.format.DateTimeParseException;
  * @param activo        {@code false} cuando el alumno está de baja lógica
  * @param patronusUrl   URL de la imagen del patronus (catálogo PATRONUS_IMG)
  * @param imagen        URL o ruta de la imagen del propio alumno
+ * @author jairoben
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AlumnoDto(

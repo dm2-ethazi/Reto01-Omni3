@@ -23,6 +23,7 @@ import javafx.beans.property.StringProperty;
  * API responde 409 la pantalla pasa a {@link EstadoCarga#CONFLICTO} con el
  * mensaje correspondiente y <strong>no se sobrescribe nada</strong>: la
  * vista ofrece recargar la ficha con {@link #recargar()}.</p>
+ * @author jairoben
  */
 public class EdicionViewModel extends ViewModelBase implements FormularioAlumno {
 

@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
  * <p>Permite que un único controlador de diálogo gestione ambos casos
  * —cargar, validar, guardar y recuperarse de un conflicto de
  * concurrencia— sin distinguir el tipo de viewmodel.</p>
+ * @author jairoben
  */
 public interface FormularioAlumno {
 

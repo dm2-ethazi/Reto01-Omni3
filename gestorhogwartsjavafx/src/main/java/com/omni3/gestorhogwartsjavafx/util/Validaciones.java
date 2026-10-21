@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  *
  * <p>Regla de enmascarado de DNI para logs (§2.6): nunca se muestra un
  * DNI completo. Ver {@link #enmascararDNI(String)}.</p>
+ * @author jairoben
  */
 public final class Validaciones {
 

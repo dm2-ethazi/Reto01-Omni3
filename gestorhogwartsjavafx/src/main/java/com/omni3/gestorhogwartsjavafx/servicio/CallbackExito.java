@@ -10,6 +10,7 @@ package com.omni3.gestorhogwartsjavafx.servicio;
  * sin bloquear la interfaz (§8 del contrato).</p>
  *
  * @param <T> tipo de resultado que entrega la operacion
+ * @author jairoben
  */
 @FunctionalInterface
 public interface CallbackExito<T> {

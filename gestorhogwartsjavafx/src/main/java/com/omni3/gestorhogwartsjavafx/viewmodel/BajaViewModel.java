@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
  * muestra el resultado: la confirmación es responsabilidad del
  * controlador, que invoca {@link #bajar(String, Runnable)} una vez el
  * usuario ha confirmado.</p>
+ * @author jairoben
  */
 public class BajaViewModel extends ViewModelBase {
 

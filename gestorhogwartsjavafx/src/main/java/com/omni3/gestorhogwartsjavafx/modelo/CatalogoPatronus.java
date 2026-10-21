@@ -16,6 +16,7 @@ import java.util.Optional;
  * autocompletado y la validación del formulario. Permite buscar por
  * nombre exacto y filtrar sugerencias. La comparación de textos ignora
  * mayúsculas y acentos.</p>
+ * @author jairoben
  */
 public final class CatalogoPatronus {
 

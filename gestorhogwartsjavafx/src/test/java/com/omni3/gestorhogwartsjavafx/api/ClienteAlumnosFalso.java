@@ -31,6 +31,7 @@ import java.util.UUID;
  *
  * <p>Todos los métodos son {@code synchronized} porque las pruebas
  * pueden consultar y modificar desde varios hilos de fondo.</p>
+ * @author jairoben
  */
 public class ClienteAlumnosFalso implements ClienteAlumnos {
 

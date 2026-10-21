@@ -20,6 +20,7 @@ import java.util.Locale;
  * origen, la lista resultante y los estados vacío/cargando/error. La
  * consulta se despacha siempre en el hilo de fondo del
  * {@link ServicioAlumnos} (§8).</p>
+ * @author jairoben
  */
 public class ConsultaViewModel extends ViewModelBase {
 

@@ -23,6 +23,7 @@ import java.util.Objects;
  * {@link #paraPruebas(ClienteAlumnos)}, que admite cualquier
  * {@code ClienteAlumnos} (por ejemplo un doble de pruebas con latencia 0)
  * y un servicio sincrono que no necesita toolkit JavaFX.</p>
+ * @author jairoben
  */
 public class FabricaAplicacion {
 

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * versión previa, debe publicarse {@link EstadoCarga#ERROR} y nunca
  * {@link EstadoCarga#CONFLICTO}, porque la vista abre el diálogo de
  * «otra sesión ha modificado la ficha» al ver un conflicto.</p>
+ * @author jairoben
  */
 @DisplayName("AltaViewModel")
 class AltaViewModelTest {

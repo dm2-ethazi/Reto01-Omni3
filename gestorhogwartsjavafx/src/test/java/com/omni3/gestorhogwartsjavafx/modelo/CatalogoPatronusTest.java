@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Pruebas del catálogo de patronus: búsqueda por nombre y sugerencias
  * del autocompletado (§3). El catálogo es monolingüe (inglés).
+ * @author jairoben
  */
 @DisplayName("CatalogoPatronus")
 class CatalogoPatronusTest {

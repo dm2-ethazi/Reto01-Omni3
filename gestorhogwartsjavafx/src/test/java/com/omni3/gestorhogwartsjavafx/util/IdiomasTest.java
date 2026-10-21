@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * se iba al español del ordenador (locale por defecto) en vez de caer
  * a la base inglesa; aquí se comprueba que cada idioma resuelve su
  * bundle y que un idioma no admitido cae al inglés.</p>
+ * @author jairoben
  */
 @DisplayName("Selector de idioma")
 class IdiomasTest {

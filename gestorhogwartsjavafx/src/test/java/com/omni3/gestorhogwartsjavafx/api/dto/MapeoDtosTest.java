@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Pruebas del mapeo JSON de los DTO (§3): tolerancia a campos nuevos,
  * envelope de error y conversión al modelo de dominio.
+ * @author jairoben
  */
 @DisplayName("Mapeo JSON de los DTO")
 class MapeoDtosTest {

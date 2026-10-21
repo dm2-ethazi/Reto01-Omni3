@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * <p>Contrasta con {@link AltaViewModelTest}: aquí el 409 sí debe
  * publicarse como {@link EstadoCarga#CONFLICTO} para que la vista ofrezca
  * recargar sin sobrescribir.</p>
+ * @author jairoben
  */
 @DisplayName("EdicionViewModel")
 class EdicionViewModelTest {

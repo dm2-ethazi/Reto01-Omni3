@@ -23,6 +23,7 @@ import java.util.Objects;
  * @param version        versión del registro, estado previo para concurrencia optimista
  * @param actualizadoEn  instante de la última actualización
  * @param activo         borrado lógico: {@code false} cuando se ha dado de baja
+ * @author jairoben
  */
 public record Alumno(
         String dni,

@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Pruebas del servicio de fondo (§8 del contrato): entrega de resultados
  * por callback, ejecución fuera del hilo llamante, mapeo de errores y
  * cierre del pool. Sin toolkit JavaFX y con latencia 0.
+ * @author jairoben
  */
 @DisplayName("ServicioAlumnos")
 class ServicioAlumnosTest {

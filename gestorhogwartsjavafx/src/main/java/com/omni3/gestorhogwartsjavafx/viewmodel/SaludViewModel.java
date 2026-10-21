@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
  *
  * <p>La respuesta identifica el reto con el código {@code R01} y describe
  * el estado de cada base (§8 de la propuesta).</p>
+ * @author jairoben
  */
 public class SaludViewModel extends ViewModelBase {
 

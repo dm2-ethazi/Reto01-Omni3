@@ -10,6 +10,7 @@ import java.util.Optional;
  * (puertos: 1527 Derby, 9001 HSQLDB, 9092 H2, 1521 Oracle, 3306 MariaDB).
  * {@link #CENTRAL} no es una base: identifica la vista unificada de la
  * consulta (§3 del contrato), en la que se mezclan todas las fuentes.</p>
+ * @author jairoben
  */
 public enum Origen {
 

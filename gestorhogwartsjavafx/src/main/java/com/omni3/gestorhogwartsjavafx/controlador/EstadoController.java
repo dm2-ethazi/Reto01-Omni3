@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * Controlador de la pantalla «Estado del sistema»
  * ({@code GET /health}, identificador {@code R01}).
+ * @author jairoben
  */
 public class EstadoController implements ControladorVista {
 

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Los casos usan el núcleo {@code resolver(...)} con fuentes
  * inyectadas, así que las pruebas no dependen de si el equipo que las
  * ejecute tiene un {@code config.properties} real.</p>
+ * @author jairoben
  */
 @DisplayName("ConfigLoader")
 class ConfigLoaderTest {

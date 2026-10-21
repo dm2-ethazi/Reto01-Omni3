@@ -15,6 +15,7 @@ import java.util.Optional;
  * @param codigo  código de negocio, p. ej. {@code CONFLICTO_VERSION}
  * @param mensaje mensaje en español
  * @param detalle detalle técnico opcional
+ * @author jairoben
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ErrorDto(String codigo, String mensaje, String detalle) {

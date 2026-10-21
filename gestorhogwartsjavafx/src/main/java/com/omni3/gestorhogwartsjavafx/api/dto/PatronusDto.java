@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @param nomEng nombre del patronus en inglés
  * @param url    URL de la imagen del patronus
+ * @author jairoben
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PatronusDto(

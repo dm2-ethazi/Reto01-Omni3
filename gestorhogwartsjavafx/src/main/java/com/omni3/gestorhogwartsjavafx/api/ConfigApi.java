@@ -23,6 +23,7 @@ import java.util.Objects;
  *
  * <p>La clase es inmutable: las variantes se obtienen con los métodos
  * {@code conX}.</p>
+ * @author jairoben
  */
 public final class ConfigApi {
 

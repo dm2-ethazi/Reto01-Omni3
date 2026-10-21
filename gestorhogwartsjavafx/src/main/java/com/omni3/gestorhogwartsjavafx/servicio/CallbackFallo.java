@@ -10,6 +10,7 @@ import com.omni3.gestorhogwartsjavafx.api.ExcepcionApi;
  * mensaje en espanol, {@code request-id} y estado HTTP, tanto si el fallo
  * procede de la respuesta como si es un error local. Se invoca en el
  * mismo hilo que {@link CallbackExito} (el hilo FX en produccion).</p>
+ * @author jairoben
  */
 @FunctionalInterface
 public interface CallbackFallo {

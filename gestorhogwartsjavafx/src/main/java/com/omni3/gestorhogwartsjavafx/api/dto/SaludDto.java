@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @param identificador identificador del sistema; {@code R01}
  * @param mensaje       descripción legible para el usuario
  * @param momento       instante ISO-8601 de la respuesta
+ * @author jairoben
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SaludDto(

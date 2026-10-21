@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>La clase es inyectable para las pruebas: se le puede sustituir el
  * executor de fondo y el publicador, de modo que un test puede trabajar de
  * forma sincrona sin arrancar el toolkit JavaFX.</p>
+ * @author jairoben
  */
 public class ServicioAlumnos {
 

@@ -22,6 +22,7 @@ import java.util.Objects;
  * <p>Todos los viewmodels reciben el {@link ServicioAlumnos} ya montado,
  * de modo que las pruebas pueden inyectar un doble de pruebas con
  * latencia 0 y un executor síncrono, sin arrancar el toolkit JavaFX.</p>
+ * @author jairoben
  */
 public abstract class ViewModelBase {
 

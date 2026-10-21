@@ -41,6 +41,7 @@ import java.util.Optional;
  * (inglés), así que el campo trabaja siempre en ese idioma, con
  * independencia del idioma de la interfaz; al elegirlo se carga la
  * imagen del patronus en la vista previa.</p>
+ * @author jairoben
  */
 public class FormularioAlumnoController implements ControladorVista {
 

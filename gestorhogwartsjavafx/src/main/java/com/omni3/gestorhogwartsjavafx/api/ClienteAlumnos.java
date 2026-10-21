@@ -21,6 +21,7 @@ import java.util.List;
  * concurrencia, error HTTP o de red— se comunica con
  * {@link ExcepcionApi}, que lleva código, mensaje en español,
  * {@code request-id} y estado HTTP.</p>
+ * @author jairoben
  */
 public interface ClienteAlumnos {
 

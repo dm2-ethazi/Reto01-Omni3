@@ -31,6 +31,7 @@ import java.util.Map;
  * <p>También gestiona el selector de idioma de la barra de estado: cada
  * opción delega en {@link Idiomas#cambiar(String)} y la aplicación
  * recarga la raíz con el nuevo bundle.</p>
+ * @author jairoben
  */
 public class PrincipalController implements ControladorVista {
 

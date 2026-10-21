@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Pruebas de la configuración de acceso a la API (§3): normalización de
  * la URL base y validación del timeout.
+ * @author jairoben
  */
 @DisplayName("ConfigApi")
 class ConfigApiTest {

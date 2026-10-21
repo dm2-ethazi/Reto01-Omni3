@@ -22,6 +22,7 @@ import javafx.beans.property.StringProperty;
  * duplicado</strong> y <strong>sin casa</strong>. La validación se hace
  * además en cliente para dar feedback inmediato; la decisión final es de
  * la API.</p>
+ * @author jairoben
  */
 public class AltaViewModel extends ViewModelBase implements FormularioAlumno {
 

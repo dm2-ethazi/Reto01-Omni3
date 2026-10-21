@@ -10,6 +10,7 @@ package com.omni3.gestorhogwartsjavafx;
  * «JavaFX runtime components are missing» que ocurre cuando la clase
  * principal extiende {@code Application} y se ejecuta desde el classpath
  * (en lugar del module path).</p>
+ * @author jairoben
  */
 public final class Launcher {
 

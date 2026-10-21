@@ -11,6 +11,7 @@ package com.omni3.gestorhogwartsjavafx.api;
  * <p>Cuando el error no procede de una respuesta HTTP (por ejemplo, un
  * fallo de red o una validación local) el estado se codifica como
  * {@code 0}.</p>
+ * @author jairoben
  */
 public class ExcepcionApi extends RuntimeException {
 

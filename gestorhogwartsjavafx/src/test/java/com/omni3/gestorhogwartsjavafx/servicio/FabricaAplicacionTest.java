@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>La aplicación no tiene más clientes que {@link ClienteAlumnosHttp},
  * así que la fábrica por defecto se comprueba sobre la configuración y
  * sobre el tipo del cliente, sin abrir ninguna conexión.</p>
+ * @author jairoben
  */
 @DisplayName("FabricaAplicacion")
 class FabricaAplicacionTest {

@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Pruebas de las validaciones del dominio (§4 del contrato) y del
  * enmascarado de DNI para logs (§2.6).
+ * @author jairoben
  */
 @DisplayName("Validaciones del dominio")
 class ValidacionesTest {
