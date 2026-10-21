@@ -22,6 +22,11 @@ public sealed class ApiUrlField : MonoBehaviour
     private void ChangeUrl(string text)
     {
         string url = text.Trim().TrimEnd('/');
+        if (url.Length == 0)
+        {
+            // Keep the local URL hint visible without changing the active server.
+            return;
+        }
         Uri address;
         if (Uri.TryCreate(url, UriKind.Absolute, out address) &&
             (address.Scheme == Uri.UriSchemeHttp || address.Scheme == Uri.UriSchemeHttps))
