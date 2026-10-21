@@ -1,6 +1,6 @@
 package com.omni3.gestorhogwartsjavafx.util;
 
-import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -105,7 +105,7 @@ public final class Ventanas {
      */
     public static void ajustarEscenario(Stage escenario, double ancho, double alto,
             double minAncho, double minAlto) {
-        Bounds pantalla = Screen.getPrimary().getVisualBounds();
+        Rectangle2D pantalla = Screen.getPrimary().getVisualBounds();
         double anchoFinal = tamano(ancho, minAncho, pantalla.getWidth() - MARGEN);
         double altoFinal = tamano(alto, minAlto, pantalla.getHeight() - MARGEN);
         escenario.setMinWidth(minimoReal(minAncho, pantalla.getWidth()));
@@ -125,7 +125,7 @@ public final class Ventanas {
      * @param minAlto   alto mínimo deseado en píxeles
      */
     public static void minimos(Stage escenario, double minAncho, double minAlto) {
-        Bounds pantalla = pantallaDe(escenario).getVisualBounds();
+        Rectangle2D pantalla = pantallaDe(escenario).getVisualBounds();
         escenario.setMinWidth(minimoReal(minAncho, pantalla.getWidth()));
         escenario.setMinHeight(minimoReal(minAlto, pantalla.getHeight()));
     }
@@ -184,7 +184,7 @@ public final class Ventanas {
         }
         ajustando[0] = true;
         try {
-            Bounds pantalla = pantallaDe(escenario).getVisualBounds();
+            Rectangle2D pantalla = pantallaDe(escenario).getVisualBounds();
             corregirTamano(escenario, pantalla);
             if (!tituloVisible(escenario)) {
                 double ancho = Math.min(escenario.getWidth(), pantalla.getWidth());
@@ -204,7 +204,7 @@ public final class Ventanas {
      * @param escenario escenario a encoger si procede
      * @param pantalla  límites visibles de su pantalla
      */
-    private static void corregirTamano(Stage escenario, Bounds pantalla) {
+    private static void corregirTamano(Stage escenario, Rectangle2D pantalla) {
         if (escenario.getWidth() > pantalla.getWidth()) {
             escenario.setWidth(pantalla.getWidth());
         }
@@ -227,7 +227,7 @@ public final class Ventanas {
         double y = escenario.getY();
         double ancho = escenario.getWidth();
         for (Screen pantalla : Screen.getScreens()) {
-            Bounds b = pantalla.getVisualBounds();
+            Rectangle2D b = pantalla.getVisualBounds();
             boolean horizontal = x < b.getMaxX() - TOLERANCIA
                     && x + ancho > b.getMinX() + TOLERANCIA;
             boolean vertical = y < b.getMaxY() - TOLERANCIA
@@ -262,7 +262,7 @@ public final class Ventanas {
         double mejorDistancia = Double.MAX_VALUE;
 
         for (Screen pantalla : Screen.getScreens()) {
-            Bounds b = pantalla.getVisualBounds();
+            Rectangle2D b = pantalla.getVisualBounds();
             double solapeX = Math.max(0,
                     Math.min(x + ancho, b.getMaxX()) - Math.max(x, b.getMinX()));
             double solapeY = Math.max(0,
