@@ -1,6 +1,10 @@
 # Env
 .env
 
+# Local SQLite backup databases (runtime data)
+api/data/
+api/tests/_respaldo_test.db
+
 # Local build and IDE state
 **/.venv/
 **/__pycache__/

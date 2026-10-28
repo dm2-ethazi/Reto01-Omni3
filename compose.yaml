@@ -148,6 +148,34 @@ services:
     networks:
       - r01
 
+  # API principal (Reto R01) — perfil 'api' para no alterar el arranque típico.
+  # Arranque: docker compose --profile api up -d
+  api:
+    build: ./api
+    image: r01-api
+    container_name: r01-api
+    restart: unless-stopped
+    profiles:
+      - api
+    environment:
+      DB_ENGINES: mariadb
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-r01_central}
+      MARIADB_USER: ${MARIADB_USER:-r01}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD in .env}
+      SQLITE_PATH: /data/api/respaldo.db
+      SYNC_INTERVALO_SEGUNDOS: "5"
+    ports:
+      - "8000:8000"
+    volumes:
+      - api_data:/data/api
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - r01
+
 volumes:
   derby_data:
   derby_libs:
@@ -157,6 +185,7 @@ volumes:
   h2_libs:
   oracle_data:
   mariadb_data:
+  api_data:
 
 networks:
   r01:
