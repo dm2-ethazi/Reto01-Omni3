@@ -8,12 +8,15 @@ JVM con los drivers correspondientes antes de crear los repositorios.
 from pathlib import Path
 
 from ..config import settings
+from ..sync_worker import WorkerSincronizacion
 from .base import RepositorioAlumnos
 from .derby import RepositorioDerby
 from .h2 import RepositorioH2
 from .hsqldb import RepositorioHSQLDB
 from .mariadb import RepositorioMariaDB
 from .oracle import RepositorioOracle
+from .sincronizacion import Sincronizador
+from .sqlite_backup import obtener_respaldo
 
 # Drivers JDBC necesarios para cada motor.
 _JARS = {
@@ -84,3 +87,50 @@ def obtener_repositorios() -> list[RepositorioAlumnos]:
             iniciar_jvm(rutas)
         _repositorios = [_crear(n) for n in nombres]
     return _repositorios
+
+
+# Singletons del sincronizador y del worker de sincronización.
+_sincronizador: Sincronizador | None = None
+_worker: WorkerSincronizacion | None = None
+
+
+def obtener_mariadb() -> RepositorioMariaDB | None:
+    """Devuelve el repositorio central de MariaDB si está activo, o None.
+
+    Returns:
+        RepositorioMariaDB de la lista de fuentes activas, o None.
+    """
+    return next((r for r in obtener_repositorios() if isinstance(r, RepositorioMariaDB)), None)
+
+
+def obtener_sincronizador() -> Sincronizador:
+    """Devuelve el singleton del sincronizador (MariaDB + respaldo SQLite).
+
+    Returns:
+        Instancia de Sincronizador con el repositorio central y el respaldo.
+    """
+    global _sincronizador
+    if _sincronizador is None:
+        respaldo = obtener_respaldo(settings.sqlite_path)
+        _sincronizador = Sincronizador(obtener_mariadb(), respaldo)
+    return _sincronizador
+
+
+def obtener_worker() -> WorkerSincronizacion:
+    """Devuelve el singleton del worker de sincronización (aún no arrancado).
+
+    Returns:
+        Instancia del worker configurada con los ajustes de sync_*.
+    """
+    global _worker
+    if _worker is None:
+        sincronizador = obtener_sincronizador()
+        _worker = WorkerSincronizacion(
+            mariadb=sincronizador.mariadb,
+            respaldo=sincronizador.respaldo,
+            intervalo=settings.sync_intervalo_segundos,
+            backoff_inicial=settings.sync_backoff_inicial_segundos,
+            backoff_max=settings.sync_backoff_max_segundos,
+            max_intentos=settings.sync_max_intentos,
+        )
+    return _worker

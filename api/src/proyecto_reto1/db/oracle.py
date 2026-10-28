@@ -9,7 +9,14 @@ from contextlib import contextmanager
 
 import oracledb
 
-from .base import COLUMNAS_ALUMNO_SQL, Alumno, AlumnoActualizacion, campos_a_actualizar, fila_a_alumno
+from .base import (
+    COLUMNAS_ALUMNO_SQL,
+    Alumno,
+    AlumnoActualizacion,
+    ConflictoVersion,
+    campos_a_actualizar,
+    fila_a_alumno,
+)
 
 
 class RepositorioOracle:
@@ -39,6 +46,33 @@ class RepositorioOracle:
         self.dsn = f"{host}:{puerto}/{servicio}"
         self.usuario = usuario
         self.password = password
+        # Se detecta bajo demanda si ALUMNOS tiene las columnas v2
+        # (ACTIVO / VERSION) para habilitar borrado lógico y concurrencia.
+        self._soporte_v2: bool | None = None
+
+    def _columnas_v2(self, conexion, cursor) -> bool:
+        """Detecta una sola vez si ALUMNOS tiene las columnas ACTIVO y VERSION.
+
+        Si la consulta falla (esquema clásico), se descarta la transacción y
+        se devuelve False para usar el comportamiento histórico.
+
+        Args:
+            conexion: Conexión Oracle activa.
+            cursor: Cursor de esa conexión.
+        """
+        if self._soporte_v2 is not None:
+            return self._soporte_v2
+        try:
+            cursor.execute("SELECT ACTIVO, VERSION FROM ALUMNOS WHERE 1 = 0")
+            cursor.fetchall()
+            self._soporte_v2 = True
+        except Exception:
+            self._soporte_v2 = False
+            try:
+                conexion.rollback()
+            except Exception:
+                pass
+        return self._soporte_v2
 
     @contextmanager
     def _conexion(self):
@@ -60,19 +94,24 @@ class RepositorioOracle:
     #  CRUD de alumnos                                                    #
     # ------------------------------------------------------------------ #
 
-    def listar(self) -> list[Alumno]:
-        """Devuelve todos los alumnos de la tabla ALUMNOS."""
+    def listar(self, incluir_inactivos: bool = False) -> list[Alumno]:
+        """Devuelve todos los alumnos de la tabla ALUMNOS.
+
+        `incluir_inactivos` se acepta por contrato; con el esquema clásico no
+        filtra nada (sin columna ACTIVO).
+        """
         with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute(f"SELECT {COLUMNAS_ALUMNO_SQL} FROM ALUMNOS")
                 filas = cursor.fetchall()
         return [fila_a_alumno(f, self.casa) for f in filas]
 
-    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+    def buscar_por_nombre(self, prefijo: str, incluir_inactivos: bool = False) -> list[Alumno]:
         """Busca alumnos cuyo nombre empiece por el prefijo (sin distinguir mayúsculas).
 
         Args:
             prefijo: Texto inicial del nombre a buscar.
+            incluir_inactivos: Sin efecto con el esquema clásico.
         """
         with self._conexion() as conexion:
             with conexion.cursor() as cursor:
@@ -84,11 +123,12 @@ class RepositorioOracle:
                 filas = cursor.fetchall()
         return [fila_a_alumno(f, self.casa) for f in filas]
 
-    def obtener(self, id_alumno: str) -> Alumno | None:
+    def obtener(self, id_alumno: str, incluir_inactivos: bool = False) -> Alumno | None:
         """Busca un alumno por DNI.
 
         Args:
             id_alumno: DNI del alumno a buscar.
+            incluir_inactivos: Sin efecto con el esquema clásico.
 
         Returns:
             Alumno si existe, None si no.
@@ -104,15 +144,27 @@ class RepositorioOracle:
             return None
         return fila_a_alumno(fila, self.casa)
 
-    def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+    def actualizar(
+        self,
+        id_alumno: str,
+        datos: AlumnoActualizacion,
+        version: int | None = None,
+    ) -> Alumno | None:
         """Actualiza los campos enviados de un alumno existente.
+
+        Si el esquema soporta la columna VERSION, aplica control de
+        concurrencia optimista (`WHERE ID = :id AND VERSION = :version`).
 
         Args:
             id_alumno: DNI del alumno a actualizar.
             datos: Campos a modificar (actualización parcial).
+            version: Versión leída por el cliente (optimistic locking).
 
         Returns:
             Alumno actualizado si existía, None si no.
+
+        Raises:
+            ConflictoVersion: Si `version` no coincide con la actual.
         """
         columnas = campos_a_actualizar(datos)
         if not columnas:
@@ -125,24 +177,63 @@ class RepositorioOracle:
                 asignacion = ", ".join(f"{nombre} = :{nombre.lower()}" for nombre in columnas)
                 parametros = {nombre.lower(): valor for nombre, valor in columnas.items()}
                 parametros["id"] = id_alumno
-                cursor.execute(f"UPDATE ALUMNOS SET {asignacion} WHERE ID = :id", parametros)
+                if version is not None and self._columnas_v2(conexion, cursor):
+                    cursor.execute("SELECT VERSION FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
+                    fila = cursor.fetchone()
+                    actual = int(fila[0]) if fila else None
+                    if actual != version:
+                        raise ConflictoVersion(
+                            f"Conflicto de versiones: la versión actual es {actual}",
+                            version_actual=actual,
+                        )
+                    cursor.execute(
+                        f"UPDATE ALUMNOS SET {asignacion}, VERSION = VERSION + 1 WHERE ID = :id",
+                        parametros,
+                    )
+                else:
+                    cursor.execute(f"UPDATE ALUMNOS SET {asignacion} WHERE ID = :id", parametros)
             conexion.commit()
         return self.obtener(id_alumno)
 
-    def eliminar(self, id_alumno: str) -> bool:
+    def eliminar(self, id_alumno: str, version: int | None = None) -> bool:
         """Elimina un alumno por DNI.
+
+        Con el esquema v2 realiza borrado lógico (`ACTIVO = 0`); con el
+        esquema clásico mantiene el DELETE histórico.
 
         Args:
             id_alumno: DNI del alumno a eliminar.
+            version: Versión leída por el cliente (optimistic locking).
 
         Returns:
             True si se eliminó, False si no existía.
+
+        Raises:
+            ConflictoVersion: Si `version` no coincide con la actual.
         """
         with self._conexion() as conexion:
             with conexion.cursor() as cursor:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
                 if cursor.fetchone() is None:
                     return False
-                cursor.execute("DELETE FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
+                if self._columnas_v2(conexion, cursor):
+                    if version is not None:
+                        cursor.execute(
+                            "SELECT VERSION FROM ALUMNOS WHERE ID = :id", {"id": id_alumno}
+                        )
+                        fila = cursor.fetchone()
+                        actual = int(fila[0]) if fila else None
+                        if actual != version:
+                            raise ConflictoVersion(
+                                f"Conflicto de versiones: la versión actual es {actual}",
+                                version_actual=actual,
+                            )
+                    cursor.execute(
+                        "UPDATE ALUMNOS SET ACTIVO = 0, FECHA_BAJA = CURRENT_TIMESTAMP, "
+                        "VERSION = VERSION + 1 WHERE ID = :id",
+                        {"id": id_alumno},
+                    )
+                else:
+                    cursor.execute("DELETE FROM ALUMNOS WHERE ID = :id", {"id": id_alumno})
             conexion.commit()
         return True

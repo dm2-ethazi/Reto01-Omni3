@@ -52,6 +52,15 @@ class Settings(BaseSettings):
     mariadb_user: str = "r01"
     mariadb_password: str = ""
 
+    # --- SQLite de respaldo (central) ---
+    sqlite_path: str = "data/respaldo.db"
+
+    # --- Sincronización con reintentos (pending_sync) ---
+    sync_intervalo_segundos: float = 10.0
+    sync_backoff_inicial_segundos: float = 5.0
+    sync_backoff_max_segundos: float = 300.0
+    sync_max_intentos: int = 8
+
     # --- H2 (Hufflepuff) ---
     h2_url: str = "jdbc:h2:tcp://localhost:9092/r01db"
     h2_user: str = "sa"
@@ -68,9 +77,11 @@ class Settings(BaseSettings):
     derby_password: str = ""
 
     def model_post_init(self, __context) -> None:
-        """Resuelve jars_dir a ruta absoluta si se indicó una relativa."""
+        """Resuelve a ruta absoluta las rutas relativas (jars_dir y sqlite_path)."""
         if not Path(self.jars_dir).is_absolute():
             self.jars_dir = str(_API_DIR / self.jars_dir)
+        if not Path(self.sqlite_path).is_absolute():
+            self.sqlite_path = str(_API_DIR / self.sqlite_path)
 
 
 settings = Settings()

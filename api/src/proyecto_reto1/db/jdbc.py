@@ -28,6 +28,7 @@ from .base import (
     COLUMNAS_ALUMNO_SQL,
     Alumno,
     AlumnoActualizacion,
+    ConflictoVersion,
     campos_a_actualizar,
     fila_a_alumno,
 )
@@ -124,6 +125,34 @@ class RepositorioJDBC:
         self.url = url
         self.usuario = usuario
         self.password = password
+        # Se detecta bajo demanda si la tabla ALUMNOS tiene las columnas v2
+        # (ACTIVO / VERSION) para habilitar borrado lógico y concurrencia.
+        self._soporte_v2: bool | None = None
+
+    def _columnas_v2(self, conexion, cursor) -> bool:
+        """Detecta una sola vez si ALUMNOS tiene las columnas ACTIVO y VERSION.
+
+        Si la consulta falla (esquema clásico), se descarta la transacción y
+        se devuelve False para usar el comportamiento histórico (DELETE físico,
+        sin control de versión).
+
+        Args:
+            conexion: Conexión JDBC activa.
+            cursor: Cursor de esa conexión.
+        """
+        if self._soporte_v2 is not None:
+            return self._soporte_v2
+        try:
+            cursor.execute("SELECT ACTIVO, VERSION FROM ALUMNOS WHERE 1 = 0")
+            cursor.fetchall()
+            self._soporte_v2 = True
+        except Exception:
+            self._soporte_v2 = False
+            try:
+                conexion.rollback()
+            except Exception:
+                pass
+        return self._soporte_v2
 
     # --- Conexión ---------------------------------------------------------- #
 
@@ -149,8 +178,12 @@ class RepositorioJDBC:
 
     # --- Operaciones CRUD -------------------------------------------------- #
 
-    def listar(self) -> list[Alumno]:
-        """Devuelve todos los alumnos de la tabla ALUMNOS."""
+    def listar(self, incluir_inactivos: bool = False) -> list[Alumno]:
+        """Devuelve todos los alumnos de la tabla ALUMNOS.
+
+        Los motores clásicos no tienen columna ACTIVO: `incluir_inactivos`
+        se acepta por contrato pero no filtra nada.
+        """
         with self._conexion() as conexion:
             cursor = conexion.cursor()
             try:
@@ -160,11 +193,12 @@ class RepositorioJDBC:
                 cursor.close()
         return [fila_a_alumno(f, self.casa) for f in filas]
 
-    def buscar_por_nombre(self, prefijo: str) -> list[Alumno]:
+    def buscar_por_nombre(self, prefijo: str, incluir_inactivos: bool = False) -> list[Alumno]:
         """Busca alumnos cuyo nombre empiece por el prefijo (sin distinguir mayúsculas).
 
         Args:
             prefijo: Texto inicial del nombre a buscar.
+            incluir_inactivos: Sin efecto en los motores clásicos (sin columna ACTIVO).
         """
         with self._conexion() as conexion:
             cursor = conexion.cursor()
@@ -179,11 +213,12 @@ class RepositorioJDBC:
                 cursor.close()
         return [fila_a_alumno(f, self.casa) for f in filas]
 
-    def obtener(self, id_alumno: str) -> Alumno | None:
+    def obtener(self, id_alumno: str, incluir_inactivos: bool = False) -> Alumno | None:
         """Busca un alumno por DNI.
 
         Args:
             id_alumno: DNI del alumno a buscar.
+            incluir_inactivos: Sin efecto en los motores clásicos (sin columna ACTIVO).
 
         Returns:
             Alumno si existe, None si no.
@@ -202,15 +237,25 @@ class RepositorioJDBC:
             return None
         return fila_a_alumno(fila, self.casa)
 
-    def actualizar(self, id_alumno: str, datos: AlumnoActualizacion) -> Alumno | None:
+    def actualizar(
+        self,
+        id_alumno: str,
+        datos: AlumnoActualizacion,
+        version: int | None = None,
+    ) -> Alumno | None:
         """Actualiza los campos enviados de un alumno existente.
 
         Args:
             id_alumno: DNI del alumno a actualizar.
             datos: Campos a modificar (actualización parcial).
+            version: Versión leída por el cliente; solo aplica si el esquema
+                soporta la columna VERSION.
 
         Returns:
             Alumno actualizado si existía, None si no.
+
+        Raises:
+            ConflictoVersion: Si `version` no coincide con la actual.
         """
         columnas = campos_a_actualizar(datos)
         if not columnas:
@@ -222,23 +267,46 @@ class RepositorioJDBC:
                 if cursor.fetchone() is None:
                     return None
                 asignacion = ", ".join(f"{nombre} = ?" for nombre in columnas)
-                cursor.execute(
-                    f"UPDATE ALUMNOS SET {asignacion} WHERE ID = ?",
-                    tuple(columnas.values()) + (id_alumno,),
-                )
+                if version is not None and self._columnas_v2(conexion, cursor):
+                    cursor.execute("SELECT VERSION FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                    fila = cursor.fetchone()
+                    actual = int(fila[0]) if fila else None
+                    if actual != version:
+                        raise ConflictoVersion(
+                            f"Conflicto de versiones: la versión actual es {actual}",
+                            version_actual=actual,
+                        )
+                    cursor.execute(
+                        f"UPDATE ALUMNOS SET {asignacion}, VERSION = VERSION + 1 WHERE ID = ?",
+                        tuple(columnas.values()) + (id_alumno,),
+                    )
+                else:
+                    cursor.execute(
+                        f"UPDATE ALUMNOS SET {asignacion} WHERE ID = ?",
+                        tuple(columnas.values()) + (id_alumno,),
+                    )
                 conexion.commit()
             finally:
                 cursor.close()
         return self.obtener(id_alumno)
 
-    def eliminar(self, id_alumno: str) -> bool:
+    def eliminar(self, id_alumno: str, version: int | None = None) -> bool:
         """Elimina un alumno por DNI.
+
+        Si la tabla tiene las columnas v2, realiza **borrado lógico**
+        (`ACTIVO = 0`, `FECHA_BAJA = CURRENT_TIMESTAMP`) respetando la versión;
+        con el esquema clásico mantiene el DELETE físico histórico.
 
         Args:
             id_alumno: DNI del alumno a eliminar.
+            version: Versión leída por el cliente (optimistic locking); solo
+                aplica si el esquema soporta la columna VERSION.
 
         Returns:
             True si se eliminó, False si no existía.
+
+        Raises:
+            ConflictoVersion: Si `version` no coincide con la actual.
         """
         with self._conexion() as conexion:
             cursor = conexion.cursor()
@@ -246,7 +314,23 @@ class RepositorioJDBC:
                 cursor.execute("SELECT ID FROM ALUMNOS WHERE ID = ?", (id_alumno,))
                 if cursor.fetchone() is None:
                     return False
-                cursor.execute("DELETE FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                if self._columnas_v2(conexion, cursor):
+                    if version is not None:
+                        cursor.execute("SELECT VERSION FROM ALUMNOS WHERE ID = ?", (id_alumno,))
+                        fila = cursor.fetchone()
+                        actual = int(fila[0]) if fila else None
+                        if actual != version:
+                            raise ConflictoVersion(
+                                f"Conflicto de versiones: la versión actual es {actual}",
+                                version_actual=actual,
+                            )
+                    cursor.execute(
+                        "UPDATE ALUMNOS SET ACTIVO = 0, FECHA_BAJA = CURRENT_TIMESTAMP, "
+                        "VERSION = VERSION + 1 WHERE ID = ?",
+                        (id_alumno,),
+                    )
+                else:
+                    cursor.execute("DELETE FROM ALUMNOS WHERE ID = ?", (id_alumno,))
                 conexion.commit()
             finally:
                 cursor.close()
