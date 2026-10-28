@@ -43,6 +43,23 @@ py -3.14 -m venv api/.venv
 
 En otra terminal: `./scripts/check-api.ps1` debe informar la cantidad de alumnos. El esquema `database/mariadb/01_schema.sql` se aplica al crear un volumen nuevo de MariaDB. Si el volumen existía, revisa su contenido y aplica el SQL manualmente; no borres datos para repetir el inicio. En Linux usa `cp`, `python3.14 -m venv`, `api/.venv/bin/python` y `curl` para `/openapi.json` y `/alumnos`.
 
+### Rama v2 — correcciones del reto (API)
+
+La rama `v2` endurece la API principal según la revisión del reto: **borrado lógico**
+(`activo`/`fecha_baja`, migración idempotente en `database/mariadb/migracion_v2.sql`),
+**respaldo central en SQLite** (`SQLITE_PATH`, volumen `api_data` del Compose),
+**sincronización con reintentos** (cola `pending_sync` con backoff exponencial),
+**control de concurrencia optimista** (`If-Match`/`version` → 409/428), **patronus
+obligatorio en altas** y **`GET /status`** con la referencia `R01`. Detalle completo en
+el [README de la API](api/README.md). Pruebas:
+
+```powershell
+docker compose --profile api up -d --build   # MariaDB + API (perfil 'api')
+./scripts/test_v2.ps1                        # demo de los 6 requisitos con curl
+# o los tests de integración:
+cd api; uv sync; uv run pytest -v            # requiere el contenedor r01-mariadb
+```
+
 JavaFX: entra en `gestorhogwartsjavafx/`, ejecuta `mvn verify`, configura `GESTOR_API_URL` o el `config.properties` de esa carpeta y lanza `mvn javafx:run`. Requiere JDK 17+ y una instalación externa de Maven 3.9+; consulta el [README del cliente](gestorhogwartsjavafx/README.md). Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; para usar la API local desde el emulador, establece `http://10.0.2.2:8000` en el campo **URL de la API** y pulsa **Aplicar**. La rama actual trae un túnel HTTPS como valor inicial de compilación, que no es necesario para esa prueba local. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
 
 El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
