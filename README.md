@@ -1,20 +1,20 @@
 # Reto01 · Omni3 — Gestor Hogwarts
 
-Entrega integrada en `main` de una API de alumnado distribuido y tres clientes. La integración conectó las puntas originales de `Api`, `androidapp`, `javafxapp`, `unityClient`, `development`, `prototipo` y `main` mediante commits de fusión; el [informe histórico](docs/integration-audit.md) recoge sus referencias de aquel momento. El prototipo es una implementación histórica diferente de la API principal.
+API de alumnado distribuido y tres clientes. La rama `integration` incorpora las correcciones del feedback ADAT y de la propuesta v6 aceptada. La integración original conectó las puntas de `Api`, `androidapp`, `javafxapp`, `unityClient`, `development`, `prototipo` y `main` mediante commits de fusión; el [informe histórico](docs/integration-audit.md) recoge sus referencias de aquel momento. El prototipo es una implementación histórica diferente de la API principal.
 
 ## Arquitectura y componentes
 
 | Carpeta | Función | Tecnología y estado comprobado |
 |---|---|---|
-| `api/` | API REST de alumnado y adaptadores a cinco motores. | Python 3.14, FastAPI; CRUD probado con MariaDB real. |
-| `database/mariadb/` | Esquema mínimo para el recorrido verificable. | MariaDB 11.8; tablas de inicio comprobadas. |
-| `gestorhogwartsjavafx/` | Cliente de escritorio con consulta, altas, edición y baja física por API. | JavaFX 21/Maven; 100 pruebas y empaquetado correctos. Pruebas manuales en dispositivos confirmadas por el equipo; Docker pendiente de verificación. |
+| `api/` | API REST, servicios de integración y repositorios. | Python 3.11+, FastAPI; MariaDB principal, SQLite de respaldo y cuatro fuentes reales verificadas. |
+| `database/` | Esquemas centrales y semillas compatibles de las cuatro fuentes. | MariaDB 11.8, Oracle, H2, HSQLDB y Derby. |
+| `gestorhogwartsjavafx/` | Consulta, altas, edición con versión y baja lógica de nuevos por API. | JavaFX 21/Maven; 102 pruebas correctas, JAR Windows y apertura local comprobados. |
 | `gestorhogwartsmovil/` | Consulta y caché offline de alumnado con URL de API editable. | Kotlin/Android/Room; APK, 17 pruebas unitarias, 9 instrumentadas y lint correctos. |
 | `Omni3_Hogwarts_Unity/` | Búsqueda y ficha de alumno/patronus. | Unity 6000.3.25f1; proyecto integrado. |
 | `prototipo/` | Solución experimental anterior de sincronización. | API, clientes e infraestructura propios; no comparte esquema con `api/`. |
-| `scripts/` | Comprobación de conectividad de la API. | PowerShell. |
+| `scripts/` | Arranque local, preparación de fuentes, comprobación de la API y demo ADAT. | PowerShell y Python. |
 
-Los clientes hablan por HTTP/JSON con `api/`. Android conserva una copia Room. La API principal usa MariaDB para altas y patronus y contiene adaptadores para Oracle, H2, HSQLDB y Derby.
+Los clientes hablan por HTTP/JSON con `api/`. Android conserva una copia Room. La API principal usa MariaDB como fuente de verdad de nuevos y vista central de históricos; Oracle, H2, HSQLDB y Derby mantienen sus propios registros. SQLite central es el respaldo de lectura y conserva una cola de refrescos con cinco intentos, FAILED y control de saturación. La copia Room pertenece al cliente y es independiente de SQLite central.
 
 ```mermaid
 flowchart LR
@@ -22,28 +22,64 @@ flowchart LR
     android["Cliente Android"] -->|HTTP y JSON| api
     unity["Cliente Unity"] -->|HTTP y JSON| api
     android <--> room["Caché Room y SQLite"]
-    api --> mariadb["MariaDB: alumnado central y patronus"]
-    api -.-> otros["Adaptadores configurables: Oracle, H2, HSQLDB y Derby"]
+    api --> servicios["Servicios: importación, versiones y reintentos"]
+    servicios --> sqlite["SQLite central y cola persistente"]
+    servicios --> mariadb["MariaDB: alumnado central y patronus"]
+    servicios --> otros["Oracle, H2, HSQLDB y Derby"]
 ```
 
 ## Arranque rápido comprobable
 
-Requiere Docker Compose, Python 3.14 y una terminal PowerShell. Desde la raíz de un clon limpio de `main`:
+Requiere Docker Compose, Python 3.11+, Java 21+ y una terminal PowerShell. Los ejemplos usan Python 3.14. Desde la raíz:
 
 ```powershell
 Copy-Item .env.example .env
 # Cambia las contraseñas de ejemplo en .env.
-docker compose up -d mariadb
-Copy-Item api/.env.local.example api/.env
-# Igualar usuario y contraseña de api/.env con .env.
+Copy-Item api/.env.example api/.env
+# Igualar credenciales en ambos archivos; ORACLE_PASSWORD de api/.env
+# corresponde a ORACLE_USER_PASSWORD de .env raíz.
+docker compose up -d
 py -3.14 -m venv api/.venv
-& api/.venv/Scripts/python.exe -m pip install -e ./api
+& api/.venv/Scripts/python.exe -m pip install --upgrade pip
+& api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
+& api/.venv/Scripts/python.exe scripts/seed-origins.py
 & api/.venv/Scripts/python.exe -m uvicorn proyecto_reto1.main:app --host 127.0.0.1 --port 8000
 ```
 
-En otra terminal: `./scripts/check-api.ps1` debe informar la cantidad de alumnos. El esquema `database/mariadb/01_schema.sql` se aplica al crear un volumen nuevo de MariaDB. Si el volumen existía, revisa su contenido y aplica el SQL manualmente; no borres datos para repetir el inicio. En Linux usa `cp`, `python3.14 -m venv`, `api/.venv/bin/python` y `curl` para `/openapi.json` y `/alumnos`.
+En otra terminal, `./scripts/check-api.ps1` comprueba la identificación R01. Ejecuta `POST /sync` para importar los datos de ejemplo antes de abrir los clientes. `scripts/verify-adat.py` demuestra el recorrido HTTP y comprueba ambas centrales; consulta el [README de la API](api/README.md) para importación selectiva, caída de MariaDB, concurrencia y pruebas. Los volúmenes Docker y `api/data/` deben conservarse al reiniciar. En Linux usa `cp`, `python3.14` y `api/.venv/bin/python`.
 
 JavaFX: entra en `gestorhogwartsjavafx/`, ejecuta `mvn verify`, configura `GESTOR_API_URL` o el `config.properties` de esa carpeta y lanza `mvn javafx:run`. Requiere JDK 17+ y una instalación externa de Maven 3.9+; consulta el [README del cliente](gestorhogwartsjavafx/README.md). Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; para usar la API local desde el emulador, establece `http://10.0.2.2:8000` en el campo **URL de la API** y pulsa **Aplicar**. La rama actual trae un túnel HTTPS como valor inicial de compilación, que no es necesario para esa prueba local. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
+
+### Demo local con backend y JavaFX
+
+Con el entorno `api/.venv` ya instalado, Docker encendido y Maven 3.9+ disponible,
+esta alternativa usa el proyecto Compose `r01-adat-validation` y puertos propios
+para no ocupar el 3306 de otra MariaDB:
+
+```powershell
+# Solo en la primera preparacion; conserva la configuracion si ya existe.
+New-Item -ItemType Directory -Force api/data | Out-Null
+if (-not (Test-Path api/data/validation.env)) {
+    Copy-Item api/.env.demo.example api/data/validation.env
+}
+# Cambiar las contrasenas de ejemplo en api/data/validation.env.
+mvn -f gestorhogwartsjavafx/pom.xml clean package '-Djavafx.platform=win'
+powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1
+```
+
+El script prepara las cuatro fuentes, inicia la API en `http://127.0.0.1:8000`,
+importa las semillas y abre JavaFX apuntando a esa URL. Swagger está en `/docs`.
+Admite `-NoJava`, `-Port 8001` y `-EnvFile ruta/al/archivo.env`. Los logs y PID
+quedan en `api/data/local-*`. La configuración privada, SQLite y los artefactos
+compilados no se suben a Git. Para reutilizar este entorno no sobrescribas su
+archivo de configuración ni elimines sus volúmenes.
+
+En esta demo MariaDB escucha en el puerto **33306** y la copia central está en
+`api/data/validation-final.sqlite3`. La ruta real depende de `SQLITE_PATH`;
+`data/central.sqlite3` es el valor por defecto de la configuración general.
+En JavaFX, **SQLite** consulta esa copia mediante `/alumnos?lectura=sqlite`.
+La columna **Origen** conserva MariaDB, Oracle, H2, HSQLDB o Derby: indica de dónde
+procede el alumno, aunque se esté consultando su copia SQLite.
 
 El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
 
@@ -51,6 +87,6 @@ El equipo confirma pruebas manuales en dispositivos. El [registro de validación
 
 La [Wiki de GitHub](https://github.com/dm2-ethazi/Reto01-Omni3/wiki) reúne la instalación, el contrato, los datos, la arquitectura y el recorrido de demostración. Se mantiene en el repositorio independiente `https://github.com/dm2-ethazi/Reto01-Omni3.wiki.git`. El [informe de integración](docs/integration-audit.md) conserva el registro de las comprobaciones realizadas.
 
-La [revisión de JavaFX del 21/10/2026](docs/javafx-review.md) recoge el entorno, el JAR generado, las traducciones y los límites observados. El [contrato técnico de referencia](gestorhogwartsjavafx/docs/00-contrato-tecnico.md) exige funciones que la entrega todavía no completa, como control de concurrencia, baja lógica y conectores/sincronización. Su estado se documenta expresamente; no se acredita un cambio de requisitos aprobado por el cliente.
+La [validación ADAT y propuesta v6 del 09/11/2026](docs/adat-validation.md) recoge las correcciones de la API, las condiciones de fallo contratadas y la demostración real. La [revisión de JavaFX del 21/10/2026](docs/javafx-review.md) conserva el estado histórico anterior; el [contrato técnico de referencia](gestorhogwartsjavafx/docs/00-contrato-tecnico.md) sigue documentando también requisitos de interfaz ajenos a esta corrección.
 
 Grupo **Omni3**: koldo ([@koldoaso](https://github.com/koldoaso)), henri ([@henritejada2006](https://github.com/henritejada2006)) y jairo ([@jairoben](https://github.com/jairoben)), identificados en el README de `javafxapp`.

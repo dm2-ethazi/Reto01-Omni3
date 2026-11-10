@@ -9,7 +9,13 @@ from contextlib import contextmanager
 
 import oracledb
 
-from .base import COLUMNAS_ALUMNO_SQL, Alumno, AlumnoActualizacion, campos_a_actualizar, fila_a_alumno
+from .base import (
+    COLUMNAS_ALUMNO_SQL,
+    Alumno,
+    AlumnoActualizacion,
+    campos_a_actualizar,
+    fila_a_alumno,
+)
 
 
 class RepositorioOracle:

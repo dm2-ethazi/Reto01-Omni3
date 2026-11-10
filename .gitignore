@@ -1,5 +1,7 @@
 # Env
 .env
+api/data/
+**/.pytest_cache/
 
 # Local build and IDE state
 **/.venv/

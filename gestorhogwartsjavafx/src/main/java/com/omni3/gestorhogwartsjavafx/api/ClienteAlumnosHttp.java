@@ -21,7 +21,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -35,10 +34,10 @@ import java.util.stream.Collectors;
  * Implementación de {@link ClienteAlumnos} contra la API REST real con
  * {@code java.net.http.HttpClient} y Jackson.
  *
- * <p>La API desplegada (rama {@code Api}, FastAPI de
- * {@code proyecto_reto1}) publica únicamente:</p>
+ * <p>Este cliente utiliza los siguientes endpoints de la API principal:</p>
  *
  * <ul>
+ *   <li>{@code GET    /health} — estado e identificación R01;</li>
  *   <li>{@code GET    /alumnos} — listado completo;</li>
  *   <li>{@code GET    /alumnos/{dni}} — ficha;</li>
  *   <li>{@code POST   /alumnos} — alta;</li>
@@ -93,21 +92,19 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     }
 
     /**
-     * Estado del sistema. La API no publica {@code /health}, así que se
-     * comprueba la salud real consultando {@code GET /alumnos}: si
-     * responde, la API y su base de datos están operativas.
+     * Estado real del sistema mediante {@code GET /health}.
      *
      * @return salud actual del sistema
      * @throws ExcepcionApi si la consulta falla o la API no responde
      */
     @Override
     public SaludDto salud() {
-        List<AlumnoApi> alumnos = leerLista(get("/alumnos"), AlumnoApi.class);
+        SaludApi salud = leer(get("/health"), SaludApi.class);
         return new SaludDto(
-                "OK",
-                "R01",
-                Idiomas.texto("api.salud", String.valueOf(alumnos.size())),
-                Instant.now().toString());
+                "ok".equalsIgnoreCase(salud.status()) ? "OK" : "DEGRADADO",
+                salud.reto(),
+                salud.status(),
+                salud.timestamp());
     }
 
     /**
@@ -122,11 +119,15 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
      */
     @Override
     public List<AlumnoDto> listarAlumnos(Origen origen, String q, int limit, int offset) {
-        List<AlumnoDto> todos = leerLista(get("/alumnos"), AlumnoApi.class).stream()
+        // SQLite es una copia de lectura, no el origen del alumno. La API
+        // consulta esa base explícitamente y conserva el origen autoritativo.
+        String ruta = origen == Origen.SQLITE ? "/alumnos?lectura=sqlite" : "/alumnos";
+        List<AlumnoDto> todos = leerLista(get(ruta), AlumnoApi.class).stream()
                 .map(this::aDto)
                 .collect(Collectors.toList());
         String texto = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
-        String fuente = origen == null || origen.esCentral() ? null : origen.name();
+        String fuente = origen == null || origen.esCentral() || origen == Origen.SQLITE
+                ? null : origen.name();
         return todos.stream()
                 .filter(alumno -> fuente == null || fuente.equals(alumno.origen()))
                 .filter(alumno -> texto.isEmpty()
@@ -153,9 +154,7 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
      * Alta de alumno ({@code POST /alumnos}) con el mínimo que exige la
      * API: {@code id} (el DNI), {@code nombre} y {@code patronus}.
      *
-     * <p>El patronus se envía con {@code patronus_lang} fijado al idioma
-     * de la interfaz, para que la API lo valide contra la columna de ese
-     * idioma del catálogo PATRONUS_IMG.</p>
+     * <p>El patronus se envía con su nombre del catálogo inglés de la API.</p>
      *
      * @param alumno datos del alumno; su DNI no puede estar dado de alta
      * @return el alumno dado de alta, con los datos que devuelve la API
@@ -168,7 +167,6 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         datos.put("nombre", alumno.nombre());
         if (alumno.patronus() != null && !alumno.patronus().isBlank()) {
             datos.put("patronus", alumno.patronus());
-            datos.put("patronus_lang", Idiomas.codigo());
         }
         return aDto(leer(post("/alumnos", datos, Map.of()), AlumnoApi.class));
     }
@@ -209,6 +207,8 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         datos.put("apellido", apellido);
         datos.put("patronus", alumno.patronus() == null || alumno.patronus().isBlank()
                 ? null : alumno.patronus().trim());
+        // Es la versión que abrió el formulario, no la de la consulta auxiliar.
+        datos.put("version", alumno.version());
         return aDto(leer(peticion("PUT", "/alumnos/" + codificar(id), escribir(datos), Map.of()),
                 AlumnoApi.class));
     }
@@ -216,16 +216,17 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
     /**
      * Baja del alumno ({@code DELETE /alumnos/{dni}}).
      *
-     * <p>La API elimina el registro de todas las fuentes que lo
-     * contengan y responde {@code 204}; si ninguna lo tiene devuelve
-     * {@code 404}.</p>
+     * <p>Envía la versión consultada en {@code If-Match}. La API conserva
+     * la baja central y responde {@code 204}; si no existe devuelve {@code 404}.</p>
      *
      * @param dni DNI del alumno a dar de baja
      * @throws ExcepcionApi con status 404 si no existe
      */
     @Override
     public void bajarAlumno(String dni) {
-        peticion("DELETE", "/alumnos/" + codificar(normalizarId(dni)), null, Map.of());
+        String ruta = "/alumnos/" + codificar(normalizarId(dni));
+        AlumnoApi vigente = leer(get(ruta), AlumnoApi.class);
+        peticion("DELETE", ruta, null, Map.of("If-Match", "\"" + vigente.version() + "\""));
     }
 
     /**
@@ -254,11 +255,13 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
         String id = alumno.id() == null ? "" : normalizarId(alumno.id());
         String nombre = nombreCompleto(alumno.nombre(), alumno.apellido());
         String casa = alumno.casa();
-        Origen origen = origenDeCasa(casa);
-        String tipo = casa == null || casa.isBlank()
+        Origen origen = alumno.origen() == null ? origenDeCasa(casa)
+                : Origen.valueOf(alumno.origen().toUpperCase(Locale.ROOT));
+        String tipo = alumno.tipo() != null ? alumno.tipo() : casa == null || casa.isBlank()
                 ? com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno.NUEVO.name()
                 : com.omni3.gestorhogwartsjavafx.modelo.TipoAlumno.HISTORICO.name();
-        return new AlumnoDto(id, nombre, casa, alumno.patronus(), origen.name(), tipo, 0L, "", true,
+        return new AlumnoDto(id, nombre, casa, alumno.patronus(), origen.name(), tipo,
+                alumno.version(), alumno.actualizadoEn() == null ? "" : alumno.actualizadoEn(), alumno.activo() == null || alumno.activo(),
                 alumno.patronusUrl(), alumno.imagen());
     }
 
@@ -539,6 +542,15 @@ public class ClienteAlumnosHttp implements ClienteAlumnos {
             String patronus,
             @JsonProperty("patronus_url") String patronusUrl,
             String imagen,
-            String casa) {
+            String casa,
+            String origen,
+            String tipo,
+            long version,
+            @JsonProperty("actualizado_en") String actualizadoEn,
+            Boolean activo) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record SaludApi(String status, String reto, String timestamp) {
     }
 }

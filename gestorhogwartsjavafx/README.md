@@ -7,7 +7,9 @@ patronus y tres idiomas.
 > Requisitos de referencia: [`docs/00-contrato-tecnico.md`](docs/00-contrato-tecnico.md).
 > Este README describe la implementación actual; las diferencias pendientes con esos
 > requisitos y las comprobaciones del 21/10/2026 constan en la
-> [revisión de JavaFX](../docs/javafx-review.md). Documentarlas no supone aprobar un cambio de alcance.
+> [revisión de JavaFX](../docs/javafx-review.md). La corrección ADAT y la consulta
+> de la copia SQLite se describen en la [validación v6](../docs/adat-validation.md).
+> Documentar diferencias no supone aprobar un cambio de alcance.
 
 ---
 
@@ -15,24 +17,28 @@ patronus y tres idiomas.
 
 **Título:** Gestor Hogwarts — Cliente de escritorio (JavaFX) · `com.omni3:gestorhogwartsjavafx:1.0.0`
 
-La aplicación habla **por HTTP con la API configurada, local o remota**: no existe modo demo, ni
-conmutador de datos, ni acceso directo a bases de datos (requisito del contrato §2–§3).
+La aplicación habla **por HTTP con la API configurada, local o remota**: no utiliza
+datos simulados en ejecución ni accede directamente a las bases de datos (requisito del contrato §2–§3).
 El único cliente es `api/ClienteAlumnosHttp` (`java.net.http.HttpClient` + Jackson).
 
 | Pantalla | Qué hace |
 |---|---|
-| **Estado del sistema** | Comprueba la API real con `GET /alumnos` (estado, mensaje, momento y `request-id`). La API no publica `/health`. |
+| **Estado del sistema** | Consulta `GET /health`: estado real, identificación R01, momento y `request-id`. |
 | **Alumnos** | Consulta unificada con **fuente de origen visible**, filtro por origen, búsqueda por DNI/nombre, alta, edición, baja y ficha. |
+
+La opción **SQLite** del selector consulta la copia central mediante la API.
+Incluye tanto alumnos nuevos como históricos y conserva la columna **Origen**:
+un alumno creado en MariaDB sigue mostrando `MARIADB` al consultar su copia.
+El resto de opciones de origen filtran el listado unificado.
 
 Reglas de negocio implementadas:
 
-- **Alta** solo en la central MariaDB: DNI de 9 caracteres no duplicado, **patronus
+- **Alta** en MariaDB, con refresco de SQLite: DNI de 9 caracteres no duplicado, **patronus
   obligatorio** y **sin casa**.
 - **Edición**: se lee la ficha vigente y se envía `PUT /alumnos/{dni}` con el nombre
-  completo y el patronus; la fuente (`casa`) es de solo lectura porque la API no admite
+  completo, el patronus y la versión original del formulario; la fuente (`casa`) es de solo lectura porque la API no admite
   cambiarla.
-- **Baja**: `DELETE /alumnos/{dni}` elimina físicamente el registro en las fuentes
-  donde exista. No implementa la baja lógica de nuevos alumnos exigida en el contrato.
+- **Baja**: `DELETE /alumnos/{dni}` envía `If-Match` con la versión consultada. En nuevos conserva el registro inactivo en ambas centrales; en históricos la API elimina el origen y conserva la marca central.
 - Los mensajes de negocio que usan `enmascararDNI` ocultan parte del identificador
   (`12***78A`); la tabla y el formulario muestran el DNI completo. Las respuestas y
   trazas externas no tienen un filtro general de datos sensibles. Toda petición HTTP
@@ -44,18 +50,21 @@ Endpoints que consume la API:
 
 | Método | Ruta | Uso |
 |---|---|---|
+| `GET` | `/health` | Estado real de centrales y fuentes, identificación R01 |
 | `GET` | `/alumnos` | Listado unificado (búsqueda, filtro y paginación se aplican en el cliente) |
+| `GET` | `/alumnos?lectura=sqlite` | Listado leído de la copia SQLite, manteniendo el origen real |
 | `GET` | `/alumnos/{dni}` | Ficha de un alumno |
-| `POST` | `/alumnos` | Alta (cuerpo `{id, nombre, apellido?, sexo?, patronus?}`) |
-| `PUT` | `/alumnos/{dni}` | Edición (cuerpo `{nombre, apellido?, patronus?}`) |
-| `DELETE` | `/alumnos/{dni}` | Baja (`204`; `404` si no existe) |
+| `POST` | `/alumnos` | Alta (cuerpo `{id, nombre, patronus}`) |
+| `PUT` | `/alumnos/{dni}` | Edición (cuerpo `{nombre, apellido?, patronus?, version}`) |
+| `DELETE` | `/alumnos/{dni}` | Baja con `If-Match` (`204`; `404` si no existe) |
 | `GET` | `/patronus` | Catálogo de patronus para el formulario |
 
 Los errores se aceptan en los dos formatos del backend
 (`{"error":{codigo,mensaje,detalle}}` o `{"detail":"…"}`); cualquier respuesta `>= 400`
 se convierte en `ExcepcionApi` (código, mensaje, `request-id`, estado HTTP).
-La edición ofrece recarga ante un `409`, pero el backend actual no comprueba
-versiones ni produce conflictos de concurrencia reales. El `409` de alta indica DNI duplicado.
+La edición ofrece recarga ante un `409`; el backend compara la versión original y
+detecta también cambios externos en el origen. El `409` de alta indica DNI duplicado.
+La [validación ADAT y propuesta v6 del 09/11/2026](../docs/adat-validation.md) documenta estas correcciones.
 
 ---
 
@@ -95,7 +104,7 @@ versiones ni produce conflictos de concurrencia reales. El `409` de alta indica 
 3. **Clonar el repositorio:**
 
    ```bash
-   git clone --branch main https://github.com/dm2-ethazi/Reto01-Omni3.git
+   git clone --branch integration https://github.com/dm2-ethazi/Reto01-Omni3.git
    cd Reto01-Omni3/gestorhogwartsjavafx
    ```
 
@@ -105,7 +114,7 @@ versiones ni produce conflictos de concurrencia reales. El `409` de alta indica 
    mvn clean package
    ```
 
-5. **Ejecutar las pruebas** (§6): `mvn test` → **100 pruebas, 0 fallos**.
+5. **Ejecutar las pruebas** (§6): `mvn test` → **102 pruebas, 0 fallos** en la corrección actual.
 
 6. **Configurar la URL de la API** (§4): copia la plantilla:
 
@@ -175,6 +184,14 @@ curl -H "ngrok-skip-browser-warning: 1" https://tu-api-aqui.com/alumnos
 ---
 
 ## 5. Todas las formas de ejecutar el programa
+
+Para arrancar **bases, backend y JavaFX juntos en Windows**, utiliza desde la raíz
+`powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1`, una vez
+instalado el backend, configurado `api/data/validation.env` y compilado el JAR para
+Windows. La [guía local de la raíz](../README.md#demo-local-con-backend-y-javafx)
+incluye la plantilla y todos los pasos. El script fuerza
+`-Dgestor.api.url=http://127.0.0.1:8000` (o el puerto indicado con `-Port`), por
+encima de cualquier configuración remota previa.
 
 ### a) En desarrollo, directo con Maven (lo más habitual)
 
@@ -260,26 +277,31 @@ incluye una sesión manual de arranque sin API.
 ## 6. Comandos Maven útiles
 
 Ejecuta los comandos desde la carpeta `gestorhogwartsjavafx/` con Maven disponible.
-El resultado de la revisión del 21/10/2026 se distingue de los comandos de uso:
+Las comprobaciones de octubre permanecen en la revisión histórica. En la corrección
+del 09/11 se ejecutaron **102 pruebas sin fallos ni errores**, se empaquetó el JAR
+para Windows y se abrió la ventana conectada al backend local.
 
 | Comando | Función y estado de comprobación |
 |---|---|
-| `mvn verify` | **Correcto:** compila, ejecuta 100 pruebas sin fallos ni errores y genera el fat JAR. No se hizo `clean` en esta ejecución. |
-| `mvn clean package` | Comando para regenerar la entrega desde cero; no repetido por separado en esta revisión. |
-| `mvn test` | Surefire fija `gestor.idioma=es`; sus 100 pruebas se ejecutaron dentro de `verify`. |
+| `mvn verify` | Compila, ejecuta pruebas y genera el fat JAR; comprobado en la revisión histórica. |
+| `mvn clean package` | Regenera la entrega desde cero; para Windows se comprobó con `-Djavafx.platform=win`. |
+| `mvn test` | Surefire fija `gestor.idioma=es`; las 102 pruebas actuales también se ejecutaron dentro de `package`. |
 | `mvn clean javafx:run` | Lanzamiento interactivo en desarrollo; no repetido en esta revisión. |
 | `mvn dependency:resolve` | Resolución explícita de dependencias; no repetida por separado. |
 | `mvn javadoc:javadoc` | **Correcto:** genera `target/reports/apidocs/index.html`. |
 | `mvn site` | Genera `target/site/index.html` y termina con `BUILD SUCCESS`, pero omite el informe `dependency-info` por un `LinkageError` entre plugins. Pendiente de corregir en el POM. |
 | `mvn clean` | Limpia artefactos generados en `target/`. |
 
-- **Perfiles de plataforma** (se activan solos según el SO; se pueden forzar con
-  `-P`): `win`, `linux`, `mac`, `mac-aarch64`. Sirven para empaquetar los binarios
-  JavaFX de otro sistema desde esta máquina.
-- Las 100 pruebas JUnit se distribuyen en 12 clases y **no arrancan el toolkit JavaFX**.
+- **Perfiles de plataforma** (se activan solos según el SO): `win`, `linux`, `mac`,
+  `mac-aarch64`. Para compilar para otro sistema fuerza la propiedad; en PowerShell:
+  `mvn clean package '-Djavafx.platform=win'`. La propiedad evita que el perfil
+  automático del equipo de compilación seleccione binarios de otra plataforma.
+- Las 102 pruebas JUnit **no arrancan el toolkit JavaFX**.
   Cubren el doble de cliente, DTOs, validaciones, servicio, fábrica, configuración,
   idiomas, catálogo y viewmodels. `ClienteAlumnosHttpTest` usa sockets locales para
-  comprobar fallos de red; el conjunto no certifica CRUD contra la API real.
+  comprobar fallos de red, la versión original y la consulta explícita de SQLite
+  sin filtrar sus alumnos por un origen ficticio. El conjunto no certifica CRUD
+  completo contra la API real.
 - Si Maven no está en el `PATH`, configura su instalación o utiliza su ruta real.
   Ejemplo PowerShell con una ruta que debes sustituir por la de tu equipo:
 
@@ -383,14 +405,16 @@ flowchart LR
 **Límites de la implementación y diferencias pendientes con el contrato:**
 
 - La fuente (`casa`) no es editable: la API identifica la base con la que responde.
-- El backend no versiona: el DTO HTTP usa `version = 0` y el modelo la normaliza a 1;
-  ninguno de esos valores acredita control de concurrencia. PUT no envía el estado previo.
-- La baja es física, también en MariaDB. El campo `activo` del modelo no implementa
-  borrado lógico en el backend.
-- La pantalla Estado consulta `/alumnos`; no hay `/health`, conectores ni
-  sincronización en este cliente y su API principal.
+- El backend comprueba la versión y el estado de origen; PUT envía la versión del formulario.
+- La baja de nuevos es lógica en MariaDB y su réplica; la de históricos se aplica en su fuente.
+- La pantalla Estado consulta `/health`. La API publica conectores, sincronización,
+  coherencia y administración de cola; faltan pantallas específicas para esas funciones en JavaFX.
+- Con MariaDB caída, se permite lectura de caché; el backend rechaza altas y cambios de nuevos con 503.
 - `GET /alumnos` devuelve el listado completo: filtro, búsqueda y paginación se aplican
   en el cliente.
+- La opción **SQLite** consulta `GET /alumnos?lectura=sqlite` para mostrar la copia
+  central. La columna **Origen** conserva MariaDB, Oracle, H2, HSQLDB o Derby;
+  SQLite no es un origen histórico.
 - Autenticación y nube figuran fuera de alcance en el contrato de referencia.
   Las otras diferencias requieren implementación o una modificación de requisitos
   expresamente aprobada; no se ha encontrado esa aprobación en la documentación revisada.

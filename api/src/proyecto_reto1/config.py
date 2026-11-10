@@ -10,6 +10,7 @@ independientemente del directorio desde el que se ejecute.
 
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Ruta raíz del proyecto api/ (donde está .env y jars/)
@@ -37,17 +38,21 @@ class Settings(BaseSettings):
     # --- General ---
     db_engines: str = "oracle,mariadb,h2,hsqldb,derby"
     jars_dir: str = "jars"
+    sqlite_path: str = "data/central.sqlite3"
+    retry_interval_seconds: float = Field(default=10, ge=1)
+    refresh_queue_max: int = Field(default=5000, ge=1)
+    refresh_prepare_timeout_seconds: float = Field(default=30, ge=1)
 
     # --- Oracle (Ravenclaw) ---
     oracle_host: str = "localhost"
     oracle_port: int = 1521
-    oracle_service: str = "FREE"
+    oracle_service: str = "FREEPDB1"
     oracle_user: str = "ravenclaw"
     oracle_password: str = ""
 
     # --- MariaDB (Hogwarts) ---
     mariadb_host: str = "localhost"
-    mariadb_port: int = 3307
+    mariadb_port: int = 3306
     mariadb_database: str = "r01_central"
     mariadb_user: str = "r01"
     mariadb_password: str = ""
@@ -71,6 +76,8 @@ class Settings(BaseSettings):
         """Resuelve jars_dir a ruta absoluta si se indicó una relativa."""
         if not Path(self.jars_dir).is_absolute():
             self.jars_dir = str(_API_DIR / self.jars_dir)
+        if not Path(self.sqlite_path).is_absolute():
+            self.sqlite_path = str(_API_DIR / self.sqlite_path)
 
 
 settings = Settings()
