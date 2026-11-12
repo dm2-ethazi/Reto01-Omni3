@@ -114,7 +114,7 @@ La [validación ADAT y propuesta v6 del 09/11/2026](../docs/adat-validation.md) 
    mvn clean package
    ```
 
-5. **Ejecutar las pruebas** (§6): `mvn test` → **102 pruebas, 0 fallos** en la corrección actual.
+5. **Ejecutar las pruebas** (§6): `mvn test` → **103 pruebas, 0 fallos, 0 errores y 0 omitidas** en la verificación del 12/11/2026.
 
 6. **Configurar la URL de la API** (§4): copia la plantilla:
 
@@ -286,7 +286,7 @@ para Windows y se abrió la ventana conectada al backend local.
 |---|---|
 | `mvn verify` | Compila, ejecuta pruebas y genera el fat JAR; comprobado en la revisión histórica. |
 | `mvn clean package` | Regenera la entrega desde cero; para Windows se comprobó con `-Djavafx.platform=win`. |
-| `mvn test` | Surefire fija `gestor.idioma=es`; las 102 pruebas actuales también se ejecutaron dentro de `package`. |
+| `mvn test` | Surefire fija `gestor.idioma=es`; la ejecución de `mvn test` del 12/11 completó las 103 pruebas. |
 | `mvn clean javafx:run` | Lanzamiento interactivo en desarrollo; no repetido en esta revisión. |
 | `mvn dependency:resolve` | Resolución explícita de dependencias; no repetida por separado. |
 | `mvn javadoc:javadoc` | **Correcto:** genera `target/reports/apidocs/index.html`. |
@@ -297,7 +297,7 @@ para Windows y se abrió la ventana conectada al backend local.
   `mac-aarch64`. Para compilar para otro sistema fuerza la propiedad; en PowerShell:
   `mvn clean package '-Djavafx.platform=win'`. La propiedad evita que el perfil
   automático del equipo de compilación seleccione binarios de otra plataforma.
-- Las 102 pruebas JUnit **no arrancan el toolkit JavaFX**.
+- Las 103 pruebas JUnit **no arrancan el toolkit JavaFX**.
   Cubren el doble de cliente, DTOs, validaciones, servicio, fábrica, configuración,
   idiomas, catálogo y viewmodels. `ClienteAlumnosHttpTest` usa sockets locales para
   comprobar fallos de red, la versión original y la consulta explícita de SQLite

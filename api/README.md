@@ -54,9 +54,7 @@ del RAR se añaden a `PATRONUS_IMG`: 152 entradas en total. Se respetan las URL
 personalizadas y el arranque refresca el catálogo SQLite por `GET /patronus`.
 Las altas nuevas siguen exigiendo DNI y Patronus. El script espera
 hasta 180 segundos por conexión. MariaDB carga su esquema y catálogo desde
-`database/mariadb/01_schema.sql` en volúmenes nuevos. Si el volumen es anterior,
-aplicar las entradas del catálogo que falten; las columnas centrales se migran
-automáticamente sin borrar alumnado.
+`database/mariadb/01_schema.sql` en volúmenes nuevos. En volúmenes existentes, `start-local.ps1` ejecuta `scripts/seed-origins.py`, que inserta las entradas del catálogo que faltan. Si arrancas la API manualmente sin ejecutar el cargador, comprueba el catálogo y completa las entradas ausentes. La API migra las columnas centrales sin borrar alumnado.
 
 El archivo `SQLITE_PATH` se resuelve respecto a `api/`, por defecto
 `api/data/central.sqlite3`. Hay que conservarlo junto con los volúmenes Docker.
@@ -224,7 +222,7 @@ del proyecto Compose al entorno que hayas arrancado.
 La demo HTTP detiene/recupera H2 y MariaDB del proyecto indicado, comprueba los
 rechazos, el fallback, cinco intentos automáticos reales, `FAILED`, divergencias
 y relanzamiento administrativo. Puede tardar unos dos minutos. Conserva las bajas
-de prueba, restaura el nombre histórico y no elimina volúmenes. Sin
+de prueba y los volúmenes. Si completa el recorrido, restaura el nombre del histórico. Un fallo previo a la restauración puede dejar guardado el nombre de prueba. Sin
 `--compose-project` omite las caídas. Parámetros alternativos: `--base-url`,
 `--env-file`, `--compose-env-file` y `--report`.
 

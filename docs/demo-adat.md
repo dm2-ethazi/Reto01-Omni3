@@ -141,7 +141,7 @@ $local = Get-Content api/data/local-environment.json -Raw | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0) { throw 'Revisar el informe de caídas.' }
 ```
 
-Esperado: origen caído rechaza edición con 503 y no la aplica después; MariaDB caída permite lectura SQLite identificada como caché, pero rechaza escrituras de nuevos. Un cambio histórico confirmado conserva el refresco pendiente, agota cinco intentos y llega a `FAILED`; al recuperar MariaDB y relanzarlo, las huellas vuelven a coincidir. El script restaura el nombre histórico y arranca los servicios que haya detenido en su bloque de recuperación.
+Esperado: origen caído rechaza edición con 503 y no la aplica después; MariaDB caída permite lectura SQLite identificada como caché, pero rechaza escrituras de nuevos. Un cambio histórico confirmado conserva el refresco pendiente, agota cinco intentos y llega a `FAILED`; al recuperar MariaDB y relanzarlo, las huellas vuelven a coincidir. Al completar el recorrido, el script restaura el nombre original del histórico. Si la prueba falla después de editarlo y antes de restaurarlo, el nombre de prueba puede quedar guardado. En ambos casos, el bloque final intenta arrancar los servicios que aún estén detenidos.
 
 ## 5. Evidencia de API y de clientes
 
