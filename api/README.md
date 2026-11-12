@@ -20,12 +20,16 @@ Copy-Item api/.env.example api/.env
 # Cambiar contraseñas de ejemplo e igualarlas en ambos archivos.
 # ORACLE_PASSWORD en api/.env corresponde a ORACLE_USER_PASSWORD en .env raíz.
 docker compose up -d
-py -3.14 -m venv api/.venv  # También sirve py -3.11.
+Push-Location ./api
+try { python -m venv .venv } finally { Pop-Location }
 & api/.venv/Scripts/python.exe -m pip install --upgrade pip
 & api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
 & api/.venv/Scripts/python.exe scripts/seed-origins.py
 & api/.venv/Scripts/python.exe -m uvicorn proyecto_reto1.main:app --host 127.0.0.1 --port 8000 --log-level info
 ```
+
+Si la creación del entorno falla con ese bloque desde la raíz, puedes ejecutarla
+directamente desde la raíz con `python -m venv .\api\.venv`.
 
 En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
 Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder usa
