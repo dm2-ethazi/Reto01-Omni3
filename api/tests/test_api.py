@@ -135,6 +135,23 @@ def test_put_valida_y_exige_version(entorno):
     assert cliente.get(RUTA).json()["nombre"] == "Granger"
 
 
+def test_uuid_historico_se_conserva_y_se_consulta_en_mayusculas(entorno):
+    cliente, servicio, _, fuente = entorno
+    identificador = "f0b89f23-fb85-4147-a50b-629f4d26ad73"
+    with fuente.local.conexion(escritura=True) as db:
+        db.execute("UPDATE ALUMNOS SET ID=?", (identificador,))
+    respuesta = cliente.post("/sync", json={"ids": [identificador.upper()]})
+    assert respuesta.json()["fuentes"]["h2"]["importados"] == 1
+    ruta = "/alumnos/" + identificador.upper()
+    assert cliente.get(ruta).json()["id"] == identificador
+    assert cliente.get(ruta + "/sync").status_code == 200
+    assert cliente.put(ruta, json={"version": 1, "nombre": "Cambio UUID"}).status_code == 200
+    assert fuente.obtener(identificador).nombre == "Cambio UUID"
+    assert cliente.post("/alumnos", json={**ALTA, "id": identificador}).status_code == 422
+    assert cliente.delete(ruta, headers={"If-Match": '"2"'}).status_code == 204
+    assert cliente.get(ruta).status_code == 404
+
+
 def test_dos_ediciones_concurrentes(entorno):
     cliente, *_ = entorno
     cliente.post("/alumnos", json=ALTA)

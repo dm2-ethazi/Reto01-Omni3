@@ -1,6 +1,6 @@
 param(
     [int]$Port = 8000,
-    [string]$EnvFile = 'api/data/validation.env',
+    [string]$EnvFile = '',
     [switch]$NoJava
 )
 
@@ -10,25 +10,51 @@ $python = Join-Path $repo 'api/.venv/Scripts/python.exe'
 $jar = Join-Path $repo 'gestorhogwartsjavafx/target/gestorhogwartsjavafx-1.0.0.jar'
 $data = Join-Path $repo 'api/data'
 $baseUrl = "http://127.0.0.1:$Port"
-if (-not [IO.Path]::IsPathRooted($EnvFile)) { $EnvFile = Join-Path $repo $EnvFile }
-if (-not (Test-Path -LiteralPath $EnvFile)) { throw "Falta la configuracion local: $EnvFile" }
 if (-not (Test-Path -LiteralPath $python)) { throw 'Falta el entorno Python de api/.venv.' }
 if (-not $NoJava -and -not (Test-Path -LiteralPath $jar)) {
-    throw 'Compila primero JavaFX para Windows: mvn clean package -Djavafx.platform=win'
+    throw "Compila JavaFX: mvn clean package '-Djavafx.platform=win'"
 }
-
+New-Item -ItemType Directory -Force $data | Out-Null
+$mutex = New-Object System.Threading.Mutex($false, 'Local\Omni3-R01-start')
+$owned = $false
 Push-Location $repo
 try {
-    docker compose --env-file $EnvFile -p r01-adat-validation up -d
-    if ($LASTEXITCODE -ne 0) { throw 'No se pudieron arrancar las bases Docker.' }
-    & $python scripts/seed-origins.py --env-file $EnvFile
-    if ($LASTEXITCODE -ne 0) { throw 'No se pudieron preparar las cuatro fuentes.' }
+    try { $owned = $mutex.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $owned = $true }
+    if (-not $owned) { throw 'Ya hay otro arranque R01 en curso. Espera a que termine.' }
 
+    Write-Host '[1/5] Recuperando la configuracion local compartida...'
+    $infoFile = Join-Path $data 'local-environment.json'
+    if ($EnvFile) {
+        if (-not [IO.Path]::IsPathRooted($EnvFile)) { $EnvFile = Join-Path $repo $EnvFile }
+        if (-not (Test-Path -LiteralPath $EnvFile)) { throw "No existe la configuracion: $EnvFile" }
+        & $python -u scripts/local-environment.py --legacy-env $EnvFile --output $infoFile
+    } else {
+        & $python -u scripts/local-environment.py --output $infoFile
+    }
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudo recuperar la instalacion local. Revisa el mensaje anterior.' }
+    $local = Get-Content -LiteralPath $infoFile -Raw | ConvertFrom-Json
+    $EnvFile = $local.env_file
+    Write-Host "SQLite central: $($local.sqlite_path)"
+
+    # Reutilizar solo una API que use la misma SQLite compartida.
     $health = $null
-    try { $health = Invoke-RestMethod "$baseUrl/health" -TimeoutSec 3 } catch {}
+    try { $health = Invoke-RestMethod "$baseUrl/health" -TimeoutSec 15 } catch {}
+    if ($health -and ($health.reto -ne 'R01' -or $health.instalacion -ne $local.installation_id)) {
+        throw "La API del puerto $Port pertenece a otra instalacion o version. Detenla antes de continuar."
+    }
+    if (-not $health -and (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
+        throw "El puerto $Port esta ocupado. Deten ese proceso o usa -Port con otro puerto."
+    }
+
+    Write-Host '[2/5] Arrancando bases y esperando a que esten listas...'
+    docker compose --env-file $EnvFile -p $local.compose_project up -d --wait --wait-timeout 240
+    if ($LASTEXITCODE -ne 0) { throw 'Las bases no estan listas; revisa Docker y los puertos.' }
+    Write-Host '[3/5] Cargando los cuatro CSV historicos...'
+    & $python -u scripts/seed-origins.py --env-file $EnvFile
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudieron preparar las fuentes. Revisa el error anterior.' }
+
+    Write-Host '[4/5] Comprobando o iniciando la API...'
     if (-not $health) {
-        $listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-        if ($listener) { throw "El puerto $Port esta ocupado por otro proceso." }
         $arguments = @('-u', '-m', 'uvicorn', 'proyecto_reto1.main:app',
             '--env-file', ('"{0}"' -f $EnvFile), '--host', '127.0.0.1', '--port', "$Port")
         $backend = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $repo `
@@ -37,14 +63,36 @@ try {
             -RedirectStandardError (Join-Path $data 'local-api.stderr.log')
         $backend.Id | Set-Content (Join-Path $data 'local-api.pid')
         for ($attempt = 0; $attempt -lt 60; $attempt++) {
-            try { $health = Invoke-RestMethod "$baseUrl/health" -TimeoutSec 3; break } catch {}
+            try { $health = Invoke-RestMethod "$baseUrl/health" -TimeoutSec 15; break } catch {}
             $backend.Refresh()
             if ($backend.HasExited) { throw 'La API se ha cerrado. Consulta api/data/local-api.stderr.log.' }
             Start-Sleep -Seconds 1
         }
         if (-not $health) { throw 'La API no responde. Consulta api/data/local-api.stderr.log.' }
     }
-    $sync = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body '{}' -TimeoutSec 120
+    if ($health.reto -ne 'R01' -or $health.instalacion -ne $local.installation_id) {
+        throw 'La API no corresponde a la instalacion compartida preparada.'
+    }
+    Write-Host '[5/5] Importando los historicos y comprobando ambas centrales...'
+    # Reflejar las bajas de ejemplos antiguos sin borrar registros de las centrales.
+    $retire = '{"ids":["10000001A","10000002B","10000003C","10000004D"]}'
+    $null = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body $retire -TimeoutSec 600
+    $sync = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body '{}' -TimeoutSec 600
+    foreach ($source in $sync.fuentes.PSObject.Properties) {
+        if ($source.Value.estado -ne 'ok') { throw "No se pudo importar $($source.Name)." }
+        Write-Host "$($source.Name): leidos=$($source.Value.leidos), importados=$($source.Value.importados)"
+    }
+    $limit = (Get-Date).AddMinutes(10)
+    do {
+        $health = Invoke-RestMethod "$baseUrl/health" -TimeoutSec 30
+        if ($health.cola.fallidas -gt 0) { throw 'Hay refrescos FAILED. Consulta /admin/refresh-queue.' }
+        if ($health.cola.activas -eq 0) { break }
+        if ((Get-Date) -gt $limit) { throw 'La sincronizacion sigue pendiente. Consulta /admin/refresh-queue.' }
+        Write-Host "Refrescos pendientes: $($health.cola.activas)..."
+        Start-Sleep -Seconds 3
+    } while ($true)
+    $coherence = Invoke-RestMethod "$baseUrl/admin/coherence" -TimeoutSec 30
+    if (-not $coherence.coinciden) { throw 'MariaDB y SQLite divergen. Consulta /admin/coherence.' }
     Write-Host "Backend: $baseUrl | Swagger: $baseUrl/docs"
 
     if (-not $NoJava) {
@@ -59,4 +107,6 @@ try {
     }
 } finally {
     Pop-Location
+    if ($owned) { $mutex.ReleaseMutex() }
+    $mutex.Dispose()
 }

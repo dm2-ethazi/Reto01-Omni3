@@ -6,6 +6,8 @@ y edita/restaura el nombre de las semillas de cada origen.
 
 import os
 import secrets
+import importlib.util
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -133,6 +135,36 @@ def test_crud_baja_y_migracion_idempotente_reales(real):
     assert cliente.get(f"/alumnos/{dni}").status_code == 404
     central = next(a for a in servicio.maria.listar_central() if a.id == dni)
     assert not central.activo and central.version == 2
+
+
+def test_seeder_csv_repetido_conserva_edicion_y_metadatos_reales(real):
+    cliente, servicio = real
+    root = Path(__file__).resolve().parents[2]
+    spec = importlib.util.spec_from_file_location("seed_csv", root / "scripts/seed-origins.py")
+    seed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(seed)
+    datos = seed.cargar_csv(root / "database/origins/data")
+    fuente = servicio.fuentes["h2"]
+    row = datos["h2"][0]
+    original = fuente.obtener(row[0])
+    cliente.post("/sync", json={"origenes": ["h2"], "ids": [original.id]})
+    ruta = "/alumnos/" + original.id
+    version = cliente.get(ruta).json()["version"]
+    try:
+        assert cliente.put(ruta, json={"version": version, "nombre": "Edición conservada"}).status_code == 200
+        with fuente._conexion() as db:
+            nuevos, existentes, retirados = seed.sembrar(db, "h2", datos["h2"])
+            cursor = db.cursor()
+            cursor.execute("SELECT NOMBRE,GENERO,WIKI FROM ALUMNOS WHERE ID=?", (original.id,))
+            guardado = cursor.fetchone()
+            cursor.close()
+        assert nuevos == retirados == 0 and existentes == 212
+        assert guardado[0] == "Edición conservada"
+        assert guardado[1:] == (row[9], row[12])
+    finally:
+        vigente = cliente.get(ruta).json()
+        if vigente["nombre"] != original.nombre:
+            assert cliente.put(ruta, json={"version": vigente["version"], "nombre": original.nombre}).status_code == 200
 
 
 def test_saturacion_con_fuentes_reales_rechaza_antes_de_escribir(real, monkeypatch):

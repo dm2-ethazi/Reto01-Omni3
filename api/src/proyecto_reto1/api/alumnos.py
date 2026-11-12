@@ -3,9 +3,9 @@
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Header, Query, Request, Response
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Patronus
+from ..db.base import Alumno, AlumnoActualizacion, AlumnoEntrada, Patronus, normalizar_identificador
 from ..services.alumnos import ErrorServicio, ServicioAlumnos
 
 router = APIRouter()
@@ -52,7 +52,7 @@ def listar_alumnos(
 @router.get("/alumnos/{dni}", response_model=Alumno)
 @router.get("/students/{dni}", response_model=Alumno)
 def obtener_alumno(dni: str, response: Response, servicio: Servicio):
-    alumno = servicio.obtener(dni.strip().upper())
+    alumno = servicio.obtener(normalizar_identificador(dni))
     response.headers["ETag"] = f'"{alumno.version}"'
     response.headers["X-Data-Source"] = (
         "sqlite-cache" if alumno.desde_cache else "mariadb"
@@ -84,7 +84,7 @@ def actualizar_alumno(
     if_match: str | None = Header(default=None),
 ):
     alumno = servicio.modificar(
-        dni.strip().upper(),
+        normalizar_identificador(dni),
         datos.model_dump(exclude_unset=True, exclude={"version"}),
         version_esperada(datos.version, if_match),
     )
@@ -103,7 +103,7 @@ def eliminar_alumno(
     if_match: str | None = Header(default=None),
 ):
     servicio.modificar(
-        dni.strip().upper(), {}, version_esperada(version, if_match), baja=True
+        normalizar_identificador(dni), {}, version_esperada(version, if_match), baja=True
     )
     response.headers["X-Sync-Pending"] = str(len(servicio.local.cola()))
 
@@ -140,6 +140,11 @@ class SolicitudSync(BaseModel):
     ids: list[str] | None = Field(default=None, max_length=1000)
     resolver_conflictos: bool = False
 
+    @field_validator("ids")
+    @classmethod
+    def normalizar_ids(cls, valores):
+        return [normalizar_identificador(v) for v in valores] if valores is not None else None
+
 
 @router.post("/sync")
 def sincronizar(servicio: Servicio, datos: SolicitudSync | None = None):
@@ -174,7 +179,7 @@ def coherencia(servicio: Servicio, response: Response):
 @router.get("/alumnos/{dni}/sync")
 @router.get("/students/{dni}/sync")
 def sincronizacion_alumno(dni: str, servicio: Servicio):
-    alumno = servicio.obtener(dni.strip().upper())
+    alumno = servicio.obtener(normalizar_identificador(dni))
     return {
         "id": alumno.id,
         "version": alumno.version,

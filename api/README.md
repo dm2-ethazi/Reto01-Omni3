@@ -28,8 +28,11 @@ py -3.14 -m venv api/.venv  # También sirve py -3.11.
 ```
 
 En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
-Las semillas `database/origins/*.sql` crean tablas compatibles con esta API y
-añaden un alumno por fuente sin sobrescribir datos existentes. El script espera
+Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder carga
+los CSV originales de `database/origins/data/`: Derby 303, H2 212, Oracle 203 y
+HSQLDB 267 registros. Conserva UUID y campos originales, omite UUID ya existentes
+y no inventa Patronus. Amplía las columnas ID de tablas anteriores a 64 caracteres.
+Las altas nuevas siguen exigiendo DNI y Patronus; los históricos usan su UUID. El script espera
 hasta 180 segundos por conexión. MariaDB carga su esquema y catálogo desde
 `database/mariadb/01_schema.sql` en volúmenes nuevos. Si el volumen es anterior,
 aplicar las entradas del catálogo que falten; las columnas centrales se migran
@@ -45,23 +48,40 @@ Los puertos Compose son configurables con `MARIADB_PORT`, `ORACLE_PORT`, `H2_POR
 `api/.env.local.example` permite una prueba reducida de MariaDB, que no acredita
 la lectura de las cuatro fuentes.
 
-### Arranque conjunto de demo en Windows
+### Arranque conjunto en Windows y reutilización entre clones
 
-Tras instalar `api/.venv` y compilar el JAR JavaFX para Windows, el script
-`scripts/start-local.ps1` inicia las bases del proyecto `r01-adat-validation`,
-prepara sus tablas/semillas, inicia Uvicorn, importa los datos y abre el cliente.
-La [guía de la raíz](../README.md#demo-local-con-backend-y-javafx) incluye los comandos.
-La plantilla `api/.env.demo.example` se copia a `api/data/validation.env` solo la
-primera vez; este archivo privado reúne variables de Compose y de la API.
-Se carga como variables de entorno, no se copia íntegro a `api/.env`, porque
-contiene también claves exclusivas de Compose.
+Con el entorno Python y el JAR Windows preparados, ejecuta desde la raíz:
 
-Los puertos de demo son MariaDB **33306**, Oracle **31521**, H2 **39092**
-(web **38082**), HSQLDB **39001** y Derby **31527**. La SQLite usada es
-`api/data/validation-final.sqlite3`. El script admite `-NoJava` para iniciar solo
-las bases y el backend; `-Port` cambia el puerto HTTP y `-EnvFile` selecciona otra
-configuración compartida. Los argumentos del script se pasan después de
-`-File scripts/start-local.ps1`.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local.ps1
+```
+
+El script prepara la configuración compartida con `scripts/local-environment.py`,
+inicia las bases, carga los CSV y arranca la API. Importa los históricos, espera
+los refrescos y comprueba la coherencia antes de abrir JavaFX. Admite `-NoJava`
+para usar solo las bases y el backend. La [guía de la raíz](../README.md#copiar-y-pegar-montar-y-ejecutar-desde-la-raíz)
+contiene el bloque de preparación completo.
+
+Todos los clones del mismo usuario comparten `%LOCALAPPDATA%/Omni3/R01/local.env`
+y `%LOCALAPPDATA%/Omni3/R01/central.sqlite3`. La plantilla `api/.env.demo.example`
+solo sirve para la primera creación. Se recuperan las claves válidas de la
+instalación anterior y se conserva una copia de su SQLite y de la cola; nunca
+se regeneran claves sobre volúmenes existentes. Detener la API anterior antes de
+la primera migración. `-EnvFile` permite señalar su configuración si no se descubre
+automáticamente; después se usa siempre la compartida.
+
+`api/data/local-environment.json` guarda rutas y la identidad pública de la
+instalación, sin contraseñas. `/health` incluye `instalacion` para comprobar que
+un proceso existente utiliza la misma SQLite; el script rechaza una API diferente.
+Los errores de autenticación no se reintentan durante 180 segundos: el seeder
+termina y pide revisar las claves. Durante la espera de disponibilidad sí muestra
+el progreso. La configuración general `api/.env` sigue siendo válida para
+arranques manuales; usa el archivo compartido con `--env-file` para entrar en la
+misma instalación que `start-local.ps1`.
+
+Puertos de la plantilla: MariaDB **33306**, Oracle **31521**, H2 **39092**
+(web **38082**), HSQLDB **39001** y Derby **31527**. Los puertos migrados se conservan.
+No borrar datos ni cambiar contraseñas para solucionar un error de arranque.
 
 ## Fuentes de verdad y flujo
 
@@ -130,7 +150,7 @@ en SQLite. Solo afecta a la consulta del listado, no cambia las reglas de escrit
 | GET | `/health` | R01, estado de cada base, latencias, capacidad/ocupación y fallidas |
 | GET | `/alumnos?nombre=Ce` | Activos y búsqueda por prefijo; MariaDB con fallback SQLite |
 | GET | `/alumnos?lectura=sqlite` | Activos leídos de SQLite, con origen conservado y `X-Data-Source: sqlite-cache` |
-| GET | `/alumnos/{dni}` | Ficha, metadatos de sincronización y ETag |
+| GET | `/alumnos/{dni}` | Ficha por DNI de nuevo o UUID histórico, metadatos y ETag |
 | POST | `/alumnos` | Alta en MariaDB; DNI, nombre y Patronus obligatorios |
 | PUT | `/alumnos/{dni}` | Cambio parcial con `version` o `If-Match` |
 | DELETE | `/alumnos/{dni}` | Baja con `If-Match` o `?version=` |
@@ -147,7 +167,9 @@ en SQLite. Solo afecta a la consulta del listado, no cambia las reglas de escrit
 Alta: DNI `^[0-9]{8}[A-Z]$`, normalizado a mayúsculas; nombre de 2–80 caracteres
 tras recortar espacios; sexo H/M/S o nulo. Patronus de 2–60 caracteres, obligatorio
 en nuevos y perteneciente al catálogo inglés tanto en POST como en PUT. Un
-histórico puede no tener Patronus. PUT no permite modificar ID, casa, origen,
+histórico puede no tener Patronus. Los UUID históricos se conservan en formato canónico y se aceptan también en
+mayúsculas al consultar, editar, dar de baja o sincronizar por ID.
+PUT no permite modificar ID, casa, origen,
 tipo, activo ni metadatos de sincronización.
 
 Edición de ejemplo: `{"nombre":"Hermione","version":1}` o `If-Match: "1"`
@@ -166,12 +188,17 @@ accesos Uvicorn con DNI enmascarado. Unity tampoco imprime el DNI en su aviso de
 ```powershell
 & api/.venv/Scripts/python.exe -m pytest api/tests -q
 # Solo sobre bases de demo; cerrar otra API durante el perfil de saturación.
+$local = Get-Content api/data/local-environment.json -Raw | ConvertFrom-Json
 $env:R01_INTEGRATION = '1'
-& api/.venv/Scripts/python.exe -m pytest api/tests -q -p no:faulthandler
-Remove-Item Env:R01_INTEGRATION
-# Con Uvicorn arrancado:
-& api/.venv/Scripts/python.exe scripts/verify-adat.py --compose-project r01-databases
+try {
+    & api/.venv/Scripts/python.exe -c "from dotenv import load_dotenv; import pytest,sys; load_dotenv(sys.argv[1],override=True); sys.exit(pytest.main(['api/tests','-q','-p','no:faulthandler']))" $local.env_file
+} finally { Remove-Item Env:R01_INTEGRATION }
+# Con Uvicorn de esa misma instalacion arrancado:
+& api/.venv/Scripts/python.exe scripts/verify-adat.py --env-file $local.env_file --compose-env-file $local.env_file --compose-project $local.compose_project
 ```
+
+En un arranque manual con `api/.env`, ajusta las rutas de configuración y el nombre
+del proyecto Compose al entorno que hayas arrancado.
 
 La demo HTTP detiene/recupera H2 y MariaDB del proyecto indicado, comprueba los
 rechazos, el fallback, cinco intentos automáticos reales, `FAILED`, divergencias

@@ -187,9 +187,10 @@ curl -H "ngrok-skip-browser-warning: 1" https://tu-api-aqui.com/alumnos
 
 Para arrancar **bases, backend y JavaFX juntos en Windows**, utiliza desde la raíz
 `powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1`, una vez
-instalado el backend, configurado `api/data/validation.env` y compilado el JAR para
-Windows. La [guía local de la raíz](../README.md#demo-local-con-backend-y-javafx)
-incluye la plantilla y todos los pasos. El script fuerza
+instalado el backend y compilado el JAR para Windows. La configuración se prepara
+automáticamente en `%LOCALAPPDATA%/Omni3/R01/local.env` y se comparte entre clones.
+La [guía local de la raíz](../README.md#copiar-y-pegar-montar-y-ejecutar-desde-la-raíz)
+incluye todos los pasos. El script fuerza
 `-Dgestor.api.url=http://127.0.0.1:8000` (o el puerto indicado con `-Port`), por
 encima de cualquier configuración remota previa.
 

@@ -1,7 +1,7 @@
 -- Minimal schema required by api/src/proyecto_reto1/db/mariadb.py.
 -- Applied by the MariaDB image only when its data volume is first created.
 CREATE TABLE IF NOT EXISTS ALUMNOS (
-    ID VARCHAR(10) NOT NULL PRIMARY KEY,
+    ID VARCHAR(64) NOT NULL PRIMARY KEY,
     NOMBRE VARCHAR(100) NOT NULL,
     APELLIDO VARCHAR(100) NULL,
     SEXO CHAR(1) NULL,

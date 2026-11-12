@@ -15,8 +15,18 @@ datos. Contiene, en este orden:
 """
 
 from typing import Protocol
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+def normalizar_identificador(valor: str) -> str:
+    """Conserva el UUID canónico de históricos y normaliza el DNI de nuevos."""
+    valor = valor.strip()
+    try:
+        return str(UUID(valor))
+    except ValueError:
+        return valor.upper()
 
 # --------------------------------------------------------------------------- #
 #  1. Modelos Pydantic                                                        #

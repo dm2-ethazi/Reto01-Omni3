@@ -5,6 +5,7 @@ import json
 import logging
 import sqlite3
 import time
+from pathlib import Path
 
 from ..config import settings
 from ..db.base import Alumno, ColaLlena, Conflicto, EscrituraIncierta
@@ -620,6 +621,9 @@ class ServicioAlumnos:
         return {
             "reto": "R01",
             "status": "degraded" if degradado else "ok",
+            "instalacion": hashlib.sha256(
+                str(Path(self.local.path).resolve()).casefold().encode()
+            ).hexdigest()[:20],
             "timestamp": instante(),
             "centrales": {"sqlite": sqlite, "mariadb": maria},
             "conectores": conectores,

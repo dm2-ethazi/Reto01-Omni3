@@ -96,3 +96,37 @@ Las tareas heredadas de la implementación anterior se preservan como `FAILED`
 con `LEGACY_REVIEW` y no se ejecutan ni se relanzan automáticamente. Requieren
 revisión porque podían representar órdenes de escritura que no fueron confirmadas.
 Los datos y volúmenes deben conservarse: borrarlos no es un procedimiento de recuperación.
+
+## Actualización 12/11/2026: datos históricos y arranque entre clones
+
+Las cuatro fuentes se preparan con los CSV suministrados por el equipo, incluidos
+sin modificar en `database/origins/data/`: 303 Gryffindor/Derby, 212 Hufflepuff/H2,
+203 Ravenclaw/Oracle y 267 Slytherin/HSQLDB. Son **985 UUID únicos**; se conservan
+las columnas originales, sin fabricar DNI, apellidos separados o Patronus. Los
+esquemas y las centrales aceptan ID de hasta 64 caracteres. Las altas nuevas
+siguen exigiendo DNI y Patronus. La API normaliza UUID también en las rutas y en
+la sincronización selectiva para admitir clientes que los envíen en mayúsculas.
+
+La carga no sobrescribe UUID existentes ni sus ediciones. Retira los cuatro
+ejemplos anteriores solo si permanecen intactos; el arranque refleja sus bajas
+en la central y espera a que termine el refresco de los nuevos históricos.
+Se comprobó la carga repetida sin inserciones, la consulta de los 985 desde cada
+central y la igualdad de sus huellas.
+
+Los clones usan ahora una configuración compartida en
+`%LOCALAPPDATA%/Omni3/R01/local.env` y la misma `central.sqlite3`. En la primera
+migración se verifican las claves anteriores y se copia SQLite incluyendo la
+cola mediante su API de backup. Se conserva el original. El seeder informa del
+progreso y falla inmediatamente ante claves rechazadas. El arranque comprueba
+la identidad de la API existente y la coherencia de las centrales antes de abrir
+JavaFX. Se probó otro directorio de clon con claves privadas diferentes: reutilizó
+la misma configuración, archivo SQLite e identidad de instalación.
+
+Resultado: **56 pruebas correctas**, incluidas **8 de integración real**. El perfil
+verifica también que repetir el seeder mantiene una edición de un UUID y sus
+metadatos CSV. El arranque completo se repitió sobre la misma API sin regenerar
+credenciales ni volver a insertar históricos.
+
+Los informes de esta revisión quedan bajo `api/data/`; los archivos privados y
+las bases no se versionan. El entorno JDK 17 señalado en la revisión anterior
+sigue pendiente: este cambio se limita al seeder y al arranque compartido.

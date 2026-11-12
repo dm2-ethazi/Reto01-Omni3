@@ -13,9 +13,13 @@ class CentralMariaDB(RepositorioMariaDB):
     def preparar(self):
         with self._conexion() as db, db.cursor() as cursor:
             cursor.execute("""CREATE TABLE IF NOT EXISTS ALUMNOS (
-                ID VARCHAR(10) PRIMARY KEY, NOMBRE VARCHAR(100) NOT NULL,
+                ID VARCHAR(64) PRIMARY KEY, NOMBRE VARCHAR(100) NOT NULL,
                 APELLIDO VARCHAR(100), SEXO CHAR(1), PATRONUS VARCHAR(100), IMAGEN VARCHAR(500)
             ) CHARACTER SET utf8mb4""")
+            cursor.execute("""SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='ALUMNOS' AND COLUMN_NAME='ID'""")
+            if cursor.fetchone()[0] < 64:
+                cursor.execute("ALTER TABLE ALUMNOS MODIFY COLUMN ID VARCHAR(64) NOT NULL")
             for campo, tipo in {
                 "ORIGEN": "VARCHAR(20) NOT NULL DEFAULT 'mariadb'",
                 "TIPO": "VARCHAR(20) NOT NULL DEFAULT 'NUEVO'",
