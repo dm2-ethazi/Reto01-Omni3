@@ -207,7 +207,7 @@ Este lanzamiento interactivo no se ha repetido en la revisión del 21/10/2026.
 
 ```bash
 mvn clean package
-java -jar target/gestorhogwartsjavafx-1.0.0.jar
+java -jar target/gestorhogwartsjavafx-2.0.1.jar
 ```
 
 El JAR final lleva dentro las dependencias JavaFX, los FXML/CSS, las fuentes, los
@@ -232,16 +232,16 @@ Se ejecutan desde la carpeta del módulo (usan la ruta relativa `target/…`).
 
 ```bash
 # URL de la API por propiedad de sistema (gana sobre todo lo demás)
-java -Dgestor.api.url=https://tu-api-aqui.com -jar target/gestorhogwartsjavafx-1.0.0.jar
+java -Dgestor.api.url=https://tu-api-aqui.com -jar target/gestorhogwartsjavafx-2.0.1.jar
 
 # por variable de entorno (PowerShell)
-$env:GESTOR_API_URL="https://tu-api-aqui.com"; java -jar target/gestorhogwartsjavafx-1.0.0.jar
+$env:GESTOR_API_URL="https://tu-api-aqui.com"; java -jar target/gestorhogwartsjavafx-2.0.1.jar
 
 # por variable de entorno (Linux/macOS)
-GESTOR_API_URL=https://tu-api-aqui.com java -jar target/gestorhogwartsjavafx-1.0.0.jar
+GESTOR_API_URL=https://tu-api-aqui.com java -jar target/gestorhogwartsjavafx-2.0.1.jar
 
 # idioma inicial forzado (si no, sigue al del sistema: es, eu, en o inglés por defecto)
-java -Dgestor.idioma=eu -jar target/gestorhogwartsjavafx-1.0.0.jar
+java -Dgestor.idioma=eu -jar target/gestorhogwartsjavafx-2.0.1.jar
 ```
 
 ### e) En contenedor Docker
@@ -501,8 +501,8 @@ La lista siguiente describe los mecanismos de accesibilidad presentes y los punt
 
   ```bash
   git check-ignore config.properties          # debe imprimir la ruta
-  jar tf target/gestorhogwartsjavafx-1.0.0.jar | findstr config.properties   # Windows: sin salida
-  # Linux/macOS: jar tf target/gestorhogwartsjavafx-1.0.0.jar | grep config.properties
+  jar tf target/gestorhogwartsjavafx-2.0.1.jar | findstr config.properties   # Windows: sin salida
+  # Linux/macOS: jar tf target/gestorhogwartsjavafx-2.0.1.jar | grep config.properties
   ```
 
 - **La URL real no aparece en el código:** la única URL escrita en Java es la local de
@@ -538,7 +538,7 @@ La lista siguiente describe los mecanismos de accesibilidad presentes y los punt
 | Error al cargar un FXML («Controller … not found», campo nulo) | Ruta o `fx:id` desalineados | Las vistas se cargan desde `ControladorVista.RUTA_VISTAS` = `/com/omni3/gestorhogwartsjavafx/vista/fxml/`; `fx:id` y `fx:controller` deben coincidir con el controlador. |
 | **«JavaFX runtime components are missing»** | Se lanzó `App` con un classpath incompleto | Usa `mvn javafx:run` o el fat JAR (su `Main-Class` es `Launcher`, §5). |
 | `Unsupported JavaFX configuration: classes were loaded from 'unnamed module'` | Aviso de JavaFX con classpath (sin module-info) | Cosmético e inofensivo; documentado como decisión en §8. |
-| `WARNING: … System::load … / Restricted methods` | Java moderno avisa sobre acceso nativo | La carga FXML pasó con JDK 25.0.2 pese al aviso. Para ese JDK puede usarse `java --enable-native-access=ALL-UNNAMED -jar target/gestorhogwartsjavafx-1.0.0.jar`; no se garantiza el comportamiento de futuras versiones. |
+| `WARNING: … System::load … / Restricted methods` | Java moderno avisa sobre acceso nativo | La carga FXML pasó con JDK 25.0.2 pese al aviso. Para ese JDK puede usarse `java --enable-native-access=ALL-UNNAMED -jar target/gestorhogwartsjavafx-2.0.1.jar`; no se garantiza el comportamiento de futuras versiones. |
 | **`mvn` no se reconoce** | Maven no está en el `PATH` | Instala Maven 3.9+ y configura `PATH`, o usa la ruta real del Maven de tu IDE (§3 y §6). |
 | `mvn site` termina pero omite `dependency-info` | Incompatibilidad entre el plugin de informes y Doxia (`Sink.verbatim()`) | El sitio se genera parcialmente. La corrección requiere ajustar versiones en `pom.xml`; sigue pendiente. |
 | `java -version` informa de algo menor que 17 | JDK antiguo o `JAVA_HOME` mal apuntando | Instala Temurin 17+ (§2–§3) y reabre la terminal. |
