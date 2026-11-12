@@ -200,6 +200,12 @@ con `python -m venv .venv`.
 }
 ```
 
+En caso de que falle, la posible solucion que he probado y funcionó es realizar antes de ejecutar lo anterior:
+
+```
+python -m venv .\api\.venv
+```
+
 La primera ejecución puede tardar varios minutos, especialmente al descargar e
 iniciar Oracle e importar los CSV. Se muestra el progreso de preparación y los
 refrescos pendientes. JavaFX se abre al terminar con ambas centrales coherentes.
