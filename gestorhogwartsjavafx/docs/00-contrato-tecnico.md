@@ -1,7 +1,16 @@
 # Contrato técnico — Cliente de escritorio JavaFX (Reto R01 · Omni3)
 
+> **Actualización 09/11/2026:** el equipo confirma la propuesta **v6** como versión
+> aceptada. La API aplica MariaDB principal para nuevos, SQLite de respaldo,
+> rechazo de escrituras con su fuente caída, cinco intentos y FAILED, límite de
+> cola y coherencia. JavaFX envía la versión original y consulta `/health`.
+> El apartado 9 conserva la revisión histórica de octubre; el estado posterior
+> está en [docs/adat-validation.md](../../docs/adat-validation.md).
+
 > **Fuente de verdad obligatoria** para todo el desarrollo de esta carpeta.
-> Basado en: *Propuesta técnica R01 v5* + *Convenio de colaboración Omni3 · Hogwarts*.
+> Este documento nació de la propuesta v5 y del convenio. Para la corrección ADAT,
+> la referencia confirmada por el equipo es *Propuesta técnica R01 v6*; los requisitos
+> de interfaz históricos de este Markdown deben contrastarse con esa versión.
 > Si este documento y una implementación discrepan, **gana este documento**.
 
 > **Estado documental del 21/10/2026:** los apartados 1–7 conservan los requisitos

@@ -1,12 +1,18 @@
 -- Minimal schema required by api/src/proyecto_reto1/db/mariadb.py.
 -- Applied by the MariaDB image only when its data volume is first created.
 CREATE TABLE IF NOT EXISTS ALUMNOS (
-    ID VARCHAR(10) NOT NULL PRIMARY KEY,
+    ID VARCHAR(64) NOT NULL PRIMARY KEY,
     NOMBRE VARCHAR(100) NOT NULL,
     APELLIDO VARCHAR(100) NULL,
     SEXO CHAR(1) NULL,
     PATRONUS VARCHAR(100) NULL,
     IMAGEN VARCHAR(500) NULL,
+    ORIGEN VARCHAR(20) NOT NULL DEFAULT 'mariadb',
+    TIPO VARCHAR(20) NOT NULL DEFAULT 'NUEVO',
+    CASA VARCHAR(30) NULL,
+    VERSION BIGINT NOT NULL DEFAULT 1,
+    ACTIVO BOOLEAN NOT NULL DEFAULT TRUE,
+    ACTUALIZADO_EN VARCHAR(40) NOT NULL DEFAULT '',
     CONSTRAINT chk_alumnos_sexo CHECK (SEXO IS NULL OR SEXO IN ('H', 'M', 'S'))
 ) CHARACTER SET utf8mb4;
 
@@ -18,3 +24,4 @@ CREATE TABLE IF NOT EXISTS PATRONUS_IMG (
 
 -- Example catalog entry. Image URL is intentionally empty: no image asset is supplied.
 INSERT IGNORE INTO PATRONUS_IMG (NOM_ENG, URL) VALUES ('Otter', '');
+INSERT IGNORE INTO PATRONUS_IMG (NOM_ENG, URL) VALUES ('Stag', ''), ('Wolf', ''), ('Doe', '');

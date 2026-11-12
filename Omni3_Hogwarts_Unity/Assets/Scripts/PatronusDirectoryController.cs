@@ -135,7 +135,7 @@ public sealed class PatronusDirectoryController : MonoBehaviour
             yield break;
         if (requestFailed || loadedAlumno == null)
         {
-            Debug.LogWarning("Could not load student " + dni + ": " + errorMessage);
+            Debug.LogWarning("Could not load student detail. Check API availability.");
             directoryView.ShowDetailError("Could not load this student.");
             yield break;
         }
