@@ -1,6 +1,6 @@
 # Reto01 · Omni3 — Gestor Hogwarts
 
-API de alumnado distribuido y tres clientes. La rama `integration` incorpora las correcciones del feedback ADAT y de la propuesta v6 aceptada. La integración original conectó las puntas de `Api`, `androidapp`, `javafxapp`, `unityClient`, `development`, `prototipo` y `main` mediante commits de fusión; el [informe histórico](docs/integration-audit.md) recoge sus referencias de aquel momento. El prototipo es una implementación histórica diferente de la API principal.
+API de alumnado distribuido y tres clientes. La rama `main` incorpora las correcciones del feedback ADAT y de la propuesta v6 aceptada. La integración original conectó las puntas de `Api`, `androidapp`, `javafxapp`, `unityClient`, `development`, `prototipo` y `main` mediante commits de fusión; el [informe histórico](docs/integration-audit.md) recoge sus referencias de aquel momento. El prototipo es una implementación histórica diferente de la API principal.
 
 ## Arquitectura y componentes
 
@@ -8,7 +8,7 @@ API de alumnado distribuido y tres clientes. La rama `integration` incorpora las
 |---|---|---|
 | `api/` | API REST, servicios de integración y repositorios. | Python 3.11+, FastAPI; MariaDB principal, SQLite de respaldo y cuatro fuentes reales verificadas. |
 | `database/` | Esquemas centrales y semillas compatibles de las cuatro fuentes. | MariaDB 11.8, Oracle, H2, HSQLDB y Derby; 985 históricos de los CSV suministrados. |
-| `gestorhogwartsjavafx/` | Consulta, altas, edición con versión y baja lógica de nuevos por API. | JavaFX 21/Maven; 102 pruebas correctas, JAR Windows y apertura local comprobados. |
+| `gestorhogwartsjavafx/` | Consulta, altas, edición con versión y baja lógica de nuevos por API. | JavaFX 21/Maven; 103 pruebas correctas, JAR Windows y apertura local comprobados. |
 | `gestorhogwartsmovil/` | Consulta y caché offline de alumnado con URL de API editable. | Kotlin/Android/Room; APK, 17 pruebas unitarias, 9 instrumentadas y lint correctos. |
 | `Omni3_Hogwarts_Unity/` | Búsqueda y ficha de alumno/patronus. | Unity 6000.3.25f1; proyecto integrado. |
 | `prototipo/` | Solución experimental anterior de sincronización. | API, clientes e infraestructura propios; no comparte esquema con `api/`. |
@@ -33,21 +33,25 @@ flowchart LR
 Requiere Docker Compose, Python 3.11+, Java 21+ y una terminal PowerShell. El comando `python` debe apuntar a Python 3.11+ de 64 bits. Desde la raíz:
 
 ```powershell
-Copy-Item .env.example .env
-# Cambia las contraseñas de ejemplo en .env.
-Copy-Item api/.env.example api/.env
-# Igualar credenciales en ambos archivos; ORACLE_PASSWORD de api/.env
-# corresponde a ORACLE_USER_PASSWORD de .env raíz.
-docker compose up -d
-Push-Location ./api
-try { python -m venv .venv } finally { Pop-Location }
-& api/.venv/Scripts/python.exe -m pip install --upgrade pip
-& api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
-& api/.venv/Scripts/python.exe scripts/seed-origins.py
-& api/.venv/Scripts/python.exe -m uvicorn proyecto_reto1.main:app --host 127.0.0.1 --port 8000
+& {
+    $ErrorActionPreference = 'Stop'
+    if (!(Test-Path ./compose.yaml)) { throw 'Ejecuta desde la raíz Reto01-Omni3.' }
+    Push-Location ./api
+    try {
+        python -m venv .venv
+        if ($LASTEXITCODE -ne 0) { throw 'No se pudo crear api/.venv.' }
+    } finally { Pop-Location }
+    & ./api/.venv/Scripts/python.exe -m pip install --upgrade pip
+    if ($LASTEXITCODE -ne 0) { throw 'Falló pip.' }
+    & ./api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
+    if ($LASTEXITCODE -ne 0) { throw 'Falló la instalación de dependencias.' }
+    powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-local.ps1 -NoJava
+    if ($LASTEXITCODE -ne 0) { throw 'Revisa el error de arranque y api/data/local-*.log.' }
+    Invoke-RestMethod http://127.0.0.1:8000/health
+}
 ```
 
-En otra terminal, `./scripts/check-api.ps1` comprueba la identificación R01. Ejecuta `POST /sync` para importar los datos de ejemplo antes de abrir los clientes. `scripts/verify-adat.py` demuestra el recorrido HTTP y comprueba ambas centrales; consulta el [README de la API](api/README.md) para importación selectiva, caída de MariaDB, concurrencia y pruebas. Los volúmenes Docker y `api/data/` deben conservarse al reiniciar. En Linux usa `cp`, `python3.14` y `api/.venv/bin/python`.
+En otra terminal, ejecuta `pwsh -NoProfile -File ./scripts/check-api.ps1` con PowerShell 7 para comprobar la identificación R01. Durante el arranque, `start-local.ps1` ya ejecuta `POST /sync` e importa los históricos antes de dar el arranque por terminado. `scripts/verify-adat.py` demuestra el recorrido HTTP y comprueba ambas centrales; consulta el [README de la API](api/README.md) para importación selectiva, caída de MariaDB, concurrencia y pruebas. Conserva los volúmenes Docker y la SQLite indicada en `api/data/local-environment.json` al reiniciar. El procedimiento completo de arranque de esta guía está preparado para Windows.
 
 JavaFX: entra en `gestorhogwartsjavafx/`, ejecuta `mvn verify`, configura `GESTOR_API_URL` o el `config.properties` de esa carpeta y lanza `mvn javafx:run`. Requiere JDK 17+ y una instalación externa de Maven 3.9+; consulta el [README del cliente](gestorhogwartsjavafx/README.md). Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; para usar la API local desde el emulador, establece `http://10.0.2.2:8000` en el campo **URL de la API** y pulsa **Aplicar**. La rama actual trae un túnel HTTPS como valor inicial de compilación, que no es necesario para esa prueba local. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
 
@@ -110,14 +114,41 @@ El catálogo existente `PATRONUS_IMG` recibe también los nombres adicionales de
 RAR: 152 entradas en total. Se conservan las URL personalizadas y se refresca su
 copia SQLite durante el arranque.
 
-La carga es repetible. Las fichas anteriores con UUID pasan a su DNI sin perder
+El cargador vuelve a insertar los históricos de semilla ausentes del origen. Si se ha dado de baja uno de esos históricos, su copia central inactiva puede causar un conflicto en la siguiente importación. Para reiniciar una instalación usada y comprobar lo que conserva, sigue el apartado de persistencia de la demo antes de volver a ejecutar el cargador. [Prueba de persistencia](docs/demo-adat.md#3-persistencia-tras-reinicio). Las fichas anteriores con UUID pasan a su DNI sin perder
 ediciones particulares. El arranque conserva inactivas sus antiguas copias en
 MariaDB y SQLite e importa las fichas con DNI, de modo que no aparecen duplicados.
 También retira los cuatro ejemplos antiguos solo si siguen intactos. No se cambia
 la estructura de las tablas para actualizar estos datos. Antes de abrir JavaFX,
 el arranque espera a que termine la importación y ambas centrales coincidan.
 
-El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
+El equipo ha probado JavaFX, Android y Unity. El [registro de pruebas manuales](docs/manual-validation.md) incluye las capturas del 12/11/2026 del arranque, de la respuesta R01 en JavaFX, de Aamir Loonat (`10000000Z`) en JavaFX y Android y de la ficha de Luna en Unity.
+
+## Demo común con la wiki
+
+El [recorrido ADAT con datos conocidos](docs/demo-adat.md) es el mismo publicado en la
+[wiki](https://github.com/dm2-ethazi/Reto01-Omni3/wiki/07-Demo-Funcional).
+Incluye cuatro DNI de la semilla, lectura por conector, importación selectiva,
+consulta en ambas centrales, reinicio y prueba de fallos. Las altas usan **`Otter`**,
+perteneciente al catálogo inicial y actual, tanto aquí como en la wiki.
+
+Con el backend arrancado, desde la raíz:
+
+```powershell
+$local = Get-Content api/data/local-environment.json -Raw | ConvertFrom-Json
+& api/.venv/Scripts/python.exe scripts/verify-adat.py --env-file $local.env_file --report api/data/demo-adat.json
+if ($LASTEXITCODE -ne 0) { throw 'La demo no ha terminado correctamente.' }
+```
+
+Esperado: 18 comprobaciones y `resultado: correcto`. La revisión documental del
+12/11/2026 ejecutó ese recorrido contra las cuatro fuentes reales y ambas centrales:
+[informe](docs/evidence/wiki-demo-adat-2026-11-12.json). La suite de la API principal
+obtuvo **55 passed, 8 skipped** sin activar su perfil de integración. Las pruebas
+JavaFX no sustituyen esa evidencia. Las caídas y el reinicio tienen instrucciones
+propias en la demo y no se presentan como repetidos en esta revisión.
+
+Unity inicia con `https://curator-caliber-magma.ngrok-free.dev` en la escena actual.
+Para local hay que escribir `http://127.0.0.1:8000` en **API URL** y confirmar con
+Enter o saliendo del campo. El hint local al vaciarlo no cambia el servidor activo.
 
 ## Documentación y equipo
 
@@ -214,8 +245,7 @@ selector **SQLite** permite consultar esa copia. El puerto **8000** debe estar
 libre o tener esta misma instalación de la API ejecutándose. Si otra versión
 ocupa el puerto, el script se detiene con una explicación.
 
-Para los siguientes arranques, con Docker Desktop encendido, basta con pegar esto
-desde la misma carpeta:
+Para volver a cargar las fuentes e importar los históricos, ejecuta desde la misma carpeta con Docker Desktop encendido. Si ya has dado de baja un histórico de semilla, utiliza el [reinicio sin carga de datos](docs/demo-adat.md#3-persistencia-tras-reinicio).
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-local.ps1

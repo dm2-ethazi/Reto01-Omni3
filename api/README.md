@@ -15,17 +15,27 @@ Se han comprobado el backend con Python 3.11 y 3.14 y los cinco motores reales.
 Desde la raíz, en PowerShell:
 
 ```powershell
-Copy-Item .env.example .env
-Copy-Item api/.env.example api/.env
-# Cambiar contraseñas de ejemplo e igualarlas en ambos archivos.
-# ORACLE_PASSWORD en api/.env corresponde a ORACLE_USER_PASSWORD en .env raíz.
-docker compose up -d
-py -3.14 -m venv api/.venv  # También sirve py -3.11.
-& api/.venv/Scripts/python.exe -m pip install --upgrade pip
-& api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
-& api/.venv/Scripts/python.exe scripts/seed-origins.py
-& api/.venv/Scripts/python.exe -m uvicorn proyecto_reto1.main:app --host 127.0.0.1 --port 8000 --log-level info
+& {
+    $ErrorActionPreference = 'Stop'
+    if (!(Test-Path ./compose.yaml)) { throw 'Ejecuta desde la raíz Reto01-Omni3.' }
+    Push-Location ./api
+    try {
+        python -m venv .venv
+        if ($LASTEXITCODE -ne 0) { throw 'No se pudo crear api/.venv.' }
+    } finally { Pop-Location }
+    & ./api/.venv/Scripts/python.exe -m pip install --upgrade pip
+    if ($LASTEXITCODE -ne 0) { throw 'Falló pip.' }
+    & ./api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
+    if ($LASTEXITCODE -ne 0) { throw 'Falló la instalación de dependencias.' }
+    powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-local.ps1 -NoJava
+    if ($LASTEXITCODE -ne 0) { throw 'Revisa el error de arranque y api/data/local-*.log.' }
+    Invoke-RestMethod http://127.0.0.1:8000/health
+}
 ```
+
+Este bloque usa la misma configuración compartida y el mismo seeder que la wiki.
+Para la demostración utiliza el [recorrido común](../docs/demo-adat.md), con `Otter`
+del catálogo y cuatro DNI conocidos. `-NoJava` no omite ninguna base: solo el cliente gráfico.
 
 En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
 Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder usa

@@ -1,0 +1,26 @@
+{
+  "reto": "R01",
+  "comprobaciones": [
+    "Estado R01 con centrales y conectores disponibles",
+    "Lectura real del conector oracle",
+    "Lectura real del conector h2",
+    "Lectura real del conector hsqldb",
+    "Lectura real del conector derby",
+    "Importación selectiva sin tareas pendientes",
+    "Dato de oracle guardado en MariaDB y SQLite y consultado por API",
+    "Dato de h2 guardado en MariaDB y SQLite y consultado por API",
+    "Dato de hsqldb guardado en MariaDB y SQLite y consultado por API",
+    "Dato de derby guardado en MariaDB y SQLite y consultado por API",
+    "Alta sin Patronus rechazada con 422",
+    "Alta válida conservada",
+    "PUT valida el catálogo de Patronus",
+    "Edición con versión vigente aceptada",
+    "Edición obsoleta rechazada con 409",
+    "Baja lógica aceptada",
+    "La consulta habitual excluye la baja",
+    "Registro inactivo conservado en ambas centrales"
+  ],
+  "resultado": "correcto",
+  "fecha": "2026-11-12",
+  "alcance": "API principal local, cuatro fuentes reales y ambas centrales. Sin caídas ni reinicio en esta ejecución."
+}

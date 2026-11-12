@@ -110,7 +110,7 @@ Conserva los archivos `.meta` junto a sus recursos: Unity utiliza sus identifica
 
 ## Conexión del cliente
 
-`PatronusApiClient` utiliza `UnityWebRequest` y corrutinas. La escena inicia con `http://127.0.0.1:8000`. Durante Play, el campo **API URL** muestra la dirección activa y permite cambiarla sin editar el Inspector. La dirección nueva se usa en las siguientes peticiones.
+`PatronusApiClient` utiliza `UnityWebRequest` y corrutinas. Para usar la API del mismo equipo, introduce `http://127.0.0.1:8000` en **API URL** y pulsa Enter o sal del campo. Durante Play, el campo **API URL** muestra la dirección activa y permite cambiarla sin editar el Inspector. La dirección nueva se usa en las siguientes peticiones.
 
 El cliente realiza estas peticiones:
 

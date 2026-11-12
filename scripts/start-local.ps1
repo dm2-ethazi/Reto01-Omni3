@@ -7,7 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $python = Join-Path $repo 'api/.venv/Scripts/python.exe'
-$jar = Join-Path $repo 'gestorhogwartsjavafx/target/gestorhogwartsjavafx-1.0.0.jar'
+[xml]$javafxPom = Get-Content -LiteralPath (Join-Path $repo 'gestorhogwartsjavafx/pom.xml') -Raw
+$jar = Join-Path $repo ('gestorhogwartsjavafx/target/{0}-{1}.jar' -f $javafxPom.project.artifactId, $javafxPom.project.version)
 $data = Join-Path $repo 'api/data'
 $baseUrl = "http://127.0.0.1:$Port"
 if (-not (Test-Path -LiteralPath $python)) { throw 'Falta el entorno Python de api/.venv.' }

@@ -20,6 +20,36 @@ import org.junit.jupiter.api.Test;
  */
 class ClienteAlumnosHttpTest {
 
+    /** Ngrok free debe entregar JSON en lugar de su página interstitial. */
+    @Test
+    void enviaCabeceraParaSaltarInterstitialDeNgrok() throws Exception {
+        AtomicReference<String> cabeceraNgrok = new AtomicReference<>();
+        HttpServer servidor = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        servidor.createContext("/health", intercambio -> {
+            cabeceraNgrok.set(intercambio.getRequestHeaders()
+                    .getFirst("ngrok-skip-browser-warning"));
+            byte[] respuesta = "{\"status\":\"ok\",\"reto\":\"R01\",\"timestamp\":\"2026-11-12T00:00:00Z\"}"
+                    .getBytes(StandardCharsets.UTF_8);
+            intercambio.getResponseHeaders().set("Content-Type", "application/json");
+            intercambio.sendResponseHeaders(200, respuesta.length);
+            intercambio.getResponseBody().write(respuesta);
+            intercambio.close();
+        });
+        servidor.start();
+        try {
+            ClienteAlumnosHttp cliente = new ClienteAlumnosHttp(new ConfigApi(
+                    "http://127.0.0.1:" + servidor.getAddress().getPort(), Duration.ofSeconds(2)));
+
+            var salud = cliente.salud();
+
+            assertEquals("1", cabeceraNgrok.get());
+            assertTrue(salud.esR01());
+            assertEquals("OK", salud.estado());
+        } finally {
+            servidor.stop(0);
+        }
+    }
+
     /** La vista SQLite consulta la copia y no descarta las filas por su origen. */
     @Test
     void sqliteConsultaCopiaYConservaOrigenYBusqueda() throws Exception {
