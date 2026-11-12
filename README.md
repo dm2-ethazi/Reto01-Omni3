@@ -30,7 +30,7 @@ flowchart LR
 
 ## Arranque rápido comprobable
 
-Requiere Docker Compose, Python 3.11+, Java 21+ y una terminal PowerShell. Los ejemplos usan Python 3.14. Desde la raíz:
+Requiere Docker Compose, Python 3.11+, Java 21+ y una terminal PowerShell. El comando `python` debe apuntar a Python 3.11+ de 64 bits. Desde la raíz:
 
 ```powershell
 Copy-Item .env.example .env
@@ -39,7 +39,8 @@ Copy-Item api/.env.example api/.env
 # Igualar credenciales en ambos archivos; ORACLE_PASSWORD de api/.env
 # corresponde a ORACLE_USER_PASSWORD de .env raíz.
 docker compose up -d
-py -3.14 -m venv api/.venv
+Push-Location ./api
+try { python -m venv .venv } finally { Pop-Location }
 & api/.venv/Scripts/python.exe -m pip install --upgrade pip
 & api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
 & api/.venv/Scripts/python.exe scripts/seed-origins.py
@@ -128,9 +129,9 @@ Grupo **Omni3**: koldo ([@koldoaso](https://github.com/koldoaso)), henri ([@henr
 
 ## Copiar y pegar: montar y ejecutar desde la raíz
 
-**Windows:** instala **Python 3.11+ de 64 bits** con el lanzador `py`, **JDK 21+
+**Windows:** instala **Python 3.11+ de 64 bits**, **JDK 21+
 de 64 bits** y **Docker Desktop**. Abre Docker Desktop y espera a que esté listo.
-Los comandos `py`, `java`, `javaw` y `docker` deben estar en el `PATH`. La compilación
+Los comandos `python`, `java`, `javaw` y `docker` deben estar en el `PATH`. La compilación
 usa Maven dentro de Docker. Hace falta Internet para descargar las dependencias
 e imágenes la primera vez.
 
@@ -143,7 +144,7 @@ bases, SQLite central, la API y JavaFX** con los 985 históricos suministrados.
 La configuración se crea una sola vez fuera del clon y conserva los datos de la
 instalación existente. En la primera migración, detén la API anterior antes de pegarlo.
 Antes de instalar dependencias, prepara siempre `.venv` desde la carpeta `api`
-con `py -3 -m venv .venv` (equivalente a `python -m venv .venv`).
+con `python -m venv .venv`.
 
 ```powershell
 & {
@@ -153,7 +154,7 @@ con `py -3 -m venv .venv` (equivalente a `python -m venv .venv`).
     if (-not (Test-Path './compose.yaml') -or -not (Test-Path './api/pyproject.toml')) {
         throw 'Abre PowerShell en la raiz Reto01-Omni3 y vuelve a pegar el bloque.'
     }
-    foreach ($tool in @('py', 'java', 'javaw', 'docker', 'powershell')) {
+    foreach ($tool in @('python', 'java', 'javaw', 'docker', 'powershell')) {
         if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
             throw "Falta $tool en el PATH. Instala los requisitos y abre otra terminal."
         }
@@ -164,13 +165,13 @@ con `py -3 -m venv .venv` (equivalente a `python -m venv .venv`).
     if ($LASTEXITCODE -ne 0) { throw 'Docker Compose no esta disponible.' }
     java --version
     if ($LASTEXITCODE -ne 0) { throw 'Comprueba la instalacion de JDK 21 o superior.' }
-    py -3 -c "import sys, struct; assert sys.version_info >= (3, 11) and struct.calcsize('P') == 8, 'Se requiere Python 3.11+ de 64 bits'"
+    python -c "import sys, struct; assert sys.version_info >= (3, 11) and struct.calcsize('P') == 8, 'Se requiere Python 3.11+ de 64 bits'"
     if ($LASTEXITCODE -ne 0) { throw 'Comprueba la instalacion de Python 3.11+ de 64 bits.' }
 
     # 2. Preparar siempre .venv desde api antes de instalar dependencias.
     Push-Location './api'
     try {
-        py -3 -m venv .venv
+        python -m venv .venv
         if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar api/.venv.' }
     } finally {
         Pop-Location
