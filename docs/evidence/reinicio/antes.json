@@ -1,0 +1,29 @@
+{
+  "fase": "ANTES",
+  "fecha": "2026-11-12T21:02:45.082678+01:00",
+  "pid_api": 12388,
+  "dni": "10000000Z",
+  "nombre": "Aamir Loonat",
+  "version": 1,
+  "centrales": {
+    "mariadb": {
+      "estado": "ok",
+      "registros": 986,
+      "huella": "bdb0f0e78462bb52d2e537394159095299f794c928f6642a1a6f38e93e4da6e5"
+    },
+    "sqlite": {
+      "estado": "ok",
+      "registros": 986,
+      "huella": "bdb0f0e78462bb52d2e537394159095299f794c928f6642a1a6f38e93e4da6e5"
+    }
+  },
+  "cola_activa": 0,
+  "cola_fallida": 0,
+  "contenedores": [
+    "/r01-adat-validation-derby-1 2026-11-12T19:22:26.258208231Z",
+    "/r01-adat-validation-h2-1 2026-11-12T19:22:25.928433864Z",
+    "/r01-adat-validation-hsqldb-1 2026-11-12T19:22:26.786348266Z",
+    "/r01-adat-validation-mariadb-1 2026-11-12T19:37:11.929413887Z",
+    "/r01-adat-validation-oracle-1 2026-11-12T19:22:27.047950196Z"
+  ]
+}
