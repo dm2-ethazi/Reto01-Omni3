@@ -74,6 +74,8 @@ try {
         throw 'La API no corresponde a la instalacion compartida preparada.'
     }
     Write-Host '[5/5] Importando los historicos y comprobando ambas centrales...'
+    # Actualizar la copia SQLite del catálogo también al reutilizar una API abierta.
+    $null = Invoke-RestMethod "$baseUrl/patronus" -TimeoutSec 30
     # Reflejar las bajas de ejemplos antiguos sin borrar registros de las centrales.
     $retire = '{"ids":["10000001A","10000002B","10000003C","10000004D"]}'
     $null = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body $retire -TimeoutSec 600

@@ -98,11 +98,21 @@ Los archivos originales se versionan en `database/origins/data/`:
 El seeder conserva los UUID, nombres completos, casa, alias, especie, género,
 nacimiento, nacionalidad, imagen y wiki. Amplía los ID existentes sin truncarlos.
 `sexo` se normaliza a H/M/S; el género original también se conserva. Los CSV no
-aportan apellidos separados ni Patronus, por lo que esos campos quedan nulos.
-El requisito de DNI y Patronus obligatorio sigue aplicándose a las altas nuevas.
+aportan apellidos separados, por lo que `APELLIDO` queda nulo. Para `PATRONUS`,
+el seeder usa los **143 tipos del ZIP suministrado**, versionados en
+`database/origins/data/patronus.json`. La asignación es estable por SHA-256 del UUID;
+es una asignación de semilla, no una relación canónica entre personajes y Patronus.
+Se completan también los históricos ya cargados cuyo Patronus esté vacío y se
+conservan los que ya tengan uno. Se usan las columnas y tablas existentes.
 
-La carga es repetible: inserta los UUID que falten y conserva los ya existentes,
-incluidas sus ediciones. Retira únicamente los cuatro ejemplos antiguos conocidos
+El catálogo `PATRONUS_IMG` recibe los nombres ingleses y las URL aportadas en el ZIP
+(138 entradas con URL y 5 sin ella). Se conservan las URL ya personalizadas y se
+actualiza la copia del catálogo en SQLite durante el arranque. El requisito de
+DNI y Patronus obligatorio sigue aplicándose a las altas nuevas.
+
+La carga es repetible: inserta los UUID que falten, conserva las ediciones de los
+ya existentes y solo completa su Patronus cuando está vacío. Retira únicamente
+los cuatro ejemplos antiguos conocidos
 si siguen intactos. El arranque refleja esas bajas en las centrales y espera a que
 termine la importación de los CSV y coincidan MariaDB y SQLite antes de abrir JavaFX.
 

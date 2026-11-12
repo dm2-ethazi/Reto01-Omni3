@@ -31,12 +31,13 @@ def repo_temporal(path):
     return path
 
 
-def test_csv_originales_uuid_y_campos_sin_datos_inventados():
+def test_csv_originales_uuid_y_patronus_del_catalogo():
     datos = seed.cargar_csv(ROOT / "database/origins/data")
     assert {k: len(v) for k, v in datos.items()} == {"oracle": 203, "h2": 212, "hsqldb": 267, "derby": 303}
     filas = [f for grupo in datos.values() for f in grupo]
     assert len({f[0] for f in filas}) == 985
-    assert all(str(UUID(f[0])) == f[0] and f[2] is None and f[4] is None for f in filas)
+    nombres = {n for n, _ in seed.cargar_catalogo()}
+    assert all(str(UUID(f[0])) == f[0] and f[2] is None and f[4] in nombres for f in filas)
     assert datos["derby"][0][1] == "Aamir Loonat"
     assert datos["derby"][0][6] == "Gryffindor"
     assert any(f[7] and len(f[7]) > 500 for f in datos["derby"])
@@ -79,11 +80,44 @@ def test_semilla_conserva_ediciones_y_solo_retira_ejemplos_intactos(monkeypatch,
         if ejemplo_editado:
             ejemplo[seed.COLUMNAS.index("ALIAS")] = "Alias escrito por otra persona"
         db.executemany("INSERT INTO ALUMNOS VALUES (" + ",".join("?" for _ in seed.COLUMNAS) + ")", [existente, ejemplo])
-        nuevos, anteriores, retirados = seed.sembrar(db, "h2", filas)
+        nuevos, anteriores, retirados, completados = seed.sembrar(db, "h2", filas)
         assert nuevos == anteriores == 1
+        assert completados == 0
         assert retirados == (0 if ejemplo_editado else 1)
         assert db.execute("SELECT NOMBRE FROM ALUMNOS WHERE ID=?", (filas[0][0],)).fetchone()[0] == "Edición conservada"
         assert db.execute("SELECT * FROM ALUMNOS WHERE ID=?", (filas[1][0],)).fetchone() == filas[1]
+
+
+def test_catalogo_del_zip_y_asignacion_estable():
+    catalogo = seed.cargar_catalogo()
+    assert len(catalogo) == 143 and sum(bool(url) for _, url in catalogo) == 138
+    assert {"Otter", "Stag", "Doe", "Wolf", "Great Dane", "Irish Wolfhound", "Runespoor"} <= {n for n, _ in catalogo}
+    primero = seed.cargar_csv(ROOT / "database/origins/data")
+    segundo = seed.cargar_csv(ROOT / "database/origins/data")
+    assert primero == segundo
+    for filas in primero.values():
+        for f in filas:
+            assert f[4] == seed.asignar_patronus(f[0].upper(), catalogo)
+
+
+@pytest.mark.parametrize("previo", [None, "", "   ", "Otter"])
+def test_completar_patronus_sin_pisar_ediciones_ni_cambiar_estructura(monkeypatch, previo):
+    fila = seed.cargar_csv(ROOT / "database/origins/data")["h2"][0]
+    monkeypatch.setattr(seed, "preparar_tabla", lambda *args: None)
+    with sqlite3.connect(":memory:") as db:
+        db.execute("CREATE TABLE ALUMNOS (" + ",".join(f"{c} TEXT" for c in seed.COLUMNAS) + ",PRIMARY KEY(ID))")
+        existente = list(fila)
+        existente[1], existente[4] = "Nombre editado", previo
+        db.execute("INSERT INTO ALUMNOS VALUES (" + ",".join("?" for _ in seed.COLUMNAS) + ")", existente)
+        esquema = db.execute("PRAGMA table_info(ALUMNOS)").fetchall()
+        resultado = seed.sembrar(db, "h2", [fila])
+        guardado = db.execute("SELECT * FROM ALUMNOS").fetchone()
+        assert resultado == (0, 1, 0, 0 if previo == "Otter" else 1)
+        assert guardado[1] == "Nombre editado"
+        assert guardado[4] == ("Otter" if previo == "Otter" else fila[4])
+        assert guardado[:4] == tuple(existente[:4]) and guardado[5:] == tuple(existente[5:])
+        assert seed.sembrar(db, "h2", [fila]) == (0, 1, 0, 0)
+        assert db.execute("PRAGMA table_info(ALUMNOS)").fetchall() == esquema
 
 
 def test_dos_clones_comparten_claves_y_sqlite(tmp_path, monkeypatch):

@@ -31,8 +31,16 @@ En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
 Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder carga
 los CSV originales de `database/origins/data/`: Derby 303, H2 212, Oracle 203 y
 HSQLDB 267 registros. Conserva UUID y campos originales, omite UUID ya existentes
-y no inventa Patronus. Amplía las columnas ID de tablas anteriores a 64 caracteres.
-Las altas nuevas siguen exigiendo DNI y Patronus; los históricos usan su UUID. El script espera
+y asigna Patronus del catálogo suministrado a las fichas que aún no tengan uno.
+Amplía las columnas ID de tablas anteriores a 64 caracteres.
+Las altas nuevas siguen exigiendo DNI y Patronus; los históricos usan su UUID.
+El catálogo de semilla `database/origins/data/patronus.json` contiene los 143 tipos
+aportados en el ZIP. Se usa SHA-256 del UUID para asignarlos de forma reproducible;
+la asignación no pretende representar datos canónicos de los personajes. El seeder
+completa `PATRONUS` nulo/vacío sin sobrescribir los valores existentes y carga nombres
+y URL en `PATRONUS_IMG`, respetando URL personalizadas. No se añaden columnas ni tablas
+para esta asignación. El arranque refresca el catálogo SQLite por `GET /patronus`.
+El script espera
 hasta 180 segundos por conexión. MariaDB carga su esquema y catálogo desde
 `database/mariadb/01_schema.sql` en volúmenes nuevos. Si el volumen es anterior,
 aplicar las entradas del catálogo que falten; las columnas centrales se migran

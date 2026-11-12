@@ -1,10 +1,13 @@
-"""Carga los CSV históricos sin pisar ediciones ni inventar DNI o Patronus."""
+"""Carga los CSV y completa Patronus vacíos con asignaciones estables del catálogo."""
 
 import argparse
 import csv
+import hashlib
+import json
 import sys
 import time
 from contextlib import ExitStack, contextmanager
+from functools import lru_cache
 from pathlib import Path
 from uuid import UUID
 
@@ -29,8 +32,35 @@ EJEMPLOS = {
 }
 
 
-def cargar_csv(carpeta):
+@lru_cache(maxsize=8)
+def cargar_catalogo(path=ROOT / "database/origins/data/patronus.json"):
+    """Lee nombres e imágenes proporcionados; no ejecuta ni descarga recursos."""
+    datos = json.loads(Path(path).read_text(encoding="utf-8"))["patronus"]
+    catalogo, nombres = [], set()
+    for fila in datos:
+        nombre, url = fila["nom_eng"], fila["url"]
+        if not isinstance(nombre, str) or not nombre.strip() or len(nombre) > 60:
+            raise ValueError("Catálogo: nombre de Patronus no válido")
+        if nombre.casefold() in nombres:
+            raise ValueError("Catálogo: Patronus duplicado")
+        if not isinstance(url, str) or len(url) > 500 or (url and not url.startswith("https://")):
+            raise ValueError("Catálogo: URL no válida")
+        nombres.add(nombre.casefold())
+        catalogo.append((nombre, url))
+    if not catalogo:
+        raise ValueError("El catálogo de Patronus está vacío")
+    return tuple(sorted(catalogo, key=lambda item: item[0].casefold()))
+
+
+def asignar_patronus(identificador, catalogo):
+    """Mismo UUID y catálogo producen la misma asignación, sin estado aleatorio."""
+    indice = int.from_bytes(hashlib.sha256(identificador.casefold().encode()).digest()[:8], "big")
+    return catalogo[indice % len(catalogo)][0]
+
+
+def cargar_csv(carpeta, catalogo=None):
     """Valida todos los archivos antes de modificar ninguna base."""
+    catalogo = cargar_catalogo() if catalogo is None else catalogo
     resultado, vistos = {}, set()
     for motor, (casa, archivo) in FUENTES.items():
         with (Path(carpeta) / archivo).open(encoding="utf-8-sig", newline="") as f:
@@ -55,7 +85,7 @@ def cargar_csv(carpeta):
                 sexo = "H" if genero in {"male", "males"} else (
                     "M" if genero in {"female", "females"} else ("S" if genero else None)
                 )
-                row = (datos["id"], datos["nombre"], None, sexo, None,
+                row = (datos["id"], datos["nombre"], None, sexo, asignar_patronus(datos["id"], catalogo),
                        datos["imagen"] or None, casa, datos["alias"] or None,
                        datos["especie"] or None, datos["género"] or None,
                        datos["nacimiento"] or None, datos["nacionalidad"] or None,
@@ -155,8 +185,8 @@ def sembrar(db, motor, filas):
     cursor = db.cursor()
     try:
         preparar_tabla(db, cursor, motor)
-        cursor.execute("SELECT ID FROM ALUMNOS")
-        existentes = {str(f[0]) for f in cursor.fetchall()}
+        cursor.execute("SELECT ID,PATRONUS FROM ALUMNOS")
+        existentes = {str(f[0]): f[1] for f in cursor.fetchall()}
         nuevas = [fila for fila in filas if fila[0] not in existentes]
         if nuevas:
             if motor == "oracle":
@@ -166,6 +196,14 @@ def sembrar(db, motor, filas):
                 parametros = ",".join("?" for _ in COLUMNAS)
                 valores = nuevas
             cursor.executemany(f"INSERT INTO ALUMNOS ({','.join(COLUMNAS)}) VALUES ({parametros})", valores)
+        completados = 0
+        for fila in filas:
+            if fila[0] in existentes and not str(existentes[fila[0]] or "").strip():
+                # La condición también protege una edición entre lectura y UPDATE.
+                ejecutar(cursor, "UPDATE ALUMNOS SET PATRONUS=? WHERE ID=? AND "
+                         "(PATRONUS IS NULL OR TRIM(PATRONUS)='' OR TRIM(PATRONUS) IS NULL)",
+                         (fila[4], fila[0]), motor == "oracle")
+                completados += max(0, cursor.rowcount)
         ejemplo = EJEMPLOS[motor]
         condicion = "ID=?" + "".join(
             f" AND ({c}=? OR ({c} IS NULL AND ? IS NULL))" for c in COLUMNAS[1:6]
@@ -177,12 +215,31 @@ def sembrar(db, motor, filas):
         ejecutar(cursor, "DELETE FROM ALUMNOS WHERE " + condicion, previos, motor == "oracle")
         retirados = cursor.rowcount
         db.commit()
-        return len(nuevas), len(filas) - len(nuevas), retirados
+        return len(nuevas), len(filas) - len(nuevas), retirados, completados
     except BaseException:
         db.rollback()
         raise
     finally:
         cursor.close()
+
+
+def sembrar_catalogo(maria, catalogo):
+    """Completa PATRONUS_IMG, respetando URLs que ya se hayan personalizado."""
+    with maria._conexion() as db:
+        try:
+            with db.cursor() as cursor:
+                cursor.execute("SELECT NOM_ENG,URL FROM PATRONUS_IMG")
+                existentes = dict(cursor.fetchall())
+                for nombre, url in catalogo:
+                    if nombre not in existentes:
+                        cursor.execute("INSERT INTO PATRONUS_IMG (NOM_ENG,URL) VALUES (%s,%s)", (nombre, url))
+                    elif url and not str(existentes[nombre] or "").strip():
+                        cursor.execute("UPDATE PATRONUS_IMG SET URL=%s WHERE NOM_ENG=%s "
+                                       "AND (URL IS NULL OR TRIM(URL)='')", (url, nombre))
+            db.commit()
+        except BaseException:
+            db.rollback()
+            raise
 
 
 def main():
@@ -195,8 +252,9 @@ def main():
         from dotenv import load_dotenv
         load_dotenv(args.env_file, override=True)
     try:
-        datos = cargar_csv(args.data_dir)
-    except (ValueError, OSError) as exc:
+        catalogo = cargar_catalogo()
+        datos = cargar_csv(args.data_dir, catalogo)
+    except (ValueError, OSError, KeyError) as exc:
         print(f"CSV: {exc}", file=sys.stderr, flush=True)
         return 1
     from proyecto_reto1.db.central_mariadb import CentralMariaDB
@@ -207,6 +265,8 @@ def main():
         try:
             with esperar_conexion(maria, args.wait_seconds, "mariadb"):
                 pass
+            sembrar_catalogo(maria, catalogo)
+            print(f"patronus: catálogo de {len(catalogo)} opciones preparado", flush=True)
         except Exception as exc:
             print(f"mariadb: FALLO ({type(exc).__name__}); revisa las credenciales de la instalación", file=sys.stderr, flush=True)
             return 1
@@ -223,9 +283,10 @@ def main():
         print(f"{motor}: preparando {len(datos[motor])} registros del CSV...", flush=True)
         try:
             with esperar_conexion(repo, args.wait_seconds, motor) as db:
-                nuevos, existentes, retirados = sembrar(db, motor, datos[motor])
+                nuevos, existentes, retirados, completados = sembrar(db, motor, datos[motor])
             print(f"{motor}: insertados={nuevos}; ya existentes={existentes}; "
-                  f"ejemplos antiguos retirados={retirados}; lectura={len(repo.listar())}", flush=True)
+                  f"patronus completados={completados}; ejemplos antiguos retirados={retirados}; "
+                  f"lectura={len(repo.listar())}", flush=True)
         except Exception as exc:
             print(f"{motor}: FALLO ({type(exc).__name__}); revisa conexión, credenciales y esquema", file=sys.stderr, flush=True)
             fallos += 1

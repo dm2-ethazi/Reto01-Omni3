@@ -130,3 +130,25 @@ credenciales ni volver a insertar históricos.
 Los informes de esta revisión quedan bajo `api/data/`; los archivos privados y
 las bases no se versionan. El entorno JDK 17 señalado en la revisión anterior
 sigue pendiente: este cambio se limita al seeder y al arranque compartido.
+
+## Asignación de Patronus con el catálogo suministrado
+
+El ZIP `patronus-20261112T094824Z-1-001.zip` aporta 143 tipos y 138 URL de imagen;
+las cinco entradas restantes carecen de URL en el archivo original. Sus datos se
+normalizan en `database/origins/data/patronus.json`, con procedencia y hash del ZIP.
+No se ejecutan sus scripts de descarga. El seeder asigna nombres ingleses mediante
+SHA-256 del UUID y solo completa valores nulos o vacíos. Conserva nombres, imágenes
+del alumno, metadatos CSV y Patronus ya informados. Esta asignación es de semilla,
+no una afirmación sobre el Patronus canónico de los personajes.
+
+Se completa el catálogo de datos `PATRONUS_IMG` existente y se refresca su copia
+SQLite durante el arranque. No se modifican los esquemas de las tablas para esta
+operación. Los cambios se propagan a MariaDB y SQLite mediante la sincronización
+habitual de la API.
+
+Validación con los motores reales: 61 pruebas correctas; 985 históricos con
+Patronus tanto en sus fuentes como en MariaDB y SQLite, y 143 entradas de catálogo
+en ambas centrales. La comparación de columnas antes y después confirma que las
+tablas conservan su estructura. Repetir el seeder no inserta ni cambia registros
+que ya estén completos; `/admin/coherence` confirma que ambas centrales coinciden
+y `/health` no muestra refrescos pendientes ni fallidos.

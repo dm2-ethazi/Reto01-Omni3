@@ -153,12 +153,12 @@ def test_seeder_csv_repetido_conserva_edicion_y_metadatos_reales(real):
     try:
         assert cliente.put(ruta, json={"version": version, "nombre": "Edición conservada"}).status_code == 200
         with fuente._conexion() as db:
-            nuevos, existentes, retirados = seed.sembrar(db, "h2", datos["h2"])
+            nuevos, existentes, retirados, completados = seed.sembrar(db, "h2", datos["h2"])
             cursor = db.cursor()
             cursor.execute("SELECT NOMBRE,GENERO,WIKI FROM ALUMNOS WHERE ID=?", (original.id,))
             guardado = cursor.fetchone()
             cursor.close()
-        assert nuevos == retirados == 0 and existentes == 212
+        assert nuevos == retirados == completados == 0 and existentes == 212
         assert guardado[0] == "Edición conservada"
         assert guardado[1:] == (row[9], row[12])
     finally:
