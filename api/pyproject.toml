@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "henritejada2006", email = "henritejada2006@hotmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.142.2",
     "jaydebeapi>=1.2.3",
@@ -21,7 +21,12 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "httpx>=0.28.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requiere bases reales configuradas y R01_INTEGRATION=1"]
 
 [project.scripts]
 proyecto-reto1 = "proyecto_reto1:main"

@@ -1,332 +1,222 @@
-# API Alumnos (Reto 1)
+# API Alumnos R01 · propuesta v6
 
-API REST que expone el alumnado de Hogwarts repartido en **5 bases de datos diferentes**
-(Oracle, MariaDB, H2, HSQLDB y Derby) con una única interfaz: no importa en qué motor
-esté el registro, la API lo localiza y actúa sobre él.
+La referencia funcional es la propuesta **v6**, confirmada por el equipo como la
+versión aceptada. La aplicación principal es `proyecto_reto1.main:app`; el prototipo
+no interviene. MariaDB conserva los alumnos nuevos y una vista de los históricos.
+SQLite central es la réplica de lectura y aloja la cola persistente de refrescos;
+es independiente de Room Android.
 
-- **Stack**: Python 3.14 · FastAPI · Pydantic v2 · Uvicorn
-- **Conexiones**: `oracledb` y `pymysql` (nativas) y `jaydebeapi` + JPype (JDBC) para H2, HSQLDB y Derby
-- **Documentación interactiva**: `/docs` (Swagger UI), `/redoc` y `/openapi.json`
+## Preparación reproducible
 
----
+Requiere Python **3.11 o superior**, Docker Compose y Java 21+ para el puente JDBC
+con Derby 10.17. JavaFX mantiene su requisito propio de Java 17+ y JavaFX 21.
+Se han comprobado el backend con Python 3.11 y 3.14 y los cinco motores reales.
 
-## Estructura del proyecto
+Desde la raíz, en PowerShell:
 
-```
-api/
-├── .env                    # credenciales y URLs (no se sube a git)
-├── .env.example            # plantilla de configuración
-├── jars/                   # drivers JDBC: h2.jar, hsqldb.jar, derbyclient.jar, derbyshared.jar
-├── pyproject.toml
-└── src/proyecto_reto1/
-    ├── __init__.py         # documentación del paquete + entrypoint `proyecto-reto1`
-    ├── config.py           # Settings cargados desde .env (rutas absolutas)
-    ├── main.py             # app FastAPI principal (esta API)
-    ├── main_tareas.py      # app de ejemplo independiente (API Tareas en memoria)
-    ├── api/
-    │   ├── __init__.py
-    │   └── alumnos.py      # endpoints REST
-    └── db/
-        ├── __init__.py
-        ├── base.py         # modelos Pydantic + helpers + Protocolo del repositorio
-        ├── factory.py      # crea las fuentes activas según DB_ENGINES e inicia la JVM
-        ├── jdbc.py         # repositorio genérico JDBC (base de H2/HSQLDB/Derby)
-        ├── h2.py           # RepositorioH2 (Hufflepuff)
-        ├── hsqldb.py       # RepositorioHSQLDB (Slytherin)
-        ├── derby.py        # RepositorioDerby (Gryffindor)
-        ├── oracle.py       # RepositorioOracle (Ravenclaw)
-        └── mariadb.py      # RepositorioMariaDB (Hogwarts, base central)
+```powershell
+Copy-Item .env.example .env
+Copy-Item api/.env.example api/.env
+# Cambiar contraseñas de ejemplo e igualarlas en ambos archivos.
+# ORACLE_PASSWORD en api/.env corresponde a ORACLE_USER_PASSWORD en .env raíz.
+docker compose up -d
+py -3.14 -m venv api/.venv  # También sirve py -3.11.
+& api/.venv/Scripts/python.exe -m pip install --upgrade pip
+& api/.venv/Scripts/python.exe -m pip install -e ./api --group ./api/pyproject.toml:dev
+& api/.venv/Scripts/python.exe scripts/seed-origins.py
+& api/.venv/Scripts/python.exe -m uvicorn proyecto_reto1.main:app --host 127.0.0.1 --port 8000 --log-level info
 ```
 
-## Requisitos
+En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
+Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder usa
+los 985 alumnos de `BBDD_con_Imagenes.rar`, normalizados en
+`database/origins/data/alumnos.json`: Derby 303, H2 212, Oracle 203 y HSQLDB 267.
+Conserva sus DNI, nombres, apellidos, sexo e imágenes. Los CSV originales aportan
+los metadatos restantes y la relación con los UUID de instalaciones anteriores.
+El seeder migra esas claves a DNI conservando ediciones particulares; el arranque
+desactiva las copias antiguas con UUID mediante `POST /sync` e importa las de DNI.
+No se modifica la estructura de las tablas por este cambio de datos.
 
-- Python **3.14** y [uv](https://docs.astral.sh/uv/) (o un virtualenv equivalente)
-- **Java/JVM** en el `PATH` (necesaria para H2, HSQLDB y Derby vía JDBC)
-- Las 5 bases de datos accesibles con los datos cargados (tabla `ALUMNOS` en cada una)
-- MariaDB con la tabla `PATRONUS_IMG` cargada (ver [Tabla PATRONUS_IMG](#tabla-patronus_img))
+Se conservan los Patronus aportados por el RAR y solo se completan los vacíos
+mediante SHA-256 del UUID original y los 143 tipos del ZIP de Patronus. La asignación
+de los vacíos no pretende representar datos canónicos. Los nombres adicionales
+del RAR se añaden a `PATRONUS_IMG`: 152 entradas en total. Se respetan las URL
+personalizadas y el arranque refresca el catálogo SQLite por `GET /patronus`.
+Las altas nuevas siguen exigiendo DNI y Patronus. El script espera
+hasta 180 segundos por conexión. MariaDB carga su esquema y catálogo desde
+`database/mariadb/01_schema.sql` en volúmenes nuevos. Si el volumen es anterior,
+aplicar las entradas del catálogo que falten; las columnas centrales se migran
+automáticamente sin borrar alumnado.
 
-## Instalación y arranque
+El archivo `SQLITE_PATH` se resuelve respecto a `api/`, por defecto
+`api/data/central.sqlite3`. Hay que conservarlo junto con los volúmenes Docker.
+Todos los procesos de la misma API deben compartir este archivo. `.env`, los JAR
+y SQLite se resuelven independientemente del directorio de ejecución.
 
-```bash
-uv sync                      # crea .venv e instala dependencias
-cp .env.example .env         # y completa credenciales
-uv run uvicorn proyecto_reto1.main:app --reload
+Los puertos Compose son configurables con `MARIADB_PORT`, `ORACLE_PORT`, `H2_PORT`,
+`H2_WEB_PORT`, `HSQLDB_PORT` y `DERBY_PORT`; ajustar también las URL de `api/.env`.
+`api/.env.local.example` permite una prueba reducida de MariaDB, que no acredita
+la lectura de las cuatro fuentes.
+
+### Arranque conjunto en Windows y reutilización entre clones
+
+Con el entorno Python y el JAR Windows preparados, ejecuta desde la raíz:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local.ps1
 ```
 
-Alternativa (usa el entrypoint definido en `pyproject.toml`):
+El script prepara la configuración compartida con `scripts/local-environment.py`,
+inicia las bases, carga los CSV y arranca la API. Importa los históricos, espera
+los refrescos y comprueba la coherencia antes de abrir JavaFX. Admite `-NoJava`
+para usar solo las bases y el backend. La [guía de la raíz](../README.md#copiar-y-pegar-montar-y-ejecutar-desde-la-raíz)
+contiene el bloque de preparación completo.
 
-```bash
-uv run proyecto-reto1
-```
+Todos los clones del mismo usuario comparten `%LOCALAPPDATA%/Omni3/R01/local.env`
+y `%LOCALAPPDATA%/Omni3/R01/central.sqlite3`. La plantilla `api/.env.demo.example`
+solo sirve para la primera creación. Se recuperan las claves válidas de la
+instalación anterior y se conserva una copia de su SQLite y de la cola; nunca
+se regeneran claves sobre volúmenes existentes. Detener la API anterior antes de
+la primera migración. `-EnvFile` permite señalar su configuración si no se descubre
+automáticamente; después se usa siempre la compartida.
 
-La API queda en `http://127.0.0.1:8000` (Swagger en `http://127.0.0.1:8000/docs`).
+`api/data/local-environment.json` guarda rutas y la identidad pública de la
+instalación, sin contraseñas. `/health` incluye `instalacion` para comprobar que
+un proceso existente utiliza la misma SQLite; el script rechaza una API diferente.
+Los errores de autenticación no se reintentan durante 180 segundos: el seeder
+termina y pide revisar las claves. Durante la espera de disponibilidad sí muestra
+el progreso. La configuración general `api/.env` sigue siendo válida para
+arranques manuales; usa el archivo compartido con `--env-file` para entrar en la
+misma instalación que `start-local.ps1`.
 
-## Configuración (`.env`)
+Puertos de la plantilla: MariaDB **33306**, Oracle **31521**, H2 **39092**
+(web **38082**), HSQLDB **39001** y Derby **31527**. Los puertos migrados se conservan.
+No borrar datos ni cambiar contraseñas para solucionar un error de arranque.
 
-| Variable | Descripción |
-|---|---|
-| `DB_ENGINES` | Motores activos, separados por coma (`oracle,mariadb,h2,hsqldb,derby`). Si quitas uno, la API deja de usarlo |
-| `JARS_DIR` | Carpeta con los `.jar` JDBC (por defecto `jars`, resuelta a ruta absoluta) |
-| `ORACLE_HOST/PORT/SERVICE/USER/PASSWORD` | Oracle (Ravenclaw) |
-| `MARIADB_HOST/PORT/DATABASE/USER/PASSWORD` | MariaDB (Hogwarts, base `r01_central`) |
-| `H2_URL/USER/PASSWORD` | H2 (Hufflepuff), URL `jdbc:h2:tcp://localhost:9092/r01db` |
-| `HSQLDB_URL/USER/PASSWORD` | HSQLDB (Slytherin), URL `jdbc:hsqldb:hsql://localhost:9001/slytherin` |
-| `DERBY_URL/USER/PASSWORD` | Derby (Gryffindor), URL `jdbc:derby://localhost:1527/db` |
+## Fuentes de verdad y flujo
 
-> **Nota**: `.env` y `JARS_DIR` se resuelven como rutas absolutas respecto a la carpeta `api/`,
-> por lo que la API funciona correctamente independientemente del directorio desde el que se ejecute.
+- **Nuevo:** se inserta/edita en MariaDB, con Patronus obligatorio, DNI único y
+  casa nula. La baja es lógica. Con MariaDB caída, sus escrituras responden 503.
+- **Histórico:** se edita/baja síncronamente en Oracle, H2, HSQLDB o Derby. Se
+  compara el estado previo completo para evitar sobrescribir cambios concurrentes.
+  Si el origen está caído, se rechaza la escritura y no se programa para después.
+- **Consulta:** usa MariaDB. Si falla, usa SQLite con `desde_cache=true` y
+  `X-Data-Source: sqlite-cache`. Un fallo de origen no bloquea las consultas de su
+  copia central disponible ni operaciones dirigidas a otros orígenes.
+- **Importación:** `POST /sync` lee fuentes y registra refrescos de sus snapshots.
+  `origenes` e `ids` permiten importar solo un caso. No hace falta una réplica total.
 
-Las 5 fuentes y su etiqueta `casa`:
+Antes de tocar una fuente, la API confirma en SQLite una reserva `PREPARED` con
+capacidad disponible. Solo entonces ejecuta la escritura y relee su resultado de
+la fuente dentro de la transacción. Si se confirma, la reserva pasa a `PENDING` y
+se propaga a las copias. Si se rechaza, la reserva se cancela. La respuesta de
+éxito contiene la ficha releída, incluidos cambios producidos por triggers.
 
-| Motor | `casa` | Tipo de repositorio |
+El worker **nunca inserta, modifica ni elimina en las fuentes autoritativas**.
+Solo replica escrituras confirmadas o datos leídos durante una sincronización.
+Si se corta el proceso entre el commit remoto y la confirmación local, una reserva
+abandonada se recupera leyendo su fuente: se propaga lo realmente confirmado o se
+cancela si no ocurrió. Un commit de resultado desconocido devuelve 503 con un
+mensaje específico; hay que consultar su estado antes de repetir.
+
+## Cola, fallos y administración
+
+- `REFRESH_QUEUE_MAX=5000`: máximo de tareas activas (`PREPARED` + `PENDING`).
+  Al 80 % `/health` es degradado. Si está llena o no puede persistirse la reserva,
+  la escritura se rechaza con 503 **antes de modificar la fuente**.
+- Cada refresco tiene **cinco intentos automáticos** con espera progresiva. El
+  quinto fallo lo deja en `FAILED`, almacenado y visible, sin borrado automático.
+- `POST /admin/refresh-queue/{seq}/retry` relanza una tarea fallida y reinicia su
+  contador. `POST /admin/retry` relanza las fallidas compatibles y fuerza las
+  pendientes. El worker ordinario no resetea tareas `FAILED`.
+- La consulta de cola no muestra payloads ni DNI. El seguimiento individual se
+  expone en `GET /alumnos/{dni}/sync` y en las fichas: `sincronizacion` y
+  `sincronizado_en` (UTC). Una ficha con refresco pendiente/fallido no admite otra
+  escritura hasta completar o revisar ese refresco.
+- `GET /admin/coherence` compara conteos y SHA-256 de los datos centrales,
+  incluidos inactivos. Informa IDs ausentes o diferentes. Si alguna central cae,
+  devuelve 503 e indica que no se pudo completar la comparación.
+
+No hay transacción distribuida: pueden existir diferencias temporales entre
+copias. Un histórico puede confirmarse en su origen con MariaDB caída, quedar
+legible en SQLite y conservar pendiente su refresco a MariaDB. Un nuevo nunca se
+crea solo en SQLite. Los refrescos son repetibles y no duplican registros.
+
+La migración conserva las tareas de la implementación anterior sin ejecutarlas:
+quedan en `FAILED` con `LAST_ERROR=LEGACY_REVIEW`. Eran órdenes de escritura y no
+se pueden reinterpretar como refrescos confirmados; requieren revisión manual.
+No deben borrarse bases o colas para ocultar estas diferencias.
+
+## API y validación
+
+OpenAPI `/openapi.json`, Swagger `/docs` y ReDoc `/redoc`.
+La familia `/students` es alias de `/alumnos`, compatible con los clientes actuales.
+El parámetro `lectura=sqlite` permite comprobar la copia aun con MariaDB disponible.
+Conserva `origen` y devuelve `desde_cache=true`; no convierte el origen del alumno
+en SQLite. Solo afecta a la consulta del listado, no cambia las reglas de escritura.
+
+| Método | Ruta | Función |
 |---|---|---|
-| Oracle | Ravenclaw | `RepositorioOracle` (oracledb) |
-| MariaDB | Hogwarts | `RepositorioMariaDB` (pymysql) — base central |
-| H2 | Hufflepuff | `RepositorioH2` → JDBC |
-| HSQLDB | Slytherin | `RepositorioHSQLDB` → JDBC |
-| Derby | Gryffindor | `RepositorioDerby` → JDBC |
+| GET | `/health` | R01, estado de cada base, latencias, capacidad/ocupación y fallidas |
+| GET | `/alumnos?nombre=Ce` | Activos y búsqueda por prefijo; MariaDB con fallback SQLite |
+| GET | `/alumnos?lectura=sqlite` | Activos leídos de SQLite, con origen conservado y `X-Data-Source: sqlite-cache` |
+| GET | `/alumnos/{dni}` | Ficha por DNI, metadatos y ETag |
+| POST | `/alumnos` | Alta en MariaDB; DNI, nombre y Patronus obligatorios |
+| PUT | `/alumnos/{dni}` | Cambio parcial con `version` o `If-Match` |
+| DELETE | `/alumnos/{dni}` | Baja con `If-Match` o `?version=` |
+| GET | `/alumnos/{dni}/sync` | Estado individual de sincronización |
+| GET | `/patronus` | Catálogo de MariaDB con caché persistente |
+| GET | `/connectors` | Estado y cantidad de registros legibles de cada origen |
+| GET | `/connectors/{origen}/alumnos` | Lectura de una fuente a través de la API |
+| POST | `/sync` | Importación por lotes, selectiva o completa |
+| GET | `/admin/refresh-queue` | Tareas activas y fallidas |
+| POST | `/admin/refresh-queue/{seq}/retry` | Reintento administrativo individual |
+| POST | `/admin/retry` | Reintento administrativo global |
+| GET | `/admin/coherence` | Conteos, huellas y divergencias entre centrales |
 
-## Modelo de datos
+Alta: DNI `^[0-9]{8}[A-Z]$`, normalizado a mayúsculas; nombre de 2–80 caracteres
+tras recortar espacios; sexo H/M/S o nulo. Patronus de 2–60 caracteres, obligatorio
+en nuevos y perteneciente al catálogo inglés tanto en POST como en PUT. Un
+histórico externo puede no tener Patronus, aunque la semilla completa todos.
+Los alumnos de la semilla usan DNI. Se mantiene compatibilidad con UUID de datos
+anteriores: las rutas los normalizan también si llegan en mayúsculas.
+PUT no permite modificar ID, casa, origen,
+tipo, activo ni metadatos de sincronización.
 
-### Tabla ALUMNOS (en los 5 motores)
+Edición de ejemplo: `{"nombre":"Hermione","version":1}` o `If-Match: "1"`
+con `{"nombre":"Hermione"}`. Una segunda edición obsoleta recibe 409. Sin
+versión, PUT y DELETE devuelven 428. Los nuevos inactivos siguen reservando su DNI.
+Las bajas históricas eliminan el origen y conservan la marca inactiva central.
 
-| Campo | Tipo | Restricciones en la API |
-|---|---|---|
-| `ID` | texto (DNI, 1-10 chars) | clave primaria, obligatorio en POST, **no se puede modificar** |
-| `NOMBRE` | texto | obligatorio, 1-100 |
-| `APELLIDO` | texto | opcional, `null` o `""` → `NULL` |
-| `SEXO` | texto | opcional, solo `H`, `M` o `S` |
-| `PATRONUS` | texto | opcional, se guarda el nombre **en inglés** (validado contra `PATRONUS_IMG`) |
-| `IMAGEN` | texto | opcional, URL o ruta de la imagen del alumno (máx. 500) |
+Errores: 404 inexistente, 409 conflicto/duplicado, 422 datos inválidos, 428 versión
+ausente, 503 dependencia requerida o reserva no disponible. Se conserva `detail`
+y el envelope `error`, y cada respuesta incluye `request-id`. El servidor puede
+generar ese identificador. Logs de negocio sin payloads, rutas parametrizadas y
+accesos Uvicorn con DNI enmascarado. Unity tampoco imprime el DNI en su aviso de error.
 
-`casa` y `patronus_url` **no** son columnas: los añade la API en la respuesta
-(`casa` según la fuente que respondió, `patronus_url` consultando `PATRONUS_IMG`).
+## Pruebas y demostración
 
-### Tabla PATRONUS_IMG
-
-Catálogo de patronus con imagen, almacenada **solo en MariaDB** (`r01_central`).
-Se usa para validar el patronus en el POST y para devolver la imagen en el GET.
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `ID` | INT autoincrement | clave primaria |
-| `NOM_ENG` | varchar(100) | nombre en inglés (único) — **única columna que consulta la API** |
-| `URL` | varchar(500) | URL de la imagen del patronus |
-
-Para crear la tabla y cargar los datos:
-
-```bash
-docker compose -f ../compose.yaml up -d mariadb  # desde api/
-# En un volumen nuevo, Compose aplica database/mariadb/01_schema.sql.
+```powershell
+& api/.venv/Scripts/python.exe -m pytest api/tests -q
+# Solo sobre bases de demo; cerrar otra API durante el perfil de saturación.
+$local = Get-Content api/data/local-environment.json -Raw | ConvertFrom-Json
+$env:R01_INTEGRATION = '1'
+try {
+    & api/.venv/Scripts/python.exe -c "from dotenv import load_dotenv; import pytest,sys; load_dotenv(sys.argv[1],override=True); sys.exit(pytest.main(['api/tests','-q','-p','no:faulthandler']))" $local.env_file
+} finally { Remove-Item Env:R01_INTEGRATION }
+# Con Uvicorn de esa misma instalacion arrancado:
+& api/.venv/Scripts/python.exe scripts/verify-adat.py --env-file $local.env_file --compose-env-file $local.env_file --compose-project $local.compose_project
 ```
 
-Si el volumen ya existía, el SQL de inicio no se reaplica. Inspecciona las
-tablas y aplica `database/mariadb/01_schema.sql` manualmente sin borrar datos.
-Para la demostración local con solo MariaDB, copia `api/.env.local.example`
-a `api/.env` y ajusta usuario y contraseña para que coincidan con el `.env`
-de la raíz. Los otros cuatro motores requieren esquemas `ALUMNOS` que no se
-incluyen en esta rama integrada; el SQL de `prototipo/` usa otro modelo.
+En un arranque manual con `api/.env`, ajusta las rutas de configuración y el nombre
+del proyecto Compose al entorno que hayas arrancado.
 
----
+La demo HTTP detiene/recupera H2 y MariaDB del proyecto indicado, comprueba los
+rechazos, el fallback, cinco intentos automáticos reales, `FAILED`, divergencias
+y relanzamiento administrativo. Puede tardar unos dos minutos. Conserva las bajas
+de prueba, restaura el nombre histórico y no elimina volúmenes. Sin
+`--compose-project` omite las caídas. Parámetros alternativos: `--base-url`,
+`--env-file`, `--compose-env-file` y `--report`.
 
-## Endpoints
-
-| Método | Ruta | Éxito | Descripción |
-|---|---|---|---|
-| `GET` | `/alumnos` | 200 | Lista el alumnado de **las 5** bases de datos |
-| `GET` | `/alumnos?nombre={texto}` | 200 | Busca alumnos cuyo nombre **empiece por** el texto indicado |
-| `GET` | `/alumnos/{dni}` | 200 | Busca el DNI en cada fuente y devuelve la primera coincidencia con `patronus_url` |
-| `GET` | `/patronus` | 200 | Lista el catálogo de patronus (solo MariaDB) |
-| `POST` | `/alumnos` | 201 | Crea el alumno en MariaDB (valida el patronus contra `PATRONUS_IMG`) |
-| `PUT` | `/alumnos/{dni}` | 200 | Actualiza el registro en **todas** las fuentes donde exista |
-| `DELETE` | `/alumnos/{dni}` | 204 | Borra el registro en **todas** las fuentes donde exista |
-
-Códigos de error comunes: **404** DNI inexistente · **409** DNI duplicado ·
-**422** validación (patronus inexistente, sexo fuera de `HMS`, etc.) ·
-**503** una fuente no responde o MariaDB no está activa.
-
-### GET /alumnos
-
-```bash
-curl http://127.0.0.1:8000/alumnos
-```
-
-```json
-[
-  {
-    "id": "10000000Z",
-    "nombre": "Abigail",
-    "apellido": "Pugh",
-    "sexo": "M",
-    "patronus": null,
-    "patronus_url": null,
-    "imagen": null,
-    "casa": "Slytherin"
-  }
-]
-```
-
-### GET /alumnos?nombre={texto}
-
-Búsqueda por **prefijo** de nombre (no distingue mayúsculas/minúsculas). Devuelve las
-coincidencias de las 5 bases de datos, ordenadas por nombre.
-
-```bash
-curl "http://127.0.0.1:8000/alumnos?nombre=Al"
-```
-
-```json
-[
-  { "id": "10000267M", "nombre": "Alannis", "apellido": null, "sexo": "M", "patronus": null, "patronus_url": null, "imagen": null, "casa": "Ravenclaw" },
-  { "id": "10000470W", "nombre": "Albert", "apellido": "Nott", "sexo": "H", "patronus": null, "patronus_url": null, "imagen": null, "casa": "Gryffindor" },
-  { "id": "10000773Y", "nombre": "Alecto", "apellido": "Carrow", "sexo": "M", "patronus": null, "patronus_url": null, "imagen": null, "casa": "Hufflepuff" }
-]
-```
-
-Si no se pasa el parámetro `nombre`, se comporta como `GET /alumnos` (lista completa).
-
-### GET /alumnos/{dni}
-
-```bash
-curl http://127.0.0.1:8000/alumnos/10000000Z
-```
-
-```json
-{
-  "id": "10000000Z",
-  "nombre": "Abigail",
-  "apellido": "Pugh",
-  "sexo": "M",
-  "patronus": "Wolf",
-  "patronus_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg",
-  "imagen": null,
-  "casa": "Slytherin"
-}
-```
-
-El campo `patronus_url` se busca en `PATRONUS_IMG` consultando el valor de `patronus`
-por la columna `NOM_ENG`. Si el patronus no está en el catálogo o `patronus` es `null`,
-el campo se devuelve como `null`.
-
-### GET /patronus
-
-Devuelve el catálogo completo de patronus (nombre en inglés + imagen). Requiere que el
-motor `mariadb` esté activo en `DB_ENGINES`, ya que la tabla solo existe allí.
-
-```bash
-curl http://127.0.0.1:8000/patronus
-```
-
-```json
-[
-  { "nom_eng": "Wolf", "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg" },
-  { "nom_eng": "Stag", "url": "https://example.com/stag.jpg" }
-]
-```
-
-### POST /alumnos
-
-El campo `patronus` se valida contra la columna `NOM_ENG` de la tabla `PATRONUS_IMG`,
-por lo que debe enviarse **el nombre en inglés** (`"Wolf"`, `"Stag"`, `"Otter"`...).
-
-```bash
-curl -X POST http://127.0.0.1:8000/alumnos \
-  -H "Content-Type: application/json" \
-  -d '{"id":"10009999X","nombre":"Harry","apellido":"Potter","sexo":"H","patronus":"Stag","imagen":"https://example.com/harry.jpg"}'
-```
-
-```json
-{
-  "id": "10009999X",
-  "nombre": "Harry",
-  "apellido": "Potter",
-  "sexo": "H",
-  "patronus": "Stag",
-  "patronus_url": null,
-  "imagen": "https://example.com/harry.jpg",
-  "casa": "Hogwarts"
-}
-```
-
-Respuestas:
-- `201` creado
-- `409` el DNI ya existe en alguna de las 5 fuentes
-- `422` el patronus no existe en `PATRONUS_IMG` (columna `NOM_ENG`)
-- `422` datos no válidos (nombre vacío, sexo fuera de `HMS`, etc.)
-
-### PUT /alumnos/{dni}
-
-Envía **solo los campos que quieras cambiar**; los omitidos no se tocan y los que envíes
-como `null` (o `""`) se guardan como `NULL`. El `ID` se toma de la URL y no es editable.
-No valida el patronus contra `PATRONUS_IMG` (solo el POST lo valida).
-
-```bash
-# cambiar un solo campo
-curl -X PUT http://127.0.0.1:8000/alumnos/10000000Z \
-  -H "Content-Type: application/json" -d '{"patronus":"Stag"}'
-
-# cambiar varios y limpiar un campo
-curl -X PUT http://127.0.0.1:8000/alumnos/10000000Z \
-  -H "Content-Type: application/json" -d '{"apellido":"","sexo":"H","patronus":null}'
-```
-
-Respuesta `200` con el alumno ya actualizado; `404` si el DNI no está en ninguna fuente;
-`422` si el cuerpo está vacío o algún valor no cumple las restricciones.
-
-### DELETE /alumnos/{dni}
-
-```bash
-curl -X DELETE http://127.0.0.1:8000/alumnos/10009999X
-```
-
-- `204` sin cuerpo si se borró · `404` si el DNI no existe en ninguna fuente · `503` si una fuente no responde.
-
----
-
-## Cómo funciona por dentro
-
-```mermaid
-flowchart LR
-    rutas["Rutas FastAPI"] --> fabrica["Fábrica según DB_ENGINES"]
-    fabrica --> repos["Repositorios activos"]
-    repos --> maria["MariaDB"]
-    repos -.-> oracle["Oracle"]
-    repos -.-> jdbc["JDBC: H2, HSQLDB y Derby"]
-    maria --> catalogo["Catálogo PATRONUS_IMG"]
-```
-
-La fábrica crea únicamente los repositorios indicados en `DB_ENGINES`.
-
-1. `config.py` lee `.env` (ruta absoluta) y `factory.py` construye la lista de repositorios
-   según `DB_ENGINES`. Si hay fuentes JDBC, arranca **una única JVM** (`jdbc.iniciar_jvm`)
-   con los `.jar` correspondientes (también resueltos a ruta absoluta).
-2. `db/base.py` define los **modelos Pydantic**, los helpers compartidos
-   (`fila_a_alumno`, `campos_a_actualizar`) y el **Protocolo `RepositorioAlumnos`**
-   (`listar`, `buscar_por_nombre`, `obtener`, `actualizar`, `eliminar`). Todos los motores
-   cumplen ese contrato, así que la capa HTTP no distingue entre Oracle, MariaDB, H2,
-   HSQLDB ni Derby.
-3. `api/alumnos.py` inyecta las fuentes con `Depends(get_repositorios)` y recorre la lista:
-   lectura = primera coincidencia; escritura = todas las coincidencias.
-4. Todas las sentencias SQL van **parametrizadas** (`?`, `%s` o `:nombre` según el motor),
-   con las columnas blanqueadas por la API, y hacen `commit` explícito.
-5. El **buscador por nombre** (`?nombre=`) usa `WHERE UPPER(NOMBRE) LIKE UPPER(prefijo || '%')`
-   en cada motor, ordenado por nombre. Se ejecuta en las 5 fuentes y se concatenan los resultados.
-6. El **patronus** se valida en el POST consultando `NOM_ENG` en `PATRONUS_IMG` (MariaDB).
-   En el GET `/alumnos/{dni}` se busca la URL de la imagen en esa misma columna.
-
-## API Tareas (ejemplo)
-
-`main_tareas.py` es una app FastAPI **independiente** de esta API: un CRUD de tareas
-guardadas en una lista de Python (en memoria), pensada como plantilla de práctica.
-
-```bash
-uv run uvicorn proyecto_reto1.main_tareas:app --reload
-```
-
-## Tests
-
-Hay `pytest` instalado como dependencia de desarrollo; todavía no hay tests en el repositorio:
-
-```bash
-uv run pytest
-```
+En Windows se usa `-p no:faulthandler` en la integración por el aviso conocido entre
+pytest y JPype; no se desactivan aserciones. Ver [validación y límites](../docs/adat-validation.md).

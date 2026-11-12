@@ -1,0 +1,865 @@
+{
+  "fuente": "patronus-20261112T094824Z-1-001.zip",
+  "sha256_zip": "3747caa6bf867c97eac03cabcdb07323ddd9c612d47e936742e1dc8d07fb2d4b",
+  "criterio": "Asignacion de semilla determinista por SHA-256 del UUID; no representa una relacion canonica entre personajes y Patronus.",
+  "patronus": [
+    {
+      "nom_eng": "Adder",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Common_European_viper_%28Vipera_berus%29_female_Pieniny.jpg",
+      "nombre_original": "Víbora (Adder)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Albatross",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/73/Short_tailed_Albatross1.jpg",
+      "nombre_original": "Albatros (Albatross)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Alligator",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Chinese%2Bamerican_alligators.png",
+      "nombre_original": "Aligátor (Alligator)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Badger",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/European_badger_%28Meles_meles_taxus%29_Drenthe.jpg",
+      "nombre_original": "Tejón (Badger)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Balinese",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Old-Style_Balinese_Cat.png",
+      "nombre_original": "Gato banyano (Balinese)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Barn Owl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/American_Barn_Owl_%28Tyto_furcata_guatemalae%29%2C_Orange_Walk.jpg",
+      "nombre_original": "Lechuza Común (Barn Owl)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Basset Hound",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/BassetHound_profil.jpg",
+      "nombre_original": "Basset Hound",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Bay Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/BayMare.jpg",
+      "nombre_original": "Yegua Baya (Bay Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Bay Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/BayMare.jpg",
+      "nombre_original": "Semental Bayo (Bay Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Beagle",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Beagle_600.jpg",
+      "nombre_original": "Beagle",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Bengal Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Paintedcats_Red_Star_standing.jpg",
+      "nombre_original": "Gato de Bengala (Bengal Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Black and White Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Socks_the_Cat.jpg",
+      "nombre_original": "Gato blanco y negro (Black and White Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Black Bear",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Vancouver_Island_black_bear_%28Ursus_americanus_vancouveri%29_Tofino_4.jpg",
+      "nombre_original": "Oso Negro (Black Bear)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Black Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Blackcat-Lilith.jpg",
+      "nombre_original": "Gato Negro (Black Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Black Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Bridon_Belfrey%2C_RID%2C_Irish_Draught_Stallion.jpg",
+      "nombre_original": "Yegua Negra (Black Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Black Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Bridon_Belfrey%2C_RID%2C_Irish_Draught_Stallion.jpg",
+      "nombre_original": "Semental Negro (Black Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Blackbird",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Common_Blackbird.jpg",
+      "nombre_original": "Mirlo (Blackbird)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Bloodhound",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Bloodhound_Erland22.jpg",
+      "nombre_original": "Bloodhound",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Borzoi",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Chart_rosyjski_borzoj_rybnik-kamien_pl.jpg",
+      "nombre_original": "Borzoi",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Brown Bear",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/71/2010-kodiak-bear-1.jpg",
+      "nombre_original": "Oso Pardo (Brown Bear)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Buffalo",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/13/African_buffalo_%28Syncerus_caffer_caffer%29_male_with_cattle_egret.jpg",
+      "nombre_original": "Búfalo (Buffalo)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Calico Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/CalicoCat.jpg",
+      "nombre_original": "Gato calicó (Calico Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Cheetah",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/92/Male_cheetah_facing_left_in_South_Africa.jpg",
+      "nombre_original": "Guepardo (Cheetah)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Chestnut Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Pottok.jpg",
+      "nombre_original": "Yegua Alazana (Chestnut Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Chestnut Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Pottok.jpg",
+      "nombre_original": "Semental Alazán (Chestnut Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Chow Chow",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Chow-chow_in_Tallinn.JPG",
+      "nombre_original": "Chow Chow",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Cocker Spaniel",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/28/Gessa_d%27Aran_Copo_de_Nieve-_arancio_roano-_prop.Kalesa.jpg",
+      "nombre_original": "Cocker Spaniel",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Collie",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/1Dog-rough-collie-portrait.jpg",
+      "nombre_original": "Collie",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Crane",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Antigone_canadensis_353731480_%28cropped%29.jpg",
+      "nombre_original": "Grulla (Crane)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Crocodile",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Nile_crocodile_head.jpg",
+      "nombre_original": "Cocodrilo (Crocodile)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Curlew",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Eurasian_Curlew.jpg",
+      "nombre_original": "Zarapito (Curlew)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Dalmatian",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Sun_Dog_Dalmatian.jpg",
+      "nombre_original": "Dálmata (Dalmatian)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Dapple Grey Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Lipizzaner_DSC02439.jpg",
+      "nombre_original": "Yegua Torda (Dapple Grey Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Dapple Grey Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Lipizzaner_DSC02439.jpg",
+      "nombre_original": "Semental Tordo (Dapple Grey Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Doe",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Cervus_elaphus_Luc_Viatour_6.jpg",
+      "nombre_original": "Cierva (Doe)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Dolphin",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Tursiops_truncatus_01.jpg",
+      "nombre_original": "Delfín (Dolphin)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Dragon",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/St_Catherine%2C_St_George_and_the_Dragon_%28M%C3%A4staren_fr%C3%A5n_Kappenberg%29_-_Nationalmuseum_-_18337_%28brightened%29%2C_draken.png",
+      "nombre_original": "Dragón (Dragon)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Dun Mare/Stallion variations",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Hairz.jpg",
+      "nombre_original": "Caballo Granadero (Dun Mare/Stallion variations)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Eagle",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/60/Eagles_together.jpg",
+      "nombre_original": "Águila (Eagle)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Eagle Owl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Bubo_bubo_3_%28Martin_Mecnarowski%29.jpg",
+      "nombre_original": "Búho Real (Eagle Owl)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Elephant",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/37/African_Bush_Elephant.jpg",
+      "nombre_original": "Elefante (Elephant)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Erumpent",
+      "url": "https://static.wikia.nocookie.net/harrypotter/images/6/61/Erumpent_Concept_Art_FB1.png/revision/latest",
+      "nombre_original": "Erumpent",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Falcon",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Eurasian_hobby_%28Falco_subbuteo%29_by_Shantanu_Kuveskar.jpg",
+      "nombre_original": "Halcón (Falcon)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Fallow Deer",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/D%C3%BClmen%2C_Wildpark_--_2018_--_3762.jpg",
+      "nombre_original": "Gamo (Fallow Deer)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Ferret",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Ferret_2008.png",
+      "nombre_original": "Hurón (Ferret)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Field Mouse",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/180429-Waldmaus-01.jpg",
+      "nombre_original": "Ratón de Campo (Field Mouse)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Fire Dwelling Salamander",
+      "url": "",
+      "nombre_original": "Salamandra de Fuego (Fire Dwelling Salamander)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Fox",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Vulpes_vulpes_ssp_fulvus.jpg",
+      "nombre_original": "Zorro (Fox)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Fox Terrier",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/01_Wire_Fox_terrier.jpg",
+      "nombre_original": "Fox Terrier",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Gander",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Anser_anser_1_%28Piotr_Kuczynski%29_%28cropped%29.jpg",
+      "nombre_original": "Ganso (Gander)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Ginger Cat",
+      "url": "",
+      "nombre_original": "Gato Jengibre (Ginger Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Goat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Hausziege_04.jpg",
+      "nombre_original": "Cabra (Goat)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Grass Snake",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Grass_snake_%28Natrix_natrix%29_Pieniny.jpg",
+      "nombre_original": "Serpiente de hierba (Grass Snake)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Great Dane",
+      "url": "",
+      "nombre_original": "Great Dane (Gran Danés)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Greyhound",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/GraceTheGreyhound.jpg",
+      "nombre_original": "Galgo (Greyhound)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Hare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Scrub_Hare_%28Lepus_saxatilis%29_close-up_%2830544290256%29_%282%29.jpg",
+      "nombre_original": "Liebre (Hare)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Hedgehog",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/72/Igel.JPG",
+      "nombre_original": "Erizo (Hedgehog)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Heron",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Ardeidae-01.jpg",
+      "nombre_original": "Garza (Heron)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Hippogriff",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Roger_d%C3%A9livrant_Ang%C3%A9lique_by_Louis-%C3%89douard_Rioult.jpg",
+      "nombre_original": "Hipogrifo (Hippogriff)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Hippopotamus",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Portrait_Hippopotamus_in_the_water.jpg",
+      "nombre_original": "Hipopótamo (Hippopotamus)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Hound",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Beagle_GRUMPY2.JPG",
+      "nombre_original": "Sabueso (Hound)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Hyena",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Hyaenidae_Diversity.jpg",
+      "nombre_original": "Hiena (Hyena)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Irish Wolfhound",
+      "url": "",
+      "nombre_original": "Irish Wolfhound (Lobero Irlandés)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Jack Russell Terrier",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Jack_Russell_Terrier_1.jpg",
+      "nombre_original": "Jack Russell Terrier",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Killer Whale",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Killerwhales_jumping.jpg",
+      "nombre_original": "Orca (Killer Whale)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "King Cobra",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/12_-_The_Mystical_King_Cobra_and_Coffee_Forests.jpg",
+      "nombre_original": "Cobra Real (King Cobra)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Leopard",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/African_leopard_male_%28cropped%29.jpg",
+      "nombre_original": "Leopardo (Leopard)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Leopardess",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/African_leopard_male_%28cropped%29.jpg",
+      "nombre_original": "Leoparda (Leopardess)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Lion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/020_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg",
+      "nombre_original": "León (Lion)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Lioness",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/020_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg",
+      "nombre_original": "Leona (Lioness)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Lizard",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Hemidactylus_platyurus_%28Flat-tailed_House_Gecko%29_on_white_background%2C_focus_stacking.jpg",
+      "nombre_original": "Lagarto (Lizard)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Lynx",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Lynx_heads_collage.jpg",
+      "nombre_original": "Lince (Lynx)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Magpie",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Eurasian_magpie_2024_03_03_02.jpg",
+      "nombre_original": "Urraca (Magpie)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Mallard",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Anas_platyrhynchos_male_female_quadrat.jpg",
+      "nombre_original": "Ánade Real (Mallard)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Manx",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Manx_cat_by_Karen_Weaver.jpg",
+      "nombre_original": "Manx",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Mastiff",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/76/The_dog_book_-_a_popular_history_of_the_dog%2C_with_practical_information_as_to_care_and_management_of_house%2C_kennel%2C_and_exhibition_dogs%3B_and_descriptions_of_all_the_important_breeds_%281906%29_%2820800295488%29.jpg",
+      "nombre_original": "Mastín (Mastiff)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Megabat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/047_Indian_flying_fox_in_Keoladeo_National_Park_Photo_by_Giles_Laurent.jpg",
+      "nombre_original": "Murciélago Megariquiróptero (Megabat)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Microbat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Townsends_in_music_hall.jpg",
+      "nombre_original": "Murciélago Microquiróptero (Microbat)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Mole",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Kret_mole.jpg",
+      "nombre_original": "Topo (Mole)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Nebelung",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/29/Aleksandr_van_Song_de_Chine.jpg",
+      "nombre_original": "Nebelung",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Newfoundland",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Newfoundland_dog_Smoky.jpg",
+      "nombre_original": "Terranova (Newfoundland)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Occamy",
+      "url": "https://static.wikia.nocookie.net/harrypotter/images/2/29/Occamy_FBCases.png/revision/latest",
+      "nombre_original": "Occamy",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Ocicat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Topspot_La_Colombina_%28Liina%29_OCI_c_24_female_kitten_EX1.JPG",
+      "nombre_original": "Ocicat",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Otter",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Fischotter%2C_Lutra_Lutra.JPG",
+      "nombre_original": "Nutria (Otter)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Peacock",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Peacock_on_tree_%2852077240794%29.jpg",
+      "nombre_original": "Pavo Real (Peacock)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Pelican",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Pelikan_Walvis_Bay.jpg",
+      "nombre_original": "Pelícano (Pelican)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Persian",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/81/Persialainen.jpg",
+      "nombre_original": "Persa (Persian)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Pheasant",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Phasianus_colchicus_Oulu_20200524_02.jpg",
+      "nombre_original": "Faisán (Pheasant)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Phoenix",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Phoenix_%281583%29.svg",
+      "nombre_original": "Fénix (Phoenix)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Piebald Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Irish_Tinker_horse_2.JPG",
+      "nombre_original": "Yegua Pía (Piebald Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Piebald Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Irish_Tinker_horse_2.JPG",
+      "nombre_original": "Semental Pío (Piebald Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Polar Bear",
+      "url": "",
+      "nombre_original": "Oso Polar (Polar Bear)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Portuguese Water Dog",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/09/C%C3%A3o_de_agua_Portugu%C3%AAs_2.jpg",
+      "nombre_original": "Perro de Agua Portugués (Portuguese Water Dog)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Python",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Python_molurus_molurus_2.jpg",
+      "nombre_original": "Pitón (Python)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Rabbit",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Oryctolagus_cuniculus_Rcdo.jpg",
+      "nombre_original": "Conejo (Rabbit)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Ragdoll",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Ragdoll_from_Gatil_Ragbelas.jpg",
+      "nombre_original": "Ragdoll",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Ram",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Flock_of_sheep.jpg",
+      "nombre_original": "Carnero (Ram)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Rat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Brown_Rat_%28Rattus_norvegicus%29.jpg",
+      "nombre_original": "Rata (Rat)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Raven",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/91/Corvus_corax_clarionensis%2C_Point_Reyes_National_Seashore.jpg",
+      "nombre_original": "Cuervo (Raven)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Rhinoceros",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/ff/081_White_rhinoceros_%28male%29_in_the_Kalahari_Desert_of_Namibia_Photo_by_Giles_Laurent.jpg",
+      "nombre_original": "Rinoceronte (Rhinoceros)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Robin",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Erithacus_rubecula_with_cocked_head.jpg",
+      "nombre_original": "Petirrojo (Robin)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Roebuck",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Roe_deer_%28Capreolus_capreolus%29_young_male_Cumnor.jpg",
+      "nombre_original": "Corzo (Roebuck)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Rottweiler",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/26/Rottweiler_standing_facing_left.jpg",
+      "nombre_original": "Rotweiler (Rottweiler)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Runespoor",
+      "url": "https://static.wikia.nocookie.net/harrypotter/images/b/b9/Runespoor_-_FBcases.png/revision/latest",
+      "nombre_original": "Runespoor (Serpiente de tres cabezas)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Russian Blue",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Russian_blue_kitten_%28cropped%29.jpg",
+      "nombre_original": "Gato Azul Ruso (Russian Blue)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Salamander",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Salamandra_salamandra_MHNT_1.jpg",
+      "nombre_original": "Salamandra Común (Salamander)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Salmon",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Salmo_salar.jpg",
+      "nombre_original": "Salmón (Salmon)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Scops Owl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Scops_Owl_%28Otus_scops%29%2C_Kalloni%2C_Lesvos%2C_Greece%2C_19.04.2015_%2816773748434%29.jpg",
+      "nombre_original": "Autillo (Scops Owl)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Scottish Deerhound",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Karrie.JPG",
+      "nombre_original": "Deerhound escocés (Scottish Deerhound)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Seagull",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Herring_Gull_%28Larus_argentatus%29%2C_Brighton%2C_England.JPG",
+      "nombre_original": "Gaviota (Seagull)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Seal",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Seehund.jpg",
+      "nombre_original": "Foca (Seal)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Shark",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Corl0207_%2828225976491%29.jpg",
+      "nombre_original": "Tiburón (Shark)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Siamese",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Siamese_cat_Vaillante.JPG",
+      "nombre_original": "Siamés (Siamese)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Siberian",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Samiha%27s_Siberian_cat_Moon_Pie.jpg",
+      "nombre_original": "Siberiano (Siberian)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Skunk",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Striped_Skunk.jpg",
+      "nombre_original": "Mofeta (Skunk)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Snowy Owl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/SnowyOwlAmericanBlackDuck.jpg",
+      "nombre_original": "Búho Nival (Snowy Owl)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Somali",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/%D0%A1%D0%BE%D0%BC%D0%B0%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B0%D1%8F_%D0%BA%D0%BE%D1%88%D0%BA%D0%B0.jpg",
+      "nombre_original": "Somalí (Somali)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Sparrowhawk",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/%D0%AF%D1%81%D1%82%D1%80%D0%B5%D0%B1-%D0%BF%D0%B5%D1%80%D0%B5%D0%BF%D0%B5%D0%BB%D1%8F%D1%82%D0%BD%D0%B8%D0%BA_%28Accipiter_nisus%2C_m%29%2C_%D0%98%D0%B7%D0%BC%D0%B0%D0%B9%D0%BB%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA.jpg",
+      "nombre_original": "Gavilán (Sparrowhawk)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Sphynx Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Sphynx_-_cat._img_031.jpg",
+      "nombre_original": "Gato Esfinge (Sphynx Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Squirrel",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Sciuridae.jpg",
+      "nombre_original": "Ardilla (Squirrel)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "St. Bernard",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Hummel_Vedor_vd_Robandahoeve.jpg",
+      "nombre_original": "San Bernardo (St. Bernard)",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "Stag",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Cervus_elaphus_Luc_Viatour_6.jpg",
+      "nombre_original": "Ciervo (Stag)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Starling",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Common_starling_%28Sturnus_vulgaris%29_breeding_male_Marken.jpg",
+      "nombre_original": "Estornino (Starling)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Swallow",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Rauchschwalbe_Hirundo_rustica.jpg",
+      "nombre_original": "Golondrina (Swallow)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Swan",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Mute_Swan_Emsworth2.JPG",
+      "nombre_original": "Cisne (Swan)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Swift",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Common_Swift_2025_07_18_02_%28cropped%29.jpg",
+      "nombre_original": "Vencejo (Swift)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Tawny Owl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Strix_aluco_3_%28Martin_Mecnarowski%29.jpg",
+      "nombre_original": "Cárabo (Tawny Owl)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Thestral",
+      "url": "https://static.wikia.nocookie.net/harrypotter/images/b/bd/Thestral.png/revision/latest",
+      "nombre_original": "Thestral",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Tiger",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Bengal_tiger_%28Panthera_tigris_tigris%29_female_3_crop.jpg",
+      "nombre_original": "Tigre (Tiger)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Tigeress",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Bengal_tiger_%28Panthera_tigris_tigris%29_female_3_crop.jpg",
+      "nombre_original": "Tigresa (Tigeress)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Toad",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Bombina_bombina_1_%28Marek_Szczepanek%29.jpg",
+      "nombre_original": "Sapo (Toad)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Tonkinese",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Tonkinese_Cat_-_Leo.jpg",
+      "nombre_original": "Tonquinés (Tonkinese)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Tortoise",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/A._gigantea_Aldabra_Giant_Tortoise.jpg",
+      "nombre_original": "Tortuga (Tortoise)",
+      "categoria": "REPTILES Y ANFIBIOS (11)"
+    },
+    {
+      "nom_eng": "Tortoiseshell Cat",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Twenty-nine_the_Cat.jpg",
+      "nombre_original": "Gato de Carey (Tortoiseshell Cat)",
+      "categoria": "GATOS (18)"
+    },
+    {
+      "nom_eng": "Unicorn",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Oftheunicorn.jpg",
+      "nombre_original": "Unicornio (Unicorn)",
+      "categoria": "CRIATURAS MÁGICAS (9)"
+    },
+    {
+      "nom_eng": "Vulture",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Gyps_rueppellii_-Nairobi_National_Park%2C_Kenya-8-4c.jpg",
+      "nombre_original": "Buitre (Vulture)",
+      "categoria": "AVES Y VOLADORES (30)"
+    },
+    {
+      "nom_eng": "Weasel",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Mustela_nivalis_-British_Wildlife_Centre-4.jpg",
+      "nombre_original": "Comadreja (Weasel)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "West Highland Terrier",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/West_Highland_White_Terrier_Krakow.jpg",
+      "nombre_original": "West Highland Terrier",
+      "categoria": "PERROS (21)"
+    },
+    {
+      "nom_eng": "White Mare",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/DominantWhiteHorsesD.jpg",
+      "nombre_original": "Yegua Blanca (White Mare)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "White Stallion",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/DominantWhiteHorsesD.jpg",
+      "nombre_original": "Semental Blanco (White Stallion)",
+      "categoria": "CABALLOS (13)"
+    },
+    {
+      "nom_eng": "Wild Boar",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Wildschwein%2C_N%C3%A4he_Pulverstampftor_%28cropped%29.jpg",
+      "nombre_original": "Jabalí (Wild Boar)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Wolf",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Eurasian_wolf_2.jpg",
+      "nombre_original": "Lobo (Wolf)",
+      "categoria": "MAMÍFEROS SALVAJES Y ROEDORES (41)"
+    },
+    {
+      "nom_eng": "Woodpecker",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/12/PileatedWoodpeckerFeedingonTree%2C_crop.jpg",
+      "nombre_original": "Pájaro Carpintero (Woodpecker)",
+      "categoria": "AVES Y VOLADORES (30)"
+    }
+  ]
+}

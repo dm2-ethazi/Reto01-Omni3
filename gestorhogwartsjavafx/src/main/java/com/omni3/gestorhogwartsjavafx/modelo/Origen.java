@@ -23,7 +23,7 @@ public enum Origen {
     ORACLE,
     /** Central MariaDB: alumnos nuevos (§2.2). */
     MARIADB,
-    /** Base SQLite (histórica). */
+    /** Vista de la copia central SQLite; conserva el origen de cada alumno. */
     SQLITE,
     /** Vista unificada de todas las fuentes (no es una base real). */
     CENTRAL;

@@ -20,9 +20,12 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
+from threading import Lock, current_thread, main_thread
 
 import jaydebeapi
 import jpype
+
+_JVM_LOCK = Lock()
 
 from .base import (
     COLUMNAS_ALUMNO_SQL,
@@ -31,7 +34,6 @@ from .base import (
     campos_a_actualizar,
     fila_a_alumno,
 )
-
 
 # --------------------------------------------------------------------------- #
 #  Arranque de la JVM                                                         #
@@ -83,16 +85,22 @@ def iniciar_jvm(rutas_jar: list[str]) -> None:
     Args:
         rutas_jar: Lista de rutas absolutas a archivos .jar de drivers JDBC.
     """
-    if jpype.isJVMStarted():
-        return
-    classpath = os.pathsep.join(os.path.abspath(r) for r in rutas_jar)
-    jpype.startJVM(
-        _ruta_jvm(),
-        f"-Djava.class.path={classpath}",
-        "--enable-native-access=ALL-UNNAMED",
-        convertStrings=False,
-        ignoreUnrecognized=True,
-    )
+    with _JVM_LOCK:
+        if jpype.isJVMStarted():
+            for ruta in rutas_jar:
+                jpype.addClassPath(ruta)
+            return
+        classpath = os.pathsep.join(os.path.abspath(r) for r in rutas_jar)
+        jpype.startJVM(
+            _ruta_jvm(), f"-Djava.class.path={classpath}",
+            "--enable-native-access=ALL-UNNAMED", convertStrings=False,
+            ignoreUnrecognized=True,
+        )
+        # Un worker que arranca la JVM queda unido como hilo de usuario.
+        # Convertirlo en daemon permite cerrar Uvicorn sin bloquear la salida.
+        if current_thread() is not main_thread():
+            jpype.java.lang.Thread.detach()
+            jpype.java.lang.Thread.attachAsDaemon()
 
 
 # --------------------------------------------------------------------------- #
@@ -141,6 +149,10 @@ class RepositorioJDBC:
             with self._conexion() as conexion:
                 ...
         """
+        from ..config import settings
+
+        iniciar_jvm([str(p) for p in Path(settings.jars_dir).glob("*.jar")])
+        jpype.JClass("java.sql.DriverManager").setLoginTimeout(5)
         conexion = jaydebeapi.connect(self.driver, self.url, self._credenciales())
         try:
             yield conexion

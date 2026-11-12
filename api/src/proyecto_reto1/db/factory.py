@@ -1,26 +1,17 @@
 """Fábrica de repositorios.
 
 Crea la lista de repositorios activos según la variable DB_ENGINES de la
-configuración. Si hay fuentes JDBC (H2, HSQLDB, Derby), arranca una única
-JVM con los drivers correspondientes antes de crear los repositorios.
+configuración. Los repositorios JDBC inician la JVM al conectarse; un fallo
+en Java no impide arrancar ni consultar SQLite central.
 """
-
-from pathlib import Path
 
 from ..config import settings
 from .base import RepositorioAlumnos
+from .central_mariadb import CentralMariaDB
 from .derby import RepositorioDerby
 from .h2 import RepositorioH2
 from .hsqldb import RepositorioHSQLDB
-from .mariadb import RepositorioMariaDB
 from .oracle import RepositorioOracle
-
-# Drivers JDBC necesarios para cada motor.
-_JARS = {
-    "h2": ("h2.jar",),
-    "hsqldb": ("hsqldb.jar",),
-    "derby": ("derbyclient.jar", "derbyshared.jar"),
-}
 
 # Caché de repositorios (singleton): se crea una sola vez y se reutiliza.
 _repositorios: list[RepositorioAlumnos] | None = None
@@ -47,7 +38,7 @@ def _crear(nombre: str) -> RepositorioAlumnos:
             password=settings.oracle_password,
         )
     if nombre == "mariadb":
-        return RepositorioMariaDB(
+        return CentralMariaDB(
             host=settings.mariadb_host,
             puerto=settings.mariadb_port,
             base=settings.mariadb_database,
@@ -66,8 +57,8 @@ def _crear(nombre: str) -> RepositorioAlumnos:
 def obtener_repositorios() -> list[RepositorioAlumnos]:
     """Devuelve la lista de repositorios activos (singleton).
 
-    En la primera llamada, parsea DB_ENGINES, arranca la JVM si hay fuentes
-    JDBC, y crea los repositorios. Las llamadas posteriores devuelven la misma
+    En la primera llamada, parsea DB_ENGINES y crea los repositorios.
+    Las llamadas posteriores devuelven la misma
     lista cacheada.
 
     Returns:
@@ -76,11 +67,5 @@ def obtener_repositorios() -> list[RepositorioAlumnos]:
     global _repositorios
     if _repositorios is None:
         nombres = [n.strip().lower() for n in settings.db_engines.split(",") if n.strip()]
-        jars = Path(settings.jars_dir)
-        rutas = [str(jars / nombre) for n in nombres for nombre in _JARS.get(n, ())]
-        if rutas:
-            from .jdbc import iniciar_jvm
-
-            iniciar_jvm(rutas)
         _repositorios = [_crear(n) for n in nombres]
     return _repositorios

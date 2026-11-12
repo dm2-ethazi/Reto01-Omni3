@@ -73,6 +73,8 @@ class RepositorioMariaDB:
             database=self.base,
             charset="utf8mb4",
             connect_timeout=5,
+            read_timeout=5,
+            write_timeout=5,
         )
         try:
             yield conexion

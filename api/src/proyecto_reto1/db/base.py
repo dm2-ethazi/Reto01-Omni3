@@ -15,8 +15,18 @@ datos. Contiene, en este orden:
 """
 
 from typing import Protocol
+from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+def normalizar_identificador(valor: str) -> str:
+    """Conserva el UUID canónico de históricos y normaliza el DNI de nuevos."""
+    valor = valor.strip()
+    try:
+        return str(UUID(valor))
+    except ValueError:
+        return valor.upper()
 
 # --------------------------------------------------------------------------- #
 #  1. Modelos Pydantic                                                        #
@@ -45,7 +55,15 @@ class Alumno(BaseModel):
     patronus: str | None = None
     patronus_url: str | None = None
     imagen: str | None = None
-    casa: str
+    casa: str | None = None
+    origen: str = "mariadb"
+    tipo: str = "NUEVO"
+    version: int = 1
+    activo: bool = True
+    actualizado_en: str = ""
+    desde_cache: bool = False
+    sincronizacion: str = "SYNCED"
+    sincronizado_en: str | None = None
 
 
 class Patronus(BaseModel):
@@ -64,28 +82,36 @@ class AlumnoEntrada(BaseModel):
     """Datos de entrada para crear un alumno (POST /alumnos).
 
     Atributos:
-        id: DNI del alumno (1-10 caracteres, obligatorio).
-        nombre: Nombre del alumno (1-100, obligatorio).
+        id: DNI del alumno (8 dígitos y una letra, obligatorio).
+        nombre: Nombre del alumno (2-80, obligatorio).
         apellido: Apellido(s), opcional.
         sexo: H, M o S, opcional.
-        patronus: Nombre del patronus **en inglés**, opcional.
+        patronus: Nombre del patronus **en inglés**, obligatorio.
             Se valida contra la columna NOM_ENG de PATRONUS_IMG.
         imagen: URL o ruta de la imagen del alumno, opcional (máx. 500).
     """
 
-    id: str = Field(min_length=1, max_length=10)
-    nombre: str = Field(min_length=1, max_length=100)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    id: str = Field(pattern=r"^[0-9]{8}[A-Z]$")
+    nombre: str = Field(min_length=2, max_length=80)
     apellido: str | None = Field(default=None, max_length=100)
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
-    patronus: str | None = Field(default=None, max_length=100)
+    patronus: str = Field(min_length=2, max_length=60)
     imagen: str | None = Field(default=None, max_length=500)
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def normalizar_id(cls, valor):
+        return valor.strip().upper() if isinstance(valor, str) else valor
 
 
 class AlumnoActualizacion(BaseModel):
     """Datos de entrada para actualizar un alumno (PUT /alumnos/{dni}).
 
     Permite actualizaciones parciales: solo se modifican los campos enviados.
-    Los campos enviados como null o cadena vacía "" se guardan como NULL.
+    Los campos opcionales enviados como null o cadena vacía se guardan como NULL.
+    La versión se compara en el servicio; Patronus no puede borrarse en nuevos.
 
     Atributos:
         nombre: Nuevo nombre (no puede ser null; la tabla lo exige).
@@ -95,10 +121,13 @@ class AlumnoActualizacion(BaseModel):
         imagen: Nueva imagen.
     """
 
-    nombre: str | None = Field(default=None, min_length=1, max_length=100)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    version: int | None = Field(default=None, ge=1)
+    nombre: str | None = Field(default=None, min_length=2, max_length=80)
     apellido: str | None = Field(default=None, max_length=100)
     sexo: str | None = Field(default=None, pattern="^[HMS]$")
-    patronus: str | None = Field(default=None, max_length=100)
+    patronus: str | None = Field(default=None, min_length=2, max_length=60)
     imagen: str | None = Field(default=None, max_length=500)
 
     @field_validator("nombre", mode="before")
@@ -113,12 +142,12 @@ class AlumnoActualizacion(BaseModel):
     @classmethod
     def cadena_vacia_a_nulo(cls, valor):
         """Convierte las cadenas vacías "" en None para guardar NULL en BD."""
-        return None if valor == "" else valor
+        return None if isinstance(valor, str) and not valor.strip() else valor
 
     @model_validator(mode="after")
     def al_menos_un_campo(self):
         """Garantiza que la petición incluya al menos un campo a actualizar."""
-        if not self.model_fields_set:
+        if not self.model_fields_set - {"version"}:
             raise ValueError("Debe indicar al menos un campo a actualizar")
         return self
 
@@ -130,6 +159,14 @@ class AlumnoActualizacion(BaseModel):
 
 class Conflicto(Exception):
     """Se lanza al intentar crear un alumno con un DNI que ya existe."""
+
+
+class EscrituraIncierta(Exception):
+    """El commit remoto no respondió: comprobar su resultado sin repetir la escritura."""
+
+
+class ColaLlena(Exception):
+    """No queda capacidad para registrar el refresco antes de escribir en la fuente."""
 
 
 # --------------------------------------------------------------------------- #
@@ -204,6 +241,9 @@ def fila_a_alumno(fila, casa: str) -> Alumno:
         patronus=texto(fila[4]),
         imagen=texto(fila[5]),
         casa=casa,
+        origen={"Ravenclaw": "oracle", "Gryffindor": "derby", "Hufflepuff": "h2",
+                "Slytherin": "hsqldb", "Hogwarts": "mariadb"}[casa],
+        tipo="NUEVO" if casa == "Hogwarts" else "HISTORICO",
     )
 
 
