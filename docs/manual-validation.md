@@ -100,3 +100,13 @@ La imagen de JavaFX captura la ventana abierta por este clon. Las demás imágen
 ![Resultado de pytest](evidence/clon/06-tests.png)
 
 [Registros del clon](evidence/clon/01-clon.txt) · [Arranque completo](evidence/clon/02-arranque.txt) · [Salida de pytest](evidence/clon/03-pytest.txt) · [Salida de la demo](evidence/clon/04-demo.txt) · [Informe HTTP](evidence/clon/demo-adat.json)
+
+## Persistencia tras reinicio · 12/11/2026
+
+A las 21:02 y 21:03 (hora local) se consultaron la ficha de Aamir Loonat (`10000000Z`), la salud y la coherencia de las centrales. Entre lecturas se cerró la API de prueba del puerto 18081, se reiniciaron los cinco contenedores con sus volúmenes y se inició otro proceso Uvicorn con el código de `development` y la misma configuración. Las dos consultas se realizaron sin sembrar ni importar entre ellas. La ficha conservó la versión 1. MariaDB y SQLite conservaron los 986 registros y la misma huella SHA-256. La cola tenía cero tareas activas y cero fallidas en las dos lecturas.
+
+![Antes del reinicio](evidence/reinicio/antes.png)
+
+![Después del reinicio](evidence/reinicio/despues.png)
+
+[Registro anterior](evidence/reinicio/antes.json) · [Registro posterior](evidence/reinicio/despues.json)
