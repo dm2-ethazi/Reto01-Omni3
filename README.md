@@ -142,6 +142,8 @@ El bloque instala el backend, compila JavaFX para Windows y arranca **las cinco
 bases, SQLite central, la API y JavaFX** con los 985 históricos suministrados.
 La configuración se crea una sola vez fuera del clon y conserva los datos de la
 instalación existente. En la primera migración, detén la API anterior antes de pegarlo.
+Antes de instalar dependencias, prepara siempre `.venv` desde la carpeta `api`
+con `py -3 -m venv .venv` (equivalente a `python -m venv .venv`).
 
 ```powershell
 & {
@@ -165,10 +167,13 @@ instalación existente. En la primera migración, detén la API anterior antes d
     py -3 -c "import sys, struct; assert sys.version_info >= (3, 11) and struct.calcsize('P') == 8, 'Se requiere Python 3.11+ de 64 bits'"
     if ($LASTEXITCODE -ne 0) { throw 'Comprueba la instalacion de Python 3.11+ de 64 bits.' }
 
-    # 2. Crear el entorno Python si falta e instalar las dependencias.
-    if (-not (Test-Path './api/.venv/Scripts/python.exe')) {
-        py -3 -m venv api/.venv
-        if ($LASTEXITCODE -ne 0) { throw 'No se pudo crear api/.venv.' }
+    # 2. Preparar siempre .venv desde api antes de instalar dependencias.
+    Push-Location './api'
+    try {
+        py -3 -m venv .venv
+        if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar api/.venv.' }
+    } finally {
+        Pop-Location
     }
     & ./api/.venv/Scripts/python.exe -m pip install --upgrade pip
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo actualizar pip.' }
