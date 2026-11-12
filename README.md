@@ -51,7 +51,7 @@ Requiere Docker Compose, Python 3.11+, Java 21+ y una terminal PowerShell. El co
 }
 ```
 
-En otra terminal, `./scripts/check-api.ps1` comprueba la identificación R01. El script ya ejecuta `POST /sync` e importa los históricos antes de dar el arranque por terminado. `scripts/verify-adat.py` demuestra el recorrido HTTP y comprueba ambas centrales; consulta el [README de la API](api/README.md) para importación selectiva, caída de MariaDB, concurrencia y pruebas. Conserva los volúmenes Docker y la SQLite indicada en `api/data/local-environment.json` al reiniciar. El bloque anterior es para Windows; el arranque manual en Linux se documenta por separado en el README de la API.
+En otra terminal, ejecuta `pwsh -NoProfile -File ./scripts/check-api.ps1` con PowerShell 7 para comprobar la identificación R01. Durante el arranque, `start-local.ps1` ya ejecuta `POST /sync` e importa los históricos antes de dar el arranque por terminado. `scripts/verify-adat.py` demuestra el recorrido HTTP y comprueba ambas centrales; consulta el [README de la API](api/README.md) para importación selectiva, caída de MariaDB, concurrencia y pruebas. Conserva los volúmenes Docker y la SQLite indicada en `api/data/local-environment.json` al reiniciar. El procedimiento completo de arranque de esta guía está preparado para Windows.
 
 JavaFX: entra en `gestorhogwartsjavafx/`, ejecuta `mvn verify`, configura `GESTOR_API_URL` o el `config.properties` de esa carpeta y lanza `mvn javafx:run`. Requiere JDK 17+ y una instalación externa de Maven 3.9+; consulta el [README del cliente](gestorhogwartsjavafx/README.md). Android: abre `gestorhogwartsmovil/` en Android Studio con SDK 37; para usar la API local desde el emulador, establece `http://10.0.2.2:8000` en el campo **URL de la API** y pulsa **Aplicar**. La rama actual trae un túnel HTTPS como valor inicial de compilación, que no es necesario para esa prueba local. Unity: abre `Omni3_Hogwarts_Unity/` en Unity 6000.3.25f1, pulsa Play y cambia la dirección desde el campo **API URL**.
 
@@ -114,14 +114,14 @@ El catálogo existente `PATRONUS_IMG` recibe también los nombres adicionales de
 RAR: 152 entradas en total. Se conservan las URL personalizadas y se refresca su
 copia SQLite durante el arranque.
 
-La carga es repetible. Las fichas anteriores con UUID pasan a su DNI sin perder
+El cargador vuelve a insertar los históricos de semilla ausentes del origen. Si se ha dado de baja uno de esos históricos, su copia central inactiva puede causar un conflicto en la siguiente importación. Para reiniciar una instalación usada y comprobar lo que conserva, sigue el apartado de persistencia de la demo antes de volver a ejecutar el cargador. [Prueba de persistencia](docs/demo-adat.md#3-persistencia-tras-reinicio). Las fichas anteriores con UUID pasan a su DNI sin perder
 ediciones particulares. El arranque conserva inactivas sus antiguas copias en
 MariaDB y SQLite e importa las fichas con DNI, de modo que no aparecen duplicados.
 También retira los cuatro ejemplos antiguos solo si siguen intactos. No se cambia
 la estructura de las tablas para actualizar estos datos. Antes de abrir JavaFX,
 el arranque espera a que termine la importación y ambas centrales coincidan.
 
-El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
+El equipo ha probado JavaFX, Android y Unity. El [registro de pruebas manuales](docs/manual-validation.md) incluye las capturas del 12/11/2026 del arranque, de la respuesta R01 en JavaFX, de Aamir Loonat (`10000000Z`) en JavaFX y Android y de la ficha de Luna en Unity.
 
 ## Demo común con la wiki
 
@@ -245,8 +245,7 @@ selector **SQLite** permite consultar esa copia. El puerto **8000** debe estar
 libre o tener esta misma instalación de la API ejecutándose. Si otra versión
 ocupa el puerto, el script se detiene con una explicación.
 
-Para los siguientes arranques, con Docker Desktop encendido, basta con pegar esto
-desde la misma carpeta:
+Para volver a cargar las fuentes e importar los históricos, ejecuta desde la misma carpeta con Docker Desktop encendido. Si ya has dado de baja un histórico de semilla, utiliza el [reinicio sin carga de datos](docs/demo-adat.md#3-persistencia-tras-reinicio).
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-local.ps1

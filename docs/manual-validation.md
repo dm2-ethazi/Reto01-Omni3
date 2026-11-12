@@ -1,10 +1,40 @@
 # Pruebas manuales en dispositivos
 
-Registro actualizado el 21/10/2026. El equipo confirma que ha probado manualmente
-las aplicaciones en dispositivos. Las pruebas automáticas y la inspección de
-recursos se documentan en sus informes correspondientes.
+Actualizado el 12/11/2026. El equipo confirma las pruebas manuales de JavaFX, Android y Unity.
 
-## Evidencias disponibles
+## Capturas del 12 de noviembre de 2026
+
+### Arranque y carga de las fuentes
+
+La terminal muestra los cinco contenedores en estado Healthy y un catálogo de 152 Patronus. El cargador inserta y vuelve a leer 203 alumnos en Oracle, 212 en H2, 267 en HSQLDB y 303 en Derby. La última línea visible anuncia el comienzo de la importación a las centrales.
+
+![Arranque y carga de las fuentes](evidence/arranque-fuentes.png)
+
+### Estado de la API en JavaFX
+
+En System status, JavaFX muestra el identificador R01, el estado OK y la hora de respuesta del servidor (19:25:24 UTC).
+
+![Estado de la API en JavaFX](evidence/javafx-estado.png)
+
+### Alumnado en JavaFX
+
+Con All sources seleccionado, la tabla muestra 985 alumnos. La primera fila corresponde a Aamir Loonat (`10000000Z`), de Gryffindor, con el Patronus Mastiff y origen Derby.
+
+![Alumnado en JavaFX](evidence/javafx-alumnos.png)
+
+### Alumnado en Android
+
+A las 20:07 la aplicación muestra 986 alumnos cargados e indica un 100 % de coincidencia entre el servidor y su caché SQLite. La primera fila muestra el mismo DNI y nombre de Aamir que JavaFX. El total corresponde a la consulta de cada captura.
+
+![Alumnado en Android](evidence/android-alumnos.jpg)
+
+### Búsqueda por nombre en Unity
+
+La búsqueda `luna` devuelve una alumna. La ficha muestra a Luna Scamander (née Lovegood), de Ravenclaw, con el Patronus Hare y su imagen. El campo de la API contiene `https://curator-caliber-magma.ngrok-free.dev`.
+
+![Búsqueda por nombre en Unity](evidence/unity-luna.png)
+
+## Pruebas documentadas en octubre
 
 | Aplicación | Dispositivo o entorno | Comprobación documentada | Fuente |
 |---|---|---|---|
@@ -18,7 +48,7 @@ separado la comprobación del campo de URL del 21/10/2026. No identifica la vers
 de Android ni el APK concreto de los dos dispositivos físicos; tampoco atribuye
 el caso de los 985 alumnos a uno de ellos en particular.
 
-## Comprobaciones automáticas relacionadas
+## Comprobaciones automáticas de octubre
 
 - **JavaFX:** 100 pruebas correctas, JAR generado y carga de cuatro vistas en tres
   idiomas. La carga FXML no incluyó una sesión gráfica interactiva. Véase la
@@ -47,5 +77,4 @@ registra estos datos junto al resultado:
 El [guion de demo](https://github.com/dm2-ethazi/Reto01-Omni3/wiki/07-Demo-Funcional)
 permite repetir el recorrido entre clientes. La comprobación de una release debe
 identificar el artefacto utilizado; este registro no atribuye las pruebas previas a
-una release específica sin esa información. Docker conserva su estado de
-verificación pendiente.
+una release específica sin esa información.
