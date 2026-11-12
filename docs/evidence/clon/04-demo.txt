@@ -1,0 +1,24 @@
+API R01 disponible: http://127.0.0.1:8000; estado: ok; alumnos centrales: 985; pendientes: 0
+OK oracle 10000515T : origen, MariaDB y SQLite coinciden
+OK h2 10000303H : origen, MariaDB y SQLite coinciden
+OK hsqldb 10000718L : origen, MariaDB y SQLite coinciden
+OK derby 10000000Z : origen, MariaDB y SQLite coinciden
+OK: Estado R01 con centrales y conectores disponibles
+OK: Lectura real del conector oracle
+OK: Lectura real del conector h2
+OK: Lectura real del conector hsqldb
+OK: Lectura real del conector derby
+OK: Importaci�n selectiva sin tareas pendientes
+OK: Dato de oracle guardado en MariaDB y SQLite y consultado por API
+OK: Dato de h2 guardado en MariaDB y SQLite y consultado por API
+OK: Dato de hsqldb guardado en MariaDB y SQLite y consultado por API
+OK: Dato de derby guardado en MariaDB y SQLite y consultado por API
+OK: Alta sin Patronus rechazada con 422
+OK: Alta v�lida conservada
+OK: PUT valida el cat�logo de Patronus
+OK: Edici�n con versi�n vigente aceptada
+OK: Edici�n obsoleta rechazada con 409
+OK: Baja l�gica aceptada
+OK: La consulta habitual excluye la baja
+OK: Registro inactivo conservado en ambas centrales
+Informe: C:\Users\nyxha\OneDrive\Desktop\p1\evidencia-clon\demo-adat.json

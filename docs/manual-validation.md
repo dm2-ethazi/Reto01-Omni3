@@ -78,3 +78,25 @@ El [guion de demo](https://github.com/dm2-ethazi/Reto01-Omni3/wiki/07-Demo-Funci
 permite repetir el recorrido entre clientes. La comprobación de una release debe
 identificar el artefacto utilizado; este registro no atribuye las pruebas previas a
 una release específica sin esa información.
+
+## Comprobación desde un clon nuevo · 12/11/2026
+
+Se clonó `main` en `comprobacion-final` (commit `d39f014`) y se ejecutó el bloque completo del README para Windows. Se crearon el entorno Python y el JAR de JavaFX. El arranque reutilizó la configuración, los datos y la API local de la instalación compartida. Los cuatro orígenes sumaron 985 históricos ya existentes. JavaFX recibió el estado R01/OK y se cerró tras capturar su ventana.
+
+El recorrido manual verificó los cuatro DNI conocidos en MariaDB y SQLite. La demo HTTP completó 18 comprobaciones y conservó el alumno de prueba con baja lógica. Pytest registró 55 pruebas aprobadas, 8 omitidas y un aviso. Esta ejecución cubre el arranque y la demo ordinaria. Las pruebas de caída y reinicio quedan fuera de esta ejecución.
+
+La imagen de JavaFX captura la ventana abierta por este clon. Las demás imágenes muestran los registros de salida de esta ejecución.
+
+![Clon y servicios existentes](evidence/clon/01-clon.png)
+
+![Instalación y artefactos de JavaFX](evidence/clon/02-instalacion.png)
+
+![Preparación de fuentes y arranque](evidence/clon/03-fuentes.png)
+
+![Respuesta R01 en JavaFX](evidence/clon/05-javafx.png)
+
+![Consultas y demo HTTP](evidence/clon/04-demo.png)
+
+![Resultado de pytest](evidence/clon/06-tests.png)
+
+[Registros del clon](evidence/clon/01-clon.txt) · [Arranque completo](evidence/clon/02-arranque.txt) · [Salida de pytest](evidence/clon/03-pytest.txt) · [Salida de la demo](evidence/clon/04-demo.txt) · [Informe HTTP](evidence/clon/demo-adat.json)
