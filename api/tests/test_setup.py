@@ -1,12 +1,13 @@
 """CSV originales y migración segura de la instalación entre clones."""
 
 import importlib.util
+import csv
+import re
 import shutil
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
-from uuid import UUID
 
 import pytest
 from dotenv import dotenv_values
@@ -31,14 +32,15 @@ def repo_temporal(path):
     return path
 
 
-def test_csv_originales_uuid_y_patronus_del_catalogo():
+def test_alumnos_del_rar_con_dni_apellidos_imagen_y_patronus():
     datos = seed.cargar_csv(ROOT / "database/origins/data")
     assert {k: len(v) for k, v in datos.items()} == {"oracle": 203, "h2": 212, "hsqldb": 267, "derby": 303}
     filas = [f for grupo in datos.values() for f in grupo]
     assert len({f[0] for f in filas}) == 985
-    nombres = {n for n, _ in seed.cargar_catalogo()}
-    assert all(str(UUID(f[0])) == f[0] and f[2] is None and f[4] in nombres for f in filas)
-    assert datos["derby"][0][1] == "Aamir Loonat"
+    assert all(re.fullmatch(r"[0-9]{8}[A-Z]", f[0]) and f[4] for f in filas)
+    assert all(f[0][-1] == "TRWAGMYFPDXBNJZSQVHLCKE"[int(f[0][:8]) % 23] for f in filas)
+    assert datos["derby"][0][:3] == ("10000000Z", "Aamir", "Loonat")
+    assert next(f for f in datos["derby"] if f[1:3] == ("Harry", "James Potter"))[4] == "Stag"
     assert datos["derby"][0][6] == "Gryffindor"
     assert any(f[7] and len(f[7]) > 500 for f in datos["derby"])
     assert any(f[3] == "S" and f[9] for f in filas)
@@ -47,11 +49,13 @@ def test_csv_originales_uuid_y_patronus_del_catalogo():
 def test_csv_con_identificadores_duplicados_se_rechaza_antes_de_cargar(tmp_path):
     for archivo in (ROOT / "database/origins/data").glob("*.csv"):
         shutil.copyfile(archivo, tmp_path / archivo.name)
+    shutil.copyfile(ROOT / "database/origins/data/alumnos.json", tmp_path / "alumnos.json")
     archivo = tmp_path / "gryffindor.csv"
     with archivo.open(encoding="utf-8-sig") as f:
         text = f.read()
-    filas = seed.cargar_csv(tmp_path)["derby"]
-    archivo.write_text(text.replace(filas[1][0], filas[0][0]), encoding="utf-8")
+    with archivo.open(encoding="utf-8-sig", newline="") as f:
+        filas = list(csv.DictReader(f))
+    archivo.write_text(text.replace(filas[1]["id"], filas[0]["id"]), encoding="utf-8")
     with pytest.raises(ValueError, match="duplicado"):
         seed.cargar_csv(tmp_path)
 
@@ -80,9 +84,10 @@ def test_semilla_conserva_ediciones_y_solo_retira_ejemplos_intactos(monkeypatch,
         if ejemplo_editado:
             ejemplo[seed.COLUMNAS.index("ALIAS")] = "Alias escrito por otra persona"
         db.executemany("INSERT INTO ALUMNOS VALUES (" + ",".join("?" for _ in seed.COLUMNAS) + ")", [existente, ejemplo])
-        nuevos, anteriores, retirados, completados = seed.sembrar(db, "h2", filas)
+        nuevos, anteriores, retirados, completados, migrados = seed.sembrar(db, "h2", filas)
         assert nuevos == anteriores == 1
         assert completados == 0
+        assert migrados == 0
         assert retirados == (0 if ejemplo_editado else 1)
         assert db.execute("SELECT NOMBRE FROM ALUMNOS WHERE ID=?", (filas[0][0],)).fetchone()[0] == "Edición conservada"
         assert db.execute("SELECT * FROM ALUMNOS WHERE ID=?", (filas[1][0],)).fetchone() == filas[1]
@@ -95,9 +100,10 @@ def test_catalogo_del_zip_y_asignacion_estable():
     primero = seed.cargar_csv(ROOT / "database/origins/data")
     segundo = seed.cargar_csv(ROOT / "database/origins/data")
     assert primero == segundo
-    for filas in primero.values():
-        for f in filas:
-            assert f[4] == seed.asignar_patronus(f[0].upper(), catalogo)
+    _, equivalencias = seed.cargar_semilla(ROOT / "database/origins/data")
+    for mapa in equivalencias.values():
+        for uuid in mapa:
+            assert seed.asignar_patronus(uuid.upper(), catalogo) == seed.asignar_patronus(uuid, catalogo)
 
 
 @pytest.mark.parametrize("previo", [None, "", "   ", "Otter"])
@@ -112,11 +118,41 @@ def test_completar_patronus_sin_pisar_ediciones_ni_cambiar_estructura(monkeypatc
         esquema = db.execute("PRAGMA table_info(ALUMNOS)").fetchall()
         resultado = seed.sembrar(db, "h2", [fila])
         guardado = db.execute("SELECT * FROM ALUMNOS").fetchone()
-        assert resultado == (0, 1, 0, 0 if previo == "Otter" else 1)
+        assert resultado == (0, 1, 0, 0 if previo == "Otter" else 1, 0)
         assert guardado[1] == "Nombre editado"
         assert guardado[4] == ("Otter" if previo == "Otter" else fila[4])
         assert guardado[:4] == tuple(existente[:4]) and guardado[5:] == tuple(existente[5:])
-        assert seed.sembrar(db, "h2", [fila]) == (0, 1, 0, 0)
+        assert seed.sembrar(db, "h2", [fila]) == (0, 1, 0, 0, 0)
+        assert db.execute("PRAGMA table_info(ALUMNOS)").fetchall() == esquema
+
+
+@pytest.mark.parametrize("colision", [False, True])
+def test_migrar_uuid_a_dni_conserva_ediciones_y_no_pisa_destino(monkeypatch, colision):
+    datos, equivalencias = seed.cargar_semilla(ROOT / "database/origins/data")
+    fila = next(f for f in datos["derby"] if f[1:3] == ("Harry", "James Potter"))
+    uuid = next(k for k, v in equivalencias["derby"].items() if v == fila[0])
+    monkeypatch.setattr(seed, "preparar_tabla", lambda *args: None)
+    with sqlite3.connect(":memory:") as db:
+        db.execute("CREATE TABLE ALUMNOS (" + ",".join(f"{c} TEXT" for c in seed.COLUMNAS) + ",PRIMARY KEY(ID))")
+        antigua = list(fila)
+        antigua[:3] = [uuid, "Harry James Potter", None]
+        antigua[4] = seed.asignar_patronus(uuid, seed.cargar_catalogo())
+        db.execute("INSERT INTO ALUMNOS VALUES (" + ",".join("?" for _ in seed.COLUMNAS) + ")", antigua)
+        if colision:
+            db.execute("INSERT INTO ALUMNOS VALUES (" + ",".join("?" for _ in seed.COLUMNAS) + ")", fila)
+        db.commit()
+        esquema = db.execute("PRAGMA table_info(ALUMNOS)").fetchall()
+        if colision:
+            with pytest.raises(ValueError, match="destino ya existe"):
+                seed.sembrar(db, "derby", [fila], {uuid: fila[0]})
+            assert db.execute("SELECT COUNT(*) FROM ALUMNOS").fetchone()[0] == 2
+        else:
+            assert seed.sembrar(db, "derby", [fila], {uuid: fila[0]}) == (0, 1, 0, 0, 1)
+            assert db.execute("SELECT ID,NOMBRE,APELLIDO,PATRONUS FROM ALUMNOS").fetchone() == (fila[0], "Harry", "James Potter", "Stag")
+            db.execute("UPDATE ALUMNOS SET NOMBRE='Edición propia',PATRONUS='Otter'")
+            db.commit()
+            assert seed.sembrar(db, "derby", [fila], {uuid: fila[0]}) == (0, 1, 0, 0, 0)
+            assert db.execute("SELECT NOMBRE,PATRONUS FROM ALUMNOS").fetchone() == ("Edición propia", "Otter")
         assert db.execute("PRAGMA table_info(ALUMNOS)").fetchall() == esquema
 
 

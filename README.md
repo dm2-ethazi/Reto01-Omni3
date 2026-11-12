@@ -95,26 +95,26 @@ Los archivos originales se versionan en `database/origins/data/`:
 | `slytherin.csv` | HSQLDB | 267 |
 | **Total** | | **985** |
 
-El seeder conserva los UUID, nombres completos, casa, alias, especie, género,
-nacimiento, nacionalidad, imagen y wiki. Amplía los ID existentes sin truncarlos.
-`sexo` se normaliza a H/M/S; el género original también se conserva. Los CSV no
-aportan apellidos separados, por lo que `APELLIDO` queda nulo. Para `PATRONUS`,
-el seeder usa los **143 tipos del ZIP suministrado**, versionados en
-`database/origins/data/patronus.json`. La asignación es estable por SHA-256 del UUID;
-es una asignación de semilla, no una relación canónica entre personajes y Patronus.
-Se completan también los históricos ya cargados cuyo Patronus esté vacío y se
-conservan los que ya tengan uno. Se usan las columnas y tablas existentes.
+El seeder usa los **985 alumnos de `BBDD_con_Imagenes.rar`**, normalizados en
+`database/origins/data/alumnos.json`: DNI de ocho cifras y letra, nombre y
+apellido separados, sexo, Patronus e imagen. Se conservan los DNI del archivo;
+no hace falta inventarlos. Los CSV originales siguen aportando casa, alias,
+especie, género, nacimiento, nacionalidad y wiki. Los UUID solo sirven para
+relacionar ambos conjuntos y migrar instalaciones anteriores.
 
-El catálogo `PATRONUS_IMG` recibe los nombres ingleses y las URL aportadas en el ZIP
-(138 entradas con URL y 5 sin ella). Se conservan las URL ya personalizadas y se
-actualiza la copia del catálogo en SQLite durante el arranque. El requisito de
-DNI y Patronus obligatorio sigue aplicándose a las altas nuevas.
+Se respetan los Patronus indicados en el RAR y se completan los vacíos con los
+143 tipos del ZIP de Patronus, mediante una asignación estable basada en el UUID
+original. Esa asignación de los vacíos es de semilla, no una relación canónica.
+El catálogo existente `PATRONUS_IMG` recibe también los nombres adicionales del
+RAR: 152 entradas en total. Se conservan las URL personalizadas y se refresca su
+copia SQLite durante el arranque.
 
-La carga es repetible: inserta los UUID que falten, conserva las ediciones de los
-ya existentes y solo completa su Patronus cuando está vacío. Retira únicamente
-los cuatro ejemplos antiguos conocidos
-si siguen intactos. El arranque refleja esas bajas en las centrales y espera a que
-termine la importación de los CSV y coincidan MariaDB y SQLite antes de abrir JavaFX.
+La carga es repetible. Las fichas anteriores con UUID pasan a su DNI sin perder
+ediciones particulares. El arranque conserva inactivas sus antiguas copias en
+MariaDB y SQLite e importa las fichas con DNI, de modo que no aparecen duplicados.
+También retira los cuatro ejemplos antiguos solo si siguen intactos. No se cambia
+la estructura de las tablas para actualizar estos datos. Antes de abrir JavaFX,
+el arranque espera a que termine la importación y ambas centrales coincidan.
 
 El equipo confirma pruebas manuales en dispositivos. El [registro de validación manual](docs/manual-validation.md) recoge la evidencia disponible, incluidas las pruebas físicas Android en Redmi Note 11 y Redmi Pad SE, y los datos que faltan para identificar las versiones y la cobertura de cada componente.
 

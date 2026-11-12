@@ -101,8 +101,9 @@ Los datos y volúmenes deben conservarse: borrarlos no es un procedimiento de re
 
 Las cuatro fuentes se preparan con los CSV suministrados por el equipo, incluidos
 sin modificar en `database/origins/data/`: 303 Gryffindor/Derby, 212 Hufflepuff/H2,
-203 Ravenclaw/Oracle y 267 Slytherin/HSQLDB. Son **985 UUID únicos**; se conservan
-las columnas originales, sin fabricar DNI, apellidos separados o Patronus. Los
+203 Ravenclaw/Oracle y 267 Slytherin/HSQLDB. La carga inicial conservaba sus **985 UUID únicos**.
+La actualización al RAR descrita al final sustituye esos ID por los DNI aportados
+y utiliza sus nombres, apellidos y Patronus; los CSV conservan los metadatos restantes. Los
 esquemas y las centrales aceptan ID de hasta 64 caracteres. Las altas nuevas
 siguen exigiendo DNI y Patronus. La API normaliza UUID también en las rutas y en
 la sincronización selectiva para admitir clientes que los envíen en mayúsculas.
@@ -152,3 +153,33 @@ en ambas centrales. La comparación de columnas antes y después confirma que la
 tablas conservan su estructura. Repetir el seeder no inserta ni cambia registros
 que ya estén completos; `/admin/coherence` confirma que ambas centrales coinciden
 y `/health` no muestra refrescos pendientes ni fallidos.
+
+
+## Actualización de datos: alumnos del RAR con DNI
+
+`database/origins/data/alumnos.json` normaliza exclusivamente los INSERT de datos
+incluidos en `BBDD_con_Imagenes.rar`; no se ejecutan sus scripts ni sus CREATE TABLE.
+Contiene 985 DNI únicos con letra de control correcta, nombres y apellidos
+separados, sexo e imágenes. Se conservan sus 75 Patronus informados y los 910
+vacíos se completan con el catálogo anterior. Las diferencias de mayúsculas se
+normalizan al nombre existente del catálogo; los nueve nombres adicionales del
+RAR amplían los datos de `PATRONUS_IMG` hasta 152 entradas, sin alterar tablas.
+
+La migración cambia las claves UUID de las fuentes por los DNI suministrados.
+Actualiza nombres/apellidos y Patronus de la semilla anterior cuando conservan su
+valor de semilla, respetando ediciones particulares. Ante una colisión de claves,
+una edición concurrente o refrescos UUID pendientes se rechaza la migración de
+forma controlada. Se puede repetir tras resolver la causa. El arranque desactiva
+las copias antiguas con UUID por la API y sincroniza las fichas con DNI; las copias
+inactivas se conservan y quedan excluidas de las consultas habituales.
+
+Por indicación del equipo no se repitió toda la batería de pruebas. Se ejecutaron
+las 16 comprobaciones específicas de preparación y seeder, incluida la migración,
+la carga repetida y el rechazo de colisiones sin sobrescribir datos.
+
+La actualización local conserva 985 fichas activas con DNI y Patronus en las
+cuatro fuentes y en cada central. Los seis campos del RAR coinciden con la
+semilla cargada; las 985 copias UUID anteriores quedan inactivas. La comparación
+de columnas confirma que no cambió la estructura de las tablas. El catálogo
+tiene 152 entradas, ambas centrales coinciden y no quedan refrescos pendientes
+ni fallidos. Evidencia local: `api/data/validation-dni-rar.json`.

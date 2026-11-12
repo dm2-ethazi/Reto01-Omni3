@@ -49,8 +49,9 @@ try {
     Write-Host '[2/5] Arrancando bases y esperando a que esten listas...'
     docker compose --env-file $EnvFile -p $local.compose_project up -d --wait --wait-timeout 240
     if ($LASTEXITCODE -ne 0) { throw 'Las bases no estan listas; revisa Docker y los puertos.' }
-    Write-Host '[3/5] Cargando los cuatro CSV historicos...'
-    & $python -u scripts/seed-origins.py --env-file $EnvFile
+    Write-Host '[3/5] Cargando los alumnos historicos del RAR...'
+    $retiredFile = Join-Path $data 'seed-retired-ids.json'
+    & $python -u scripts/seed-origins.py --env-file $EnvFile --retired-ids-file $retiredFile
     if ($LASTEXITCODE -ne 0) { throw 'No se pudieron preparar las fuentes. Revisa el error anterior.' }
 
     Write-Host '[4/5] Comprobando o iniciando la API...'
@@ -76,12 +77,24 @@ try {
     Write-Host '[5/5] Importando los historicos y comprobando ambas centrales...'
     # Actualizar la copia SQLite del catálogo también al reutilizar una API abierta.
     $null = Invoke-RestMethod "$baseUrl/patronus" -TimeoutSec 30
-    # Reflejar las bajas de ejemplos antiguos sin borrar registros de las centrales.
-    $retire = '{"ids":["10000001A","10000002B","10000003C","10000004D"]}'
-    $null = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body $retire -TimeoutSec 600
+    # Conservar inactivos los ejemplos y los UUID sustituidos por DNI ficticios.
+    $legacyIds = Get-Content -LiteralPath $retiredFile -Raw | ConvertFrom-Json
+    $retireIds = @('10000001A', '10000002B', '10000003C', '10000004D') + $legacyIds
+    for ($offset = 0; $offset -lt $retireIds.Count; $offset += 500) {
+        $last = [Math]::Min($offset + 499, $retireIds.Count - 1)
+        $retire = @{ ids = @($retireIds[$offset..$last]) } | ConvertTo-Json -Compress
+        $result = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body $retire -TimeoutSec 600
+        foreach ($source in $result.fuentes.PSObject.Properties) {
+            if ($source.Value.estado -ne 'ok' -or $source.Value.conflictos -gt 0) {
+                throw "No se pudieron retirar los identificadores anteriores de $($source.Name)."
+            }
+        }
+    }
     $sync = Invoke-RestMethod "$baseUrl/sync" -Method Post -ContentType 'application/json' -Body '{}' -TimeoutSec 600
     foreach ($source in $sync.fuentes.PSObject.Properties) {
-        if ($source.Value.estado -ne 'ok') { throw "No se pudo importar $($source.Name)." }
+        if ($source.Value.estado -ne 'ok' -or $source.Value.conflictos -gt 0) {
+            throw "No se pudo importar $($source.Name) sin conflictos."
+        }
         Write-Host "$($source.Name): leidos=$($source.Value.leidos), importados=$($source.Value.importados)"
     }
     $limit = (Get-Date).AddMinutes(10)

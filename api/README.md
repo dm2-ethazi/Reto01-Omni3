@@ -28,19 +28,21 @@ py -3.14 -m venv api/.venv  # También sirve py -3.11.
 ```
 
 En Linux se pueden usar `cp`, `python3.11 -m venv` y `api/.venv/bin/python`.
-Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder carga
-los CSV originales de `database/origins/data/`: Derby 303, H2 212, Oracle 203 y
-HSQLDB 267 registros. Conserva UUID y campos originales, omite UUID ya existentes
-y asigna Patronus del catálogo suministrado a las fichas que aún no tengan uno.
-Amplía las columnas ID de tablas anteriores a 64 caracteres.
-Las altas nuevas siguen exigiendo DNI y Patronus; los históricos usan su UUID.
-El catálogo de semilla `database/origins/data/patronus.json` contiene los 143 tipos
-aportados en el ZIP. Se usa SHA-256 del UUID para asignarlos de forma reproducible;
-la asignación no pretende representar datos canónicos de los personajes. El seeder
-completa `PATRONUS` nulo/vacío sin sobrescribir los valores existentes y carga nombres
-y URL en `PATRONUS_IMG`, respetando URL personalizadas. No se añaden columnas ni tablas
-para esta asignación. El arranque refresca el catálogo SQLite por `GET /patronus`.
-El script espera
+Los esquemas `database/origins/*.sql` crean tablas compatibles. El seeder usa
+los 985 alumnos de `BBDD_con_Imagenes.rar`, normalizados en
+`database/origins/data/alumnos.json`: Derby 303, H2 212, Oracle 203 y HSQLDB 267.
+Conserva sus DNI, nombres, apellidos, sexo e imágenes. Los CSV originales aportan
+los metadatos restantes y la relación con los UUID de instalaciones anteriores.
+El seeder migra esas claves a DNI conservando ediciones particulares; el arranque
+desactiva las copias antiguas con UUID mediante `POST /sync` e importa las de DNI.
+No se modifica la estructura de las tablas por este cambio de datos.
+
+Se conservan los Patronus aportados por el RAR y solo se completan los vacíos
+mediante SHA-256 del UUID original y los 143 tipos del ZIP de Patronus. La asignación
+de los vacíos no pretende representar datos canónicos. Los nombres adicionales
+del RAR se añaden a `PATRONUS_IMG`: 152 entradas en total. Se respetan las URL
+personalizadas y el arranque refresca el catálogo SQLite por `GET /patronus`.
+Las altas nuevas siguen exigiendo DNI y Patronus. El script espera
 hasta 180 segundos por conexión. MariaDB carga su esquema y catálogo desde
 `database/mariadb/01_schema.sql` en volúmenes nuevos. Si el volumen es anterior,
 aplicar las entradas del catálogo que falten; las columnas centrales se migran
@@ -158,7 +160,7 @@ en SQLite. Solo afecta a la consulta del listado, no cambia las reglas de escrit
 | GET | `/health` | R01, estado de cada base, latencias, capacidad/ocupación y fallidas |
 | GET | `/alumnos?nombre=Ce` | Activos y búsqueda por prefijo; MariaDB con fallback SQLite |
 | GET | `/alumnos?lectura=sqlite` | Activos leídos de SQLite, con origen conservado y `X-Data-Source: sqlite-cache` |
-| GET | `/alumnos/{dni}` | Ficha por DNI de nuevo o UUID histórico, metadatos y ETag |
+| GET | `/alumnos/{dni}` | Ficha por DNI, metadatos y ETag |
 | POST | `/alumnos` | Alta en MariaDB; DNI, nombre y Patronus obligatorios |
 | PUT | `/alumnos/{dni}` | Cambio parcial con `version` o `If-Match` |
 | DELETE | `/alumnos/{dni}` | Baja con `If-Match` o `?version=` |
@@ -175,8 +177,9 @@ en SQLite. Solo afecta a la consulta del listado, no cambia las reglas de escrit
 Alta: DNI `^[0-9]{8}[A-Z]$`, normalizado a mayúsculas; nombre de 2–80 caracteres
 tras recortar espacios; sexo H/M/S o nulo. Patronus de 2–60 caracteres, obligatorio
 en nuevos y perteneciente al catálogo inglés tanto en POST como en PUT. Un
-histórico puede no tener Patronus. Los UUID históricos se conservan en formato canónico y se aceptan también en
-mayúsculas al consultar, editar, dar de baja o sincronizar por ID.
+histórico externo puede no tener Patronus, aunque la semilla completa todos.
+Los alumnos de la semilla usan DNI. Se mantiene compatibilidad con UUID de datos
+anteriores: las rutas los normalizan también si llegan en mayúsculas.
 PUT no permite modificar ID, casa, origen,
 tipo, activo ni metadatos de sincronización.
 
